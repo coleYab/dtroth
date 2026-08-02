@@ -48,13 +48,6 @@ test('apps list can be searched by name', function () {
         ->where('filters.q', 'Age'));
 });
 
-test('users can visit the create application page', function () {
-    $user = User::factory()->create();
-    $this->actingAs($user);
-
-    $this->get(route('apps.create'))->assertOk();
-});
-
 test('users can create an application with environments', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

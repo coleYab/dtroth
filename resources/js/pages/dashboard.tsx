@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { AlertTriangle, AppWindow, BarChart3, Plus, ShieldCheck } from 'lucide-react';
+import { CreateAppDialog } from '@/components/create-app-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { EventTypeBadge } from '@/components/event-type-badge';
 import { RelativeTime } from '@/components/relative-time';
@@ -7,7 +8,6 @@ import { StatCard } from '@/components/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { dashboard } from '@/routes';
-import { create as createApp } from '@/routes/apps';
 import { activity } from '@/routes/dashboard';
 import type { ActivityEvent, DashboardStats } from '@/types';
 
@@ -29,12 +29,14 @@ export default function Dashboard({ stats, recentActivity }: Props) {
                             An overview of your account activity.
                         </p>
                     </div>
-                    <Button asChild className="w-full sm:w-auto">
-                        <Link href={createApp()}>
-                            <Plus />
-                            Create New App
-                        </Link>
-                    </Button>
+                    <CreateAppDialog
+                        trigger={
+                            <Button className="w-full sm:w-auto">
+                                <Plus />
+                                Create New App
+                            </Button>
+                        }
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

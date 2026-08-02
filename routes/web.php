@@ -30,7 +30,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard/activity', [ActivityController::class, 'index'])->name('dashboard.activity');
 
     Route::get('apps', [AppController::class, 'index'])->name('apps.index');
-    Route::get('apps/new', [AppController::class, 'create'])->name('apps.create');
     Route::post('apps', [AppController::class, 'store'])->name('apps.store');
     Route::get('apps/{app}', [AppController::class, 'show'])->name('apps.show');
     Route::get('apps/{app}/settings', [AppController::class, 'edit'])->name('apps.edit');

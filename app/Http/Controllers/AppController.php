@@ -39,14 +39,6 @@ class AppController extends Controller
     }
 
     /**
-     * Show the create application form.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('apps/create');
-    }
-
-    /**
      * Store a newly created application.
      */
     public function store(StoreAppRequest $request): RedirectResponse

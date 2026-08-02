@@ -2,11 +2,12 @@ import { Head, Link, router } from '@inertiajs/react';
 import { AppWindow, MoreHorizontal, Plus, Search } from 'lucide-react';
 import { AppLogoImage } from '@/components/app-logo-image';
 import { AppPagination } from '@/components/app-pagination';
+import { CreateAppDialog } from '@/components/create-app-dialog';
 import { DeleteAppDialog } from '@/components/delete-app-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { dashboard } from '@/routes';
-import { create as createApp, edit as editApp, index as appsIndex, show as showApp } from '@/routes/apps';
+import { edit as editApp, index as appsIndex, show as showApp } from '@/routes/apps';
 import type { DeveloperApp, Paginated } from '@/types';
 
 type Props = {
@@ -77,24 +78,22 @@ function AppActions({ app }: { app: DeveloperApp }) {
 function AppCard({ app }: { app: DeveloperApp }) {
     return (
         <Card className="group relative transition-colors hover:border-primary/50 hover:shadow-sm">
-            <div className="p-5">
-                <div className="flex items-start gap-4 pr-10">
-                    <AppLogoImage app={app} />
-                    <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium group-hover:underline">{app.name}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                            Created {formatCreatedAt(app.created_at)}
-                        </p>
-                    </div>
+            <CardHeader className="flex-row items-start gap-4 space-y-0 pr-10">
+                <AppLogoImage app={app} />
+                <div className="min-w-0 flex-1">
+                    <CardTitle className="truncate text-base group-hover:underline">{app.name}</CardTitle>
+                    <CardDescription className="mt-0.5">
+                        Created {formatCreatedAt(app.created_at)}
+                    </CardDescription>
                 </div>
+            </CardHeader>
 
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <EnvironmentBadges app={app} />
-                    <Badge variant={app.status === 'active' ? 'default' : 'secondary'}>
-                        {app.status === 'active' ? 'Active' : 'Disabled'}
-                    </Badge>
-                </div>
-            </div>
+            <CardContent className="flex flex-wrap items-center gap-2">
+                <EnvironmentBadges app={app} />
+                <Badge variant={app.status === 'active' ? 'default' : 'secondary'}>
+                    {app.status === 'active' ? 'Active' : 'Disabled'}
+                </Badge>
+            </CardContent>
 
             <Link
                 href={showApp(app.id)}
@@ -130,12 +129,14 @@ export default function Apps({ apps, filters }: Props) {
                             Manage the applications registered with the platform.
                         </p>
                     </div>
-                    <Button asChild className="w-full sm:w-auto">
-                        <Link href={createApp()}>
-                            <Plus />
-                            Create New App
-                        </Link>
-                    </Button>
+                    <CreateAppDialog
+                        trigger={
+                            <Button className="w-full sm:w-auto">
+                                <Plus />
+                                Create New App
+                            </Button>
+                        }
+                    />
                 </div>
 
                 <div className="relative w-full md:max-w-sm">
@@ -161,12 +162,14 @@ export default function Apps({ apps, filters }: Props) {
                         }
                         action={
                             !filters.q ? (
-                                <Button asChild>
-                                    <Link href={createApp()}>
-                                        <Plus />
-                                        Create your first app
-                                    </Link>
-                                </Button>
+                                <CreateAppDialog
+                                    trigger={
+                                        <Button>
+                                            <Plus />
+                                            Create your first app
+                                        </Button>
+                                    }
+                                />
                             ) : undefined
                         }
                     />
