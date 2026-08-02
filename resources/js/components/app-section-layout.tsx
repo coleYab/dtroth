@@ -36,6 +36,11 @@ export function appSectionNavItems(app: DeveloperApp): SectionNavItem[] {
             icon: Settings,
         },
         {
+            title: 'Verification',
+            href: `/apps/${app.id}/verification-settings`,
+            icon: ShieldCheck,
+        },
+        {
             title: 'Environments',
             href: environmentsIndex(app.id).url,
             icon: Layers,
@@ -44,11 +49,6 @@ export function appSectionNavItems(app: DeveloperApp): SectionNavItem[] {
             title: 'Keys',
             href: keysIndex(app.id).url,
             icon: KeyRound,
-        },
-        {
-            title: 'Verification',
-            href: `/apps/${app.id}/verification-settings`,
-            icon: ShieldCheck,
         },
         {
             title: 'Webhooks',

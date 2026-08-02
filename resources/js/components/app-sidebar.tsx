@@ -34,51 +34,66 @@ import { index as statusIndex } from '@/routes/status';
 import { index as supportIndex } from '@/routes/support';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const navGroups: { label: string; items: NavItem[] }[] = [
     {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
+        label: 'Platform',
+        items: [
+            {
+                title: 'Dashboard',
+                href: dashboard(),
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Applications',
+                href: appsIndex(),
+                icon: AppWindow,
+            },
+        ],
     },
     {
-        title: 'Applications',
-        href: appsIndex(),
-        icon: AppWindow,
+        label: 'Account',
+        items: [
+            {
+                title: 'Activity Log',
+                href: activity(),
+                icon: History,
+            },
+            {
+                title: 'Usage',
+                href: billing.usage(),
+                icon: BarChart3,
+            },
+            {
+                title: 'Billing',
+                href: billing.index(),
+                icon: Wallet,
+            },
+        ],
     },
     {
-        title: 'Activity Log',
-        href: activity(),
-        icon: History,
-    },
-    {
-        title: 'Usage',
-        href: billing.usage(),
-        icon: BarChart3,
-    },
-    {
-        title: 'Billing',
-        href: billing.index(),
-        icon: Wallet,
-    },
-    {
-        title: 'Documentation',
-        href: docsIndex(),
-        icon: BookOpen,
-    },
-    {
-        title: 'Sandbox',
-        href: sandboxIndex(),
-        icon: FlaskConical,
-    },
-    {
-        title: 'System Status',
-        href: statusIndex(),
-        icon: HeartPulse,
-    },
-    {
-        title: 'Support',
-        href: supportIndex(),
-        icon: LifeBuoy,
+        label: 'Resources',
+        items: [
+            {
+                title: 'Documentation',
+                href: docsIndex(),
+                icon: BookOpen,
+            },
+            {
+                title: 'Sandbox',
+                href: sandboxIndex(),
+                icon: FlaskConical,
+            },
+            {
+                title: 'System Status',
+                href: statusIndex(),
+                icon: HeartPulse,
+            },
+            {
+                title: 'Support',
+                href: supportIndex(),
+                icon: LifeBuoy,
+            },
+        ],
     },
 ];
 
@@ -111,7 +126,9 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                {navGroups.map((group) => (
+                    <NavMain key={group.label} items={group.items} label={group.label} />
+                ))}
             </SidebarContent>
 
             <SidebarFooter>

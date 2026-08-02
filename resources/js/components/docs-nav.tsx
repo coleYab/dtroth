@@ -124,8 +124,10 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                             aria-label="Search documentation"
                         />
                     </div>
-                    <nav className="flex flex-col gap-1">{sectionButtons(onSelectSection)}</nav>
-                    {quickstartLink()}
+                    <nav className="flex flex-col gap-1">
+                        {quickstartLink()}
+                        {sectionButtons(onSelectSection)}
+                    </nav>
                 </div>
             </aside>
 
@@ -157,8 +159,10 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                                             aria-label="Search documentation"
                                         />
                                     </div>
-                                    <nav className="flex flex-col gap-1">{sectionButtons(selectFromSheet)}</nav>
-                                    {quickstartLink(() => setSheetOpen(false))}
+                                    <nav className="flex flex-col gap-1">
+                                        {quickstartLink(() => setSheetOpen(false))}
+                                        {sectionButtons(selectFromSheet)}
+                                    </nav>
                                 </div>
                             </SheetContent>
                         </Sheet>
