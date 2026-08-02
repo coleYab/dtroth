@@ -1,15 +1,14 @@
-import { Head, router } from '@inertiajs/react';
-import { BookOpen, Check, LifeBuoy, Menu, PenLine, Search, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Check, LifeBuoy, PenLine, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CodeTabs } from '@/components/code-tabs';
+import { DocsNav } from '@/components/docs-nav';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { segmentDocHtml } from '@/lib/markdown-segments';
-import { cn } from '@/lib/utils';
 import { feedback, quickstart } from '@/routes/docs';
+import { index as supportIndex } from '@/routes/support';
 
 interface DocHeading {
     id: string;
@@ -34,10 +33,6 @@ interface SearchEntry {
 interface DocsProps {
     sections: DocSection[];
     searchIndex: SearchEntry[];
-}
-
-function normalize(text: string): string {
-    return text.toLowerCase().trim();
 }
 
 function FeedbackWidget({ slug }: { slug: string }) {
@@ -127,13 +122,14 @@ function SectionContent({ section }: { section: DocSection }) {
                 ),
             )}
             <div className="mt-8 flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
-                <a
-                    href={`/support?subject=Docs%3A%20${encodeURIComponent(section.title)}`}
+                <Link
+                    href={supportIndex({ query: { subject: `Docs: ${section.title}` } }).url}
+                    prefetch
                     className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
                 >
                     <PenLine className="size-3.5" />
                     Edit this page
-                </a>
+                </Link>
             </div>
             <FeedbackWidget slug={section.slug} />
         </section>
@@ -141,42 +137,8 @@ function SectionContent({ section }: { section: DocSection }) {
 }
 
 export default function Docs({ sections, searchIndex }: DocsProps) {
-    const [query, setQuery] = useState('');
-    const [sheetOpen, setSheetOpen] = useState(false);
     const [activeSection, setActiveSection] = useState(sections[0]?.slug ?? '');
     const contentRef = useRef<HTMLDivElement>(null);
-
-    const matches = useMemo(() => {
-        const q = normalize(query);
-
-        if (q === '') {
-            return sections.map((section) => ({ section, score: 0 }));
-        }
-
-        return searchIndex
-            .map((entry) => {
-                let score = 0;
-                const haystack = `${normalize(entry.title)} ${entry.headings.join(' ').toLowerCase()} ${normalize(entry.text)}`;
-
-                if (normalize(entry.title).includes(q)) {
-                    score += 10;
-                }
-
-                entry.headings.forEach((heading) => {
-                    if (normalize(heading).includes(q)) {
-                        score += 3;
-                    }
-                });
-
-                if (haystack.includes(q)) {
-                    score += 1;
-                }
-
-                return { section: sections.find((s) => s.slug === entry.slug)!, score };
-            })
-            .filter((entry) => entry.score > 0)
-            .sort((a, b) => b.score - a.score);
-    }, [query, sections, searchIndex]);
 
     useEffect(() => {
         const root = contentRef.current;
@@ -205,130 +167,34 @@ export default function Docs({ sections, searchIndex }: DocsProps) {
 
     const navigateTo = (slug: string) => {
         document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', `#${slug}`);
     };
 
-    const navigateToFromSheet = (slug: string) => {
-        setSheetOpen(false);
-        setTimeout(() => navigateTo(slug), 100);
-    };
+    useEffect(() => {
+        const hash = window.location.hash.slice(1);
+
+        if (hash !== '' && document.getElementById(hash) !== null) {
+            document.getElementById(hash)?.scrollIntoView({ block: 'start' });
+        }
+    }, []);
 
     return (
         <>
             <Head title="API Reference" />
-            <PageHeader title="API Reference" description="Everything you need to integrate the Troth Age Verification API." />
 
             <div className="lg:flex lg:gap-8">
-                <div className="hidden w-60 shrink-0 lg:block">
-                    <div className="sticky top-24 flex flex-col gap-4">
-                        <div className="relative">
-                            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                placeholder="Filter docs..."
-                                className="pl-9"
-                                aria-label="Search documentation"
-                            />
-                        </div>
-                        <nav className="flex flex-col gap-1">
-                            {matches.map(({ section }) => (
-                                <button
-                                    key={section.slug}
-                                    type="button"
-                                    onClick={() => navigateTo(section.slug)}
-                                    className={cn(
-                                        'rounded-md px-3 py-2 text-left text-sm transition-colors',
-                                        activeSection === section.slug
-                                            ? 'bg-accent font-medium text-accent-foreground'
-                                            : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
-                                    )}
-                                >
-                                    {section.title}
-                                </button>
-                            ))}
-                            {matches.length === 0 && (
-                                <p className="px-3 py-2 text-sm text-muted-foreground">No matching sections.</p>
-                            )}
-                        </nav>
-                        <a
-                            href={quickstart().url}
-                            className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-                        >
-                            <BookOpen className="size-4" />
-                            Quickstart
-                        </a>
-                    </div>
-                </div>
-
+                <DocsNav
+                    sections={sections}
+                    searchIndex={searchIndex}
+                    activeSlug={activeSection}
+                    onSelectSection={navigateTo}
+                />
                 <div ref={contentRef} className="min-w-0 flex-1">
-                    <Card className="sticky top-16 z-20 lg:hidden">
-                        <CardContent className="space-y-3 p-3">
-                            <div className="flex items-center gap-2">
-                                <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-                                    <SheetTrigger asChild>
-                                        <Button type="button" variant="outline" size="sm">
-                                            <Menu className="size-4" />
-                                            Menu
-                                        </Button>
-                                    </SheetTrigger>
-                                    <SheetContent side="left" className="w-[300px]">
-                                        <SheetHeader>
-                                            <SheetTitle className="flex items-center gap-2">
-                                                <BookOpen className="size-4" />
-                                                Documentation
-                                            </SheetTitle>
-                                        </SheetHeader>
-                                        <div className="mt-4 flex flex-col gap-4">
-                                            <div className="relative">
-                                                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                                                <Input
-                                                    value={query}
-                                                    onChange={(e) => setQuery(e.target.value)}
-                                                    placeholder="Filter docs..."
-                                                    className="pl-9"
-                                                    aria-label="Search documentation"
-                                                />
-                                            </div>
-                                            <nav className="flex flex-col gap-1">
-                                                {matches.map(({ section }) => (
-                                                    <button
-                                                        key={section.slug}
-                                                        type="button"
-                                                        onClick={() => navigateToFromSheet(section.slug)}
-                                                        className={cn(
-                                                            'rounded-md px-3 py-2 text-left text-sm',
-                                                            activeSection === section.slug
-                                                                ? 'bg-accent font-medium text-accent-foreground'
-                                                                : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
-                                                        )}
-                                                    >
-                                                        {section.title}
-                                                    </button>
-                                                ))}
-                                                {matches.length === 0 && (
-                                                    <p className="px-3 py-2 text-sm text-muted-foreground">
-                                                        No matching sections.
-                                                    </p>
-                                                )}
-                                            </nav>
-                                            <a
-                                                href={quickstart().url}
-                                                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-                                            >
-                                                <BookOpen className="size-4" />
-                                                Quickstart
-                                            </a>
-                                        </div>
-                                    </SheetContent>
-                                </Sheet>
-                                <p className="text-sm text-muted-foreground">
-                                    {matches.length} {matches.length === 1 ? 'section' : 'sections'}
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <div className="mt-4 flex flex-col gap-10 lg:mt-0">
+                    <PageHeader
+                        title="API Reference"
+                        description="Everything you need to integrate the Troth Age Verification API."
+                    />
+                    <div className="mt-6 flex flex-col gap-10">
                         {sections.map((section) => (
                             <SectionContent key={section.slug} section={section} />
                         ))}
@@ -341,13 +207,13 @@ export default function Docs({ sections, searchIndex }: DocsProps) {
                                 <p className="text-sm font-medium">Still stuck?</p>
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     Can't find what you're looking for? Check the{' '}
-                                    <a href={quickstart().url} className="underline underline-offset-3">
+                                    <Link href={quickstart().url} prefetch className="underline underline-offset-3">
                                         Quickstart
-                                    </a>{' '}
+                                    </Link>{' '}
                                     or open a{' '}
-                                    <a href="/support" className="underline underline-offset-3">
+                                    <Link href={supportIndex().url} prefetch className="underline underline-offset-3">
                                         support ticket
-                                    </a>
+                                    </Link>
                                     .
                                 </p>
                             </div>

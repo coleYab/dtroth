@@ -26,6 +26,8 @@ class DocsController extends Controller
     {
         return Inertia::render('docs/quickstart', [
             'content' => $docs->quickstart(),
+            'sections' => $docs->sections(),
+            'searchIndex' => $docs->searchIndex(),
         ]);
     }
 }

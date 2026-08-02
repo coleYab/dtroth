@@ -161,7 +161,7 @@
 @layer components {
     .doc-content {
         color: var(--foreground);
-        font-size: 0.875rem;
+        font-size: 0.9375rem;
         line-height: 1.6;
     }
 
@@ -224,7 +224,7 @@
     .doc-content table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.8125rem;
+        font-size: 0.875rem;
     }
 
     .doc-content th {

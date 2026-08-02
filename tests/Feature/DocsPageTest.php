@@ -31,7 +31,10 @@ test('the quickstart page renders the guide content', function () {
         ->assertInertia(fn ($page) => $page
             ->component('docs/quickstart')
             ->where('content.slug', 'quickstart')
-            ->where('content.html', fn ($html) => str_contains($html, 'Step 1')));
+            ->where('content.html', fn ($html) => str_contains($html, 'Step 1'))
+            ->has('sections', 6)
+            ->where('sections.0.slug', 'introduction')
+            ->has('searchIndex', 6));
 });
 
 test('docs feedback can be recorded as helpful', function () {
