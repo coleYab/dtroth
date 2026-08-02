@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'chapa' => [
+        'secret' => env('CHAPA_SECRET_KEY'),
+    ],
+
 ];

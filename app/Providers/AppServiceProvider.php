@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\ApiKey;
+use App\Models\App;
+use App\Models\Observers\ApiKeyObserver;
+use App\Models\Observers\AppObserver;
+use App\Models\Observers\WebhookObserver;
+use App\Models\Webhook;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        App::observe(AppObserver::class);
+        ApiKey::observe(ApiKeyObserver::class);
+        Webhook::observe(WebhookObserver::class);
     }
 
     /**
