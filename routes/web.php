@@ -9,6 +9,11 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocsController;
+use App\Http\Controllers\DocsFeedbackController;
+use App\Http\Controllers\SandboxController;
+use App\Http\Controllers\StatusController;
+use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\UsageController;
 use App\Http\Controllers\VerificationFlowController;
 use App\Http\Controllers\VerificationSettingsController;
@@ -82,6 +87,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('billing/upgrade', [BillingController::class, 'upgrade'])->name('billing.upgrade');
     Route::get('billing/invoices/{invoice}/download', [BillingController::class, 'downloadInvoice'])
         ->name('billing.invoices.download');
+
+    Route::get('docs', [DocsController::class, 'index'])->name('docs.index');
+    Route::get('docs/quickstart', [DocsController::class, 'quickstart'])->name('docs.quickstart');
+    Route::post('docs/feedback', [DocsFeedbackController::class, 'store'])->name('docs.feedback');
+
+    Route::get('sandbox', [SandboxController::class, 'index'])->name('sandbox.index');
+    Route::post('sandbox/verify', [SandboxController::class, 'verify'])->name('sandbox.verify');
+
+    Route::get('status', [StatusController::class, 'index'])->name('status.index');
+
+    Route::get('support', [SupportTicketController::class, 'index'])->name('support.index');
+    Route::post('support', [SupportTicketController::class, 'store'])->name('support.store');
 });
 
 Route::middleware('auth')->group(function () {

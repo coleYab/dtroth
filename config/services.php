@@ -39,4 +39,8 @@ return [
         'secret' => env('CHAPA_SECRET_KEY'),
     ],
 
+    'support' => [
+        'webhook_url' => env('SUPPORT_SLACK_WEBHOOK_URL'),
+    ],
+
 ];

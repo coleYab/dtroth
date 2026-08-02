@@ -13,6 +13,9 @@ use App\Models\App;
 use App\Models\AuditLog;
 use App\Models\Consent;
 use App\Models\Invoice;
+use App\Models\SandboxIdentity;
+use App\Models\StatusCheck;
+use App\Models\StatusIncident;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Verification;
@@ -195,5 +198,44 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now()->subDay(),
             ]);
         }
+
+        foreach ([
+            ['key' => 'fayda-test-a', 'label' => 'Test User A', 'age' => 20],
+            ['key' => 'fayda-test-b', 'label' => 'Test User B', 'age' => 16],
+            ['key' => 'fayda-test-c', 'label' => 'Test User C', 'age' => 25],
+            ['key' => 'fayda-test-d', 'label' => 'Test User D', 'age' => 65],
+        ] as $identity) {
+            SandboxIdentity::create($identity);
+        }
+
+        foreach (config('status.components', []) as $component) {
+            for ($day = 0; $day < 30; $day++) {
+                $date = now()->subDays($day)->setTime(fake()->numberBetween(0, 23), fake()->numberBetween(0, 59));
+
+                StatusCheck::factory()
+                    ->forComponent($component['key'])
+                    ->ok()
+                    ->on($date)
+                    ->create();
+
+                if (fake()->boolean(8)) {
+                    StatusCheck::factory()
+                        ->forComponent($component['key'])
+                        ->degraded()
+                        ->on($date->copy()->addHours(1))
+                        ->create();
+                }
+            }
+        }
+
+        StatusIncident::factory()->resolved()->create([
+            'title' => 'Elevated latency on the Verification API',
+            'component' => 'verification-api',
+        ]);
+
+        StatusIncident::factory()->resolved()->create([
+            'title' => 'Webhook delivery delays',
+            'component' => 'webhook-delivery',
+        ]);
     }
 }

@@ -1,5 +1,16 @@
 import { Link } from '@inertiajs/react';
-import { AppWindow, BookOpen, FolderGit2, History, LayoutGrid } from 'lucide-react';
+import {
+    AppWindow,
+    BarChart3,
+    BookOpen,
+    FlaskConical,
+    FolderGit2,
+    HeartPulse,
+    History,
+    LayoutGrid,
+    LifeBuoy,
+    Wallet,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,7 +26,12 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
+import billing from '@/routes/billing';
 import { activity } from '@/routes/dashboard';
+import { index as docsIndex } from '@/routes/docs';
+import { index as sandboxIndex } from '@/routes/sandbox';
+import { index as statusIndex } from '@/routes/status';
+import { index as supportIndex } from '@/routes/support';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -33,6 +49,36 @@ const mainNavItems: NavItem[] = [
         title: 'Activity Log',
         href: activity(),
         icon: History,
+    },
+    {
+        title: 'Usage',
+        href: billing.usage(),
+        icon: BarChart3,
+    },
+    {
+        title: 'Billing',
+        href: billing.index(),
+        icon: Wallet,
+    },
+    {
+        title: 'Documentation',
+        href: docsIndex(),
+        icon: BookOpen,
+    },
+    {
+        title: 'Sandbox',
+        href: sandboxIndex(),
+        icon: FlaskConical,
+    },
+    {
+        title: 'System Status',
+        href: statusIndex(),
+        icon: HeartPulse,
+    },
+    {
+        title: 'Support',
+        href: supportIndex(),
+        icon: LifeBuoy,
     },
 ];
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\CheckComponents;
 use App\Console\Commands\RollupUsage;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -10,3 +11,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command(RollupUsage::class)->dailyAt('00:30')->withoutOverlapping();
+Schedule::command(CheckComponents::class)->everyFiveMinutes()->withoutOverlapping();
