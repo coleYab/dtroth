@@ -14,7 +14,7 @@ import AuthLayout from '@/layouts/auth-layout';
 import DocsLayout from '@/layouts/docs-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Troth Verify';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
