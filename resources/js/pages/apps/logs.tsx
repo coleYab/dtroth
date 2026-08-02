@@ -2,7 +2,11 @@ import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { Terminal } from 'lucide-react';
 import { useState } from 'react';
 import { AppPagination } from '@/components/app-pagination';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import { EmptyState } from '@/components/empty-state';
 import { FilterSheet } from '@/components/filter-sheet';
 import { PayloadViewDialog } from '@/components/payload-view-dialog';
@@ -10,7 +14,13 @@ import { RelativeTime } from '@/components/relative-time';
 import { ResultBadge } from '@/components/result-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -28,6 +38,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex, logs as logsRoute } from '@/routes/apps';
 import type { ApiCallLog, DeveloperApp, Paginated } from '@/types';
@@ -48,7 +59,7 @@ export default function Logs({ app, calls, filters }: Props) {
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
             { title: 'Applications', href: appsIndex() },
-            { title: app.name, href: `/apps/${app.id}` },
+            { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
 
@@ -100,8 +111,12 @@ export default function Logs({ app, calls, filters }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="">All query types</SelectItem>
-                        <SelectItem value="equal_above">Equal or above</SelectItem>
-                        <SelectItem value="equal_below">Equal or below</SelectItem>
+                        <SelectItem value="equal_above">
+                            Equal or above
+                        </SelectItem>
+                        <SelectItem value="equal_below">
+                            Equal or below
+                        </SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -120,11 +135,21 @@ export default function Logs({ app, calls, filters }: Props) {
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="logs-from">From</Label>
-                <Input id="logs-from" type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
+                <Input
+                    id="logs-from"
+                    type="date"
+                    value={from}
+                    onChange={(event) => setFrom(event.target.value)}
+                />
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="logs-to">To</Label>
-                <Input id="logs-to" type="date" value={to} onChange={(event) => setTo(event.target.value)} />
+                <Input
+                    id="logs-to"
+                    type="date"
+                    value={to}
+                    onChange={(event) => setTo(event.target.value)}
+                />
             </div>
             <Button onClick={applyFilters}>Apply</Button>
             {hasFilters && (
@@ -145,16 +170,23 @@ export default function Logs({ app, calls, filters }: Props) {
                     description="Raw API call log for this application, newest first."
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Logs" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Logs"
+                    label="Application"
+                >
                     <Card>
                         <CardHeader>
                             <CardTitle>API calls</CardTitle>
                             <CardDescription>
-                                {calls.meta.total.toLocaleString()} call{calls.meta.total === 1 ? '' : 's'} recorded.
+                                {calls.meta.total.toLocaleString()} call
+                                {calls.meta.total === 1 ? '' : 's'} recorded.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
-                            <div className="hidden items-end gap-3 md:flex">{filterControls}</div>
+                            <div className="hidden items-end gap-3 md:flex">
+                                {filterControls}
+                            </div>
 
                             <div className="md:hidden">
                                 <FilterSheet description="Filter API calls by query type, status, and date.">
@@ -177,7 +209,9 @@ export default function Logs({ app, calls, filters }: Props) {
                                                 <TableHead>Query</TableHead>
                                                 <TableHead>Result</TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead>Response time</TableHead>
+                                                <TableHead>
+                                                    Response time
+                                                </TableHead>
                                                 <TableHead />
                                             </TableRow>
                                         </TableHeader>
@@ -185,23 +219,36 @@ export default function Logs({ app, calls, filters }: Props) {
                                             {calls.data.map((call) => (
                                                 <TableRow key={call.id}>
                                                     <TableCell>
-                                                        <RelativeTime date={call.created_at} />
+                                                        <RelativeTime
+                                                            date={
+                                                                call.created_at
+                                                            }
+                                                        />
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-2">
-                                                            <code className="text-xs">{call.age_query ?? '—'}</code>
+                                                            <code className="text-xs">
+                                                                {call.age_query ??
+                                                                    '—'}
+                                                            </code>
                                                             <span className="text-xs text-muted-foreground">
-                                                                {call.method} {call.path}
+                                                                {call.method}{' '}
+                                                                {call.path}
                                                             </span>
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <ResultBadge result={call.result} />
+                                                        <ResultBadge
+                                                            result={call.result}
+                                                        />
                                                     </TableCell>
                                                     <TableCell>
                                                         <Badge
                                                             variant={
-                                                                call.status_code >= 200 && call.status_code < 300
+                                                                call.status_code >=
+                                                                    200 &&
+                                                                call.status_code <
+                                                                    300
                                                                     ? 'default'
                                                                     : 'destructive'
                                                             }
@@ -210,7 +257,8 @@ export default function Logs({ app, calls, filters }: Props) {
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="tabular-nums">
-                                                        {call.response_time_ms !== null
+                                                        {call.response_time_ms !==
+                                                        null
                                                             ? `${call.response_time_ms}ms`
                                                             : '—'}
                                                     </TableCell>
@@ -218,7 +266,11 @@ export default function Logs({ app, calls, filters }: Props) {
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            onClick={() => setPayloadTarget(call)}
+                                                            onClick={() =>
+                                                                setPayloadTarget(
+                                                                    call,
+                                                                )
+                                                            }
                                                         >
                                                             Details
                                                         </Button>
@@ -234,11 +286,15 @@ export default function Logs({ app, calls, filters }: Props) {
                                                 <CardContent className="grid gap-2 p-4">
                                                     <div className="flex items-center justify-between gap-3">
                                                         <code className="text-xs">
-                                                            {call.age_query ?? '—'}
+                                                            {call.age_query ??
+                                                                '—'}
                                                         </code>
                                                         <Badge
                                                             variant={
-                                                                call.status_code >= 200 && call.status_code < 300
+                                                                call.status_code >=
+                                                                    200 &&
+                                                                call.status_code <
+                                                                    300
                                                                     ? 'default'
                                                                     : 'destructive'
                                                             }
@@ -247,25 +303,39 @@ export default function Logs({ app, calls, filters }: Props) {
                                                         </Badge>
                                                     </div>
                                                     <p className="text-xs text-muted-foreground">
-                                                        {call.method} {call.path}
+                                                        {call.method}{' '}
+                                                        {call.path}
                                                     </p>
                                                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                                                         <span className="flex items-center gap-1">
                                                             Result:
-                                                            <ResultBadge result={call.result} />
+                                                            <ResultBadge
+                                                                result={
+                                                                    call.result
+                                                                }
+                                                            />
                                                         </span>
                                                         <span>
-                                                            {call.response_time_ms !== null
+                                                            {call.response_time_ms !==
+                                                            null
                                                                 ? `${call.response_time_ms}ms`
                                                                 : '—'}
                                                         </span>
-                                                        <RelativeTime date={call.created_at} />
+                                                        <RelativeTime
+                                                            date={
+                                                                call.created_at
+                                                            }
+                                                        />
                                                     </div>
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
                                                         className="justify-start"
-                                                        onClick={() => setPayloadTarget(call)}
+                                                        onClick={() =>
+                                                            setPayloadTarget(
+                                                                call,
+                                                            )
+                                                        }
                                                     >
                                                         View details
                                                     </Button>
@@ -282,7 +352,9 @@ export default function Logs({ app, calls, filters }: Props) {
 
                     <PayloadViewDialog
                         open={payloadTarget !== null}
-                        onOpenChange={(open) => (open ? undefined : setPayloadTarget(null))}
+                        onOpenChange={(open) =>
+                            open ? undefined : setPayloadTarget(null)
+                        }
                         title={`API call · ${payloadTarget?.method ?? ''} ${payloadTarget?.path ?? ''}`}
                         payload={payloadTarget?.request_payload ?? null}
                         response={{

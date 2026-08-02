@@ -26,6 +26,7 @@ use App\Models\WebhookDelivery;
 use App\Models\WebhookEvent;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -36,11 +37,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::factory()->create([
-            'name' => 'Demo Developer',
-            'email' => 'dev@example.com',
-            'password' => 'password',
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'dev@example.com'],
+            [
+                'name' => 'Demo Developer',
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+            ],
+        );
 
         $presets = collect([
             ['type' => AgeQueryType::EqualAbove, 'value' => 13, 'label' => '13+', 'description' => 'Must be at least 13 years old.', 'sort_order' => 0],
@@ -48,119 +52,147 @@ class DatabaseSeeder extends Seeder
             ['type' => AgeQueryType::EqualAbove, 'value' => 18, 'label' => '18+', 'description' => 'Must be at least 18 years old.', 'sort_order' => 2],
             ['type' => AgeQueryType::EqualAbove, 'value' => 21, 'label' => '21+', 'description' => 'Must be at least 21 years old.', 'sort_order' => 3],
             ['type' => AgeQueryType::EqualBelow, 'value' => 65, 'label' => '65−', 'description' => 'Must be 65 years old or younger.', 'sort_order' => 4],
-        ])->map(fn (array $preset) => AgeQueryPreset::create($preset));
+        ])->map(fn (array $preset) => AgeQueryPreset::firstOrCreate(
+            ['type' => $preset['type'], 'value' => $preset['value']],
+            $preset,
+        ));
 
         $webhookEvents = collect([
             ['name' => WebhookEvent::VERIFICATION_COMPLETED, 'label' => 'Verification completed'],
             ['name' => WebhookEvent::VERIFICATION_EXPIRED, 'label' => 'Verification expired'],
             ['name' => WebhookEvent::CONSENT_REVOKED, 'label' => 'Consent revoked'],
-        ])->map(fn (array $event) => WebhookEvent::create($event));
+        ])->map(fn (array $event) => WebhookEvent::firstOrCreate(
+            ['name' => $event['name']],
+            $event,
+        ));
 
-        Subscription::factory()->create([
-            'user_id' => $user->id,
-            'plan' => 'pro',
-            'status' => Subscription::STATUS_ACTIVE,
-            'renews_at' => now()->addDays(18),
-            'channel' => 'card',
-        ]);
-
-        Invoice::factory()->count(3)->create([
-            'user_id' => $user->id,
-        ]);
-
-        $apps = collect();
-
-        $apps->push(App::factory()->create([
-            'user_id' => $user->id,
-            'name' => 'Fayda Checkout',
-            'redirect_uris' => ['https://checkout.faydademo.app/callback'],
-            'allowed_origins' => ['https://checkout.faydademo.app'],
-        ]));
-
-        $apps->push(App::factory()->create([
-            'user_id' => $user->id,
-            'name' => 'Age Gate Mobile',
-            'redirect_uris' => [
-                'https://agegate.app/oauth/callback',
-                'com.agegate.app://oauth/callback',
+        Subscription::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'plan' => 'pro',
+                'status' => Subscription::STATUS_ACTIVE,
+                'renews_at' => now()->addDays(18),
+                'channel' => 'card',
             ],
-            'allowed_origins' => ['https://agegate.app'],
-        ]));
+        );
 
-        $apps->push(App::factory()->disabled()->create([
-            'user_id' => $user->id,
-            'name' => 'Legacy KYC Portal',
-            'redirect_uris' => ['https://kyc.legacy.internal/callback'],
-            'allowed_origins' => ['https://kyc.legacy.internal'],
-        ]));
-
-        foreach ($apps as $app) {
-            $app->environments()->create([
-                'name' => EnvironmentName::Sandbox,
+        if (! $user->invoices()->exists()) {
+            Invoice::factory()->count(3)->create([
+                'user_id' => $user->id,
             ]);
+        }
 
-            $app->environments()->create([
-                'name' => EnvironmentName::Production,
-                'is_live' => true,
-            ]);
+        $demoApps = [
+            [
+                'name' => 'Fayda Checkout',
+                'redirect_uris' => ['https://checkout.faydademo.app/callback'],
+                'allowed_origins' => ['https://checkout.faydademo.app'],
+            ],
+            [
+                'name' => 'Age Gate Mobile',
+                'redirect_uris' => [
+                    'https://agegate.app/oauth/callback',
+                    'com.agegate.app://oauth/callback',
+                ],
+                'allowed_origins' => ['https://agegate.app'],
+            ],
+            [
+                'name' => 'Legacy KYC Portal',
+                'redirect_uris' => ['https://kyc.legacy.internal/callback'],
+                'allowed_origins' => ['https://kyc.legacy.internal'],
+                'status' => 'disabled',
+            ],
+        ];
 
-            $keys = collect();
+        foreach ($demoApps as $app) {
+            App::firstOrCreate(
+                ['user_id' => $user->id, 'name' => $app['name']],
+                $app,
+            );
+        }
 
-            $production = $app->environments->firstWhere('name', EnvironmentName::Production);
-            $sandbox = $app->environments->firstWhere('name', EnvironmentName::Sandbox);
+        foreach (App::query()->get() as $app) {
+            if ($app->events()->exists()) {
+                continue;
+            }
 
-            $keys->push(ApiKey::factory()->forEnvironment($production)->create([
-                'app_id' => $app->id,
-                'name' => 'Production key',
-                'last_used_at' => now()->subMinutes(12),
-            ]));
+            $app->environments()->firstOrCreate(['name' => EnvironmentName::Sandbox]);
+            $app->environments()->firstOrCreate(['name' => EnvironmentName::Production, 'is_live' => true]);
 
-            $keys->push(ApiKey::factory()->forEnvironment($sandbox)->expiringSoon()->create([
-                'app_id' => $app->id,
-                'name' => 'Sandbox key',
-            ]));
+            if (! $app->keys()->exists()) {
+                $production = $app->environments()->where('name', EnvironmentName::Production)->first();
+                $sandbox = $app->environments()->where('name', EnvironmentName::Sandbox)->first();
 
-            $keys->push(ApiKey::factory()->forEnvironment($sandbox)->revoked()->create([
-                'app_id' => $app->id,
-                'name' => 'Legacy key',
-            ]));
+                ApiKey::factory()->forEnvironment($production)->create([
+                    'app_id' => $app->id,
+                    'name' => 'Production key',
+                    'last_used_at' => now()->subMinutes(12),
+                ]);
 
-            ApiCall::factory()->count(120)->create(['app_id' => $app->id]);
-            Verification::factory()->count(35)->create(['app_id' => $app->id]);
-            Consent::factory()->count(15)->withEvents()->create(['app_id' => $app->id]);
+                ApiKey::factory()->forEnvironment($sandbox)->expiringSoon()->create([
+                    'app_id' => $app->id,
+                    'name' => 'Sandbox key',
+                ]);
 
-            VerificationSetting::create([
-                'app_id' => $app->id,
-                'consent_text' => VerificationSetting::DEFAULT_CONSENT_TEXT,
-                're_verify_months' => 6,
-            ]);
+                ApiKey::factory()->forEnvironment($sandbox)->revoked()->create([
+                    'app_id' => $app->id,
+                    'name' => 'Legacy key',
+                ]);
+            }
 
-            VerificationFlow::create([
-                'app_id' => $app->id,
-                'brand_color' => '#0f172a',
-                'success_redirect_url' => 'https://example.com/success',
-                'failure_redirect_url' => 'https://example.com/failure',
-            ]);
+            if (! $app->calls()->exists()) {
+                ApiCall::factory()->count(120)->create(['app_id' => $app->id]);
+            }
 
-            $app->ageQueryPresets()->attach($presets->take(3)->pluck('id'));
+            if (! $app->verifications()->exists()) {
+                Verification::factory()->count(35)->create(['app_id' => $app->id]);
+            }
 
-            $webhook = Webhook::factory()->create([
-                'app_id' => $app->id,
-                'url' => 'https://example.com/webhooks/age-check',
-                'description' => 'Age verification results',
-            ]);
+            if (! $app->consents()->exists()) {
+                Consent::factory()->count(15)->withEvents()->create(['app_id' => $app->id]);
+            }
 
-            $webhook->events()->attach($webhookEvents->pluck('id'));
+            VerificationSetting::firstOrCreate(
+                ['app_id' => $app->id],
+                [
+                    'consent_text' => VerificationSetting::DEFAULT_CONSENT_TEXT,
+                    're_verify_months' => 6,
+                ],
+            );
 
-            WebhookDelivery::factory()->count(8)->create([
-                'webhook_id' => $webhook->id,
-                'created_at' => now()->subDays(fake()->numberBetween(0, 12)),
-            ]);
+            VerificationFlow::firstOrCreate(
+                ['app_id' => $app->id],
+                [
+                    'brand_color' => '#0f172a',
+                    'success_redirect_url' => 'https://example.com/success',
+                    'failure_redirect_url' => 'https://example.com/failure',
+                ],
+            );
 
-            WebhookDelivery::factory()->failed()->count(2)->create([
-                'webhook_id' => $webhook->id,
-                'created_at' => now()->subHours(fake()->numberBetween(2, 18)),
-            ]);
+            $app->ageQueryPresets()->syncWithoutDetaching($presets->take(3)->pluck('id'));
+
+            $webhook = Webhook::firstOrCreate(
+                ['app_id' => $app->id, 'url' => 'https://example.com/webhooks/age-check'],
+                [
+                    'secret' => 'whsec_'.str()->random(32),
+                    'secret_preview' => 'whsec_••••••••••',
+                    'description' => 'Age verification results',
+                ],
+            );
+
+            $webhook->events()->syncWithoutDetaching($webhookEvents->pluck('id'));
+
+            if (! $webhook->deliveries()->exists()) {
+                WebhookDelivery::factory()->count(8)->create([
+                    'webhook_id' => $webhook->id,
+                    'created_at' => now()->subDays(fake()->numberBetween(0, 12)),
+                ]);
+
+                WebhookDelivery::factory()->failed()->count(2)->create([
+                    'webhook_id' => $webhook->id,
+                    'created_at' => now()->subHours(fake()->numberBetween(2, 18)),
+                ]);
+            }
 
             $today = now();
 
@@ -205,37 +237,41 @@ class DatabaseSeeder extends Seeder
             ['key' => 'fayda-test-c', 'label' => 'Test User C', 'age' => 25],
             ['key' => 'fayda-test-d', 'label' => 'Test User D', 'age' => 65],
         ] as $identity) {
-            SandboxIdentity::create($identity);
+            SandboxIdentity::firstOrCreate(['key' => $identity['key']], $identity);
         }
 
-        foreach (config('status.components', []) as $component) {
-            for ($day = 0; $day < 30; $day++) {
-                $date = now()->subDays($day)->setTime(fake()->numberBetween(0, 23), fake()->numberBetween(0, 59));
+        if (! StatusCheck::query()->exists()) {
+            foreach (config('status.components', []) as $component) {
+                for ($day = 0; $day < 30; $day++) {
+                    $date = now()->subDays($day)->setTime(fake()->numberBetween(0, 23), fake()->numberBetween(0, 59));
 
-                StatusCheck::factory()
-                    ->forComponent($component['key'])
-                    ->ok()
-                    ->on($date)
-                    ->create();
-
-                if (fake()->boolean(8)) {
                     StatusCheck::factory()
                         ->forComponent($component['key'])
-                        ->degraded()
-                        ->on($date->copy()->addHours(1))
+                        ->ok()
+                        ->on($date)
                         ->create();
+
+                    if (fake()->boolean(8)) {
+                        StatusCheck::factory()
+                            ->forComponent($component['key'])
+                            ->degraded()
+                            ->on($date->copy()->addHours(1))
+                            ->create();
+                    }
                 }
             }
         }
 
-        StatusIncident::factory()->resolved()->create([
-            'title' => 'Elevated latency on the Verification API',
-            'component' => 'verification-api',
-        ]);
+        if (! StatusIncident::query()->exists()) {
+            StatusIncident::factory()->resolved()->create([
+                'title' => 'Elevated latency on the Verification API',
+                'component' => 'verification-api',
+            ]);
 
-        StatusIncident::factory()->resolved()->create([
-            'title' => 'Webhook delivery delays',
-            'component' => 'webhook-delivery',
-        ]);
+            StatusIncident::factory()->resolved()->create([
+                'title' => 'Webhook delivery delays',
+                'component' => 'webhook-delivery',
+            ]);
+        }
     }
 }

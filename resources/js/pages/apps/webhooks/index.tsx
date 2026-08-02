@@ -1,12 +1,29 @@
 import { Head, router, setLayoutProps } from '@inertiajs/react';
-import { ExternalLink, MoreHorizontal, Plus, ScrollText, Trash2, Webhook as WebhookIcon } from 'lucide-react';
+import {
+    ExternalLink,
+    MoreHorizontal,
+    Plus,
+    ScrollText,
+    Trash2,
+    Webhook as WebhookIcon,
+} from 'lucide-react';
 import { useState } from 'react';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import { EmptyState } from '@/components/empty-state';
 import { RelativeTime } from '@/components/relative-time';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -29,13 +46,29 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { WebhookSecretRevealDialog } from '@/components/webhook-secret-reveal-dialog';
 import { WebhookStatusBadge } from '@/components/webhook-status';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
-import { create as createWebhook, destroy, index as webhooksIndex, logs as webhookLogs } from '@/routes/apps/webhooks';
-import type { DeveloperApp, RevealedSecret, Webhook, WebhookEvent } from '@/types';
+import {
+    create as createWebhook,
+    destroy,
+    index as webhooksIndex,
+    logs as webhookLogs,
+} from '@/routes/apps/webhooks';
+import type {
+    DeveloperApp,
+    RevealedSecret,
+    Webhook,
+    WebhookEvent,
+} from '@/types';
 
 type Props = {
     app: DeveloperApp;
@@ -44,12 +77,17 @@ type Props = {
     revealedSecret: RevealedSecret | null;
 };
 
-export default function Webhooks({ app, webhooks, availableEvents, revealedSecret }: Props) {
+export default function Webhooks({
+    app,
+    webhooks,
+    availableEvents,
+    revealedSecret,
+}: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
             { title: 'Applications', href: appsIndex() },
-            { title: app.name, href: `/apps/${app.id}` },
+            { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
 
@@ -86,7 +124,11 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                     }
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Webhooks" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Webhooks"
+                    label="Application"
+                >
                     {webhooks.data.length === 0 ? (
                         <EmptyState
                             icon={WebhookIcon}
@@ -103,12 +145,14 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                         />
                     ) : (
                         <>
-                            <Card className="hidden lg:block">
+                            <Card className="hidden md:block">
                                 <CardHeader>
                                     <CardTitle>Endpoints</CardTitle>
                                     <CardDescription>
-                                        {webhooks.data.length} endpoint{webhooks.data.length === 1 ? '' : 's'} for{' '}
-                                        {availableEvents.length} event types.
+                                        {webhooks.data.length} endpoint
+                                        {webhooks.data.length === 1 ? '' : 's'}{' '}
+                                        for {availableEvents.length} event
+                                        types.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="p-0">
@@ -118,7 +162,9 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                                                 <TableHead>Endpoint</TableHead>
                                                 <TableHead>Events</TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead>Last triggered</TableHead>
+                                                <TableHead>
+                                                    Last triggered
+                                                </TableHead>
                                                 <TableHead className="w-12" />
                                             </TableRow>
                                         </TableHeader>
@@ -128,57 +174,115 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                                                     <TableCell>
                                                         <TooltipProvider>
                                                             <Tooltip>
-                                                                <TooltipTrigger asChild>
+                                                                <TooltipTrigger
+                                                                    asChild
+                                                                >
                                                                     <a
-                                                                        href={webhookLogs({ app: app.id, webhook: webhook.id }).url}
+                                                                        href={
+                                                                            webhookLogs(
+                                                                                {
+                                                                                    app: app.id,
+                                                                                    webhook:
+                                                                                        webhook.id,
+                                                                                },
+                                                                            )
+                                                                                .url
+                                                                        }
                                                                         className="block max-w-64 truncate font-mono text-xs text-primary hover:underline"
                                                                     >
-                                                                        {webhook.url}
+                                                                        {
+                                                                            webhook.url
+                                                                        }
                                                                     </a>
                                                                 </TooltipTrigger>
-                                                                <TooltipContent>{webhook.url}</TooltipContent>
+                                                                <TooltipContent>
+                                                                    {
+                                                                        webhook.url
+                                                                    }
+                                                                </TooltipContent>
                                                             </Tooltip>
                                                         </TooltipProvider>
                                                         {webhook.description && (
                                                             <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                                                                {webhook.description}
+                                                                {
+                                                                    webhook.description
+                                                                }
                                                             </p>
                                                         )}
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex max-w-56 flex-wrap gap-1">
-                                                            {webhook.events.map((event) => (
-                                                                <Badge key={event.name} variant="outline">
-                                                                    {event.label}
-                                                                </Badge>
-                                                            ))}
+                                                            {webhook.events.map(
+                                                                (event) => (
+                                                                    <Badge
+                                                                        key={
+                                                                            event.name
+                                                                        }
+                                                                        variant="outline"
+                                                                    >
+                                                                        {
+                                                                            event.label
+                                                                        }
+                                                                    </Badge>
+                                                                ),
+                                                            )}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <WebhookStatusBadge isFailing={webhook.is_failing} />
+                                                        <WebhookStatusBadge
+                                                            isFailing={
+                                                                webhook.is_failing
+                                                            }
+                                                        />
                                                     </TableCell>
                                                     <TableCell>
-                                                        <RelativeTime date={webhook.last_triggered_at} />
+                                                        <RelativeTime
+                                                            date={
+                                                                webhook.last_triggered_at
+                                                            }
+                                                        />
                                                     </TableCell>
                                                     <TableCell>
                                                         <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" aria-label="Webhook actions">
+                                                            <DropdownMenuTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    aria-label="Webhook actions"
+                                                                >
                                                                     <MoreHorizontal />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end">
-                                                                <DropdownMenuItem asChild>
+                                                                <DropdownMenuItem
+                                                                    asChild
+                                                                >
                                                                     <a
-                                                                        href={webhookLogs({ app: app.id, webhook: webhook.id }).url}
+                                                                        href={
+                                                                            webhookLogs(
+                                                                                {
+                                                                                    app: app.id,
+                                                                                    webhook:
+                                                                                        webhook.id,
+                                                                                },
+                                                                            )
+                                                                                .url
+                                                                        }
                                                                     >
                                                                         <ScrollText />
-                                                                        View logs
+                                                                        View
+                                                                        logs
                                                                     </a>
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem
                                                                     variant="destructive"
-                                                                    onClick={() => setDeleteTarget(webhook)}
+                                                                    onClick={() =>
+                                                                        setDeleteTarget(
+                                                                            webhook,
+                                                                        )
+                                                                    }
                                                                 >
                                                                     <Trash2 />
                                                                     Delete
@@ -193,7 +297,7 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                                 </CardContent>
                             </Card>
 
-                            <div className="grid gap-4 lg:hidden">
+                            <div className="grid gap-4 md:hidden">
                                 {webhooks.data.map((webhook) => (
                                     <Card key={webhook.id}>
                                         <CardContent className="grid gap-3 p-4">
@@ -201,7 +305,11 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                                                 <code className="min-w-0 flex-1 truncate font-mono text-xs">
                                                     {webhook.url}
                                                 </code>
-                                                <WebhookStatusBadge isFailing={webhook.is_failing} />
+                                                <WebhookStatusBadge
+                                                    isFailing={
+                                                        webhook.is_failing
+                                                    }
+                                                />
                                             </div>
                                             {webhook.description && (
                                                 <p className="text-xs text-muted-foreground">
@@ -210,14 +318,21 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                                             )}
                                             <div className="flex flex-wrap gap-1">
                                                 {webhook.events.map((event) => (
-                                                    <Badge key={event.name} variant="outline">
+                                                    <Badge
+                                                        key={event.name}
+                                                        variant="outline"
+                                                    >
                                                         {event.label}
                                                     </Badge>
                                                 ))}
                                             </div>
                                             <p className="text-xs text-muted-foreground">
                                                 Last triggered:{' '}
-                                                <RelativeTime date={webhook.last_triggered_at} />
+                                                <RelativeTime
+                                                    date={
+                                                        webhook.last_triggered_at
+                                                    }
+                                                />
                                             </p>
                                             <div className="flex items-center gap-2">
                                                 <Button
@@ -226,7 +341,13 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                                                     className="flex-1"
                                                 >
                                                     <a
-                                                        href={webhookLogs({ app: app.id, webhook: webhook.id }).url}
+                                                        href={
+                                                            webhookLogs({
+                                                                app: app.id,
+                                                                webhook:
+                                                                    webhook.id,
+                                                            }).url
+                                                        }
                                                     >
                                                         <ExternalLink />
                                                         View Logs
@@ -235,7 +356,9 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                                                 <Button
                                                     variant="outline"
                                                     size="icon"
-                                                    onClick={() => setDeleteTarget(webhook)}
+                                                    onClick={() =>
+                                                        setDeleteTarget(webhook)
+                                                    }
                                                     aria-label={`Delete webhook ${webhook.id}`}
                                                 >
                                                     <Trash2 />
@@ -258,25 +381,40 @@ export default function Webhooks({ app, webhooks, availableEvents, revealedSecre
                                 });
                             }
                         }}
-                        revealedSecret={revealedSecret ?? { id: 0, url: '', secret: '' }}
+                        revealedSecret={
+                            revealedSecret ?? { id: 0, url: '', secret: '' }
+                        }
                         isRegenerated={false}
                     />
                 </AppSectionLayout>
 
-                <Dialog open={deleteTarget !== null} onOpenChange={(open) => (open ? undefined : setDeleteTarget(null))}>
+                <Dialog
+                    open={deleteTarget !== null}
+                    onOpenChange={(open) =>
+                        open ? undefined : setDeleteTarget(null)
+                    }
+                >
                     <DialogContent className="sm:max-w-md">
                         <DialogHeader>
                             <DialogTitle>Delete webhook</DialogTitle>
                             <DialogDescription>
-                                This endpoint will stop receiving deliveries immediately. This action
-                                cannot be undone.
+                                This endpoint will stop receiving deliveries
+                                immediately. This action cannot be undone.
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setDeleteTarget(null)}
+                                disabled={deleting}
+                            >
                                 Cancel
                             </Button>
-                            <Button variant="destructive" onClick={deleteWebhook} disabled={deleting}>
+                            <Button
+                                variant="destructive"
+                                onClick={deleteWebhook}
+                                disabled={deleting}
+                            >
                                 <Trash2 />
                                 Delete webhook
                             </Button>

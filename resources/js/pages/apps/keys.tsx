@@ -1,7 +1,18 @@
-import { Head, router } from '@inertiajs/react';
-import { Ban, Info, KeyRound, MoreHorizontal, Plus, RefreshCw } from 'lucide-react';
+import { Head, router, setLayoutProps } from '@inertiajs/react';
+import {
+    Ban,
+    Info,
+    KeyRound,
+    MoreHorizontal,
+    Plus,
+    RefreshCw,
+} from 'lucide-react';
 import { useState } from 'react';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import { CopyButton } from '@/components/copy-button';
 import { EmptyState } from '@/components/empty-state';
 import { GenerateKeyDialog } from '@/components/generate-key-dialog';
@@ -31,6 +42,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
+import { shortAppName } from '@/lib/utils';
 import { index as keysIndex } from '@/routes/apps/keys';
 import type { ApiKey, DeveloperApp, RevealedKey } from '@/types';
 
@@ -56,7 +68,10 @@ function formatDate(date: string | null): string {
 }
 
 function maskKey(publicKey: string): string {
-    const prefixEnd = Math.max(publicKey.indexOf('_', publicKey.indexOf('_') + 1) + 1, 8);
+    const prefixEnd = Math.max(
+        publicKey.indexOf('_', publicKey.indexOf('_') + 1) + 1,
+        8,
+    );
 
     return `${publicKey.slice(0, prefixEnd)}••••${publicKey.slice(-4)}`;
 }
@@ -130,20 +145,32 @@ function StatusBadge({ revoked }: { revoked: boolean }) {
 }
 
 export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
+    setLayoutProps({
+        breadcrumbs: [
+            { title: 'Dashboard', href: dashboard() },
+            { title: 'Applications', href: appsIndex() },
+            { title: shortAppName(app.name), href: `/apps/${app.id}` },
+        ],
+    });
+
     const [tab, setTab] = useState<TabValue>('all');
     const [userOpenedGenerate, setUserOpenedGenerate] = useState(false);
     const [rotateTarget, setRotateTarget] = useState<ApiKey | null>(null);
     const [revokeTarget, setRevokeTarget] = useState<ApiKey | null>(null);
-    const [revealAction, setRevealAction] = useState<'generated' | 'rotated'>('generated');
+    const [revealAction, setRevealAction] = useState<'generated' | 'rotated'>(
+        'generated',
+    );
 
-    const generateDialogOpen = (userOpenedGenerate || generateOpen) && revealedKey === null;
+    const generateDialogOpen =
+        (userOpenedGenerate || generateOpen) && revealedKey === null;
 
     const freshRevokeTarget = revokeTarget
-        ? keys.data.find((key) => key.id === revokeTarget.id) ?? null
+        ? (keys.data.find((key) => key.id === revokeTarget.id) ?? null)
         : null;
-    const revokeDialogKey = freshRevokeTarget !== null && !freshRevokeTarget.is_revoked
-        ? freshRevokeTarget
-        : null;
+    const revokeDialogKey =
+        freshRevokeTarget !== null && !freshRevokeTarget.is_revoked
+            ? freshRevokeTarget
+            : null;
 
     const closeGenerate = (): void => {
         setUserOpenedGenerate(false);
@@ -156,9 +183,10 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
         router.visit(keysIndex({ app: app.id }), { replace: true });
     };
 
-    const visibleKeys = tab === 'all'
-        ? keys.data
-        : keys.data.filter((key) => key.environment === tab);
+    const visibleKeys =
+        tab === 'all'
+            ? keys.data
+            : keys.data.filter((key) => key.environment === tab);
 
     return (
         <>
@@ -181,14 +209,19 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                     }
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Keys" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Keys"
+                    label="Application"
+                >
                     <Alert>
                         <Info className="size-4" />
                         <AlertTitle>Public vs. secret keys</AlertTitle>
                         <AlertDescription>
-                            The public key identifies your application and is safe to share. The
-                            secret key authenticates requests — treat it like a password and never
-                            expose it in client-side code.
+                            The public key identifies your application and is
+                            safe to share. The secret key authenticates requests
+                            — treat it like a password and never expose it in
+                            client-side code.
                         </AlertDescription>
                     </Alert>
 
@@ -197,13 +230,19 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                             <CardTitle>API Keys</CardTitle>
                             <Tabs
                                 value={tab}
-                                onValueChange={(value) => setTab(value as TabValue)}
+                                onValueChange={(value) =>
+                                    setTab(value as TabValue)
+                                }
                                 className="w-full sm:w-auto"
                             >
                                 <TabsList className="grid w-full grid-cols-3 sm:w-auto">
                                     <TabsTrigger value="all">All</TabsTrigger>
-                                    <TabsTrigger value="sandbox">Sandbox</TabsTrigger>
-                                    <TabsTrigger value="production">Production</TabsTrigger>
+                                    <TabsTrigger value="sandbox">
+                                        Sandbox
+                                    </TabsTrigger>
+                                    <TabsTrigger value="production">
+                                        Production
+                                    </TabsTrigger>
                                 </TabsList>
                             </Tabs>
                         </CardHeader>
@@ -224,14 +263,28 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                                         <Table>
                                             <TableHeader>
                                                 <TableRow>
-                                                    <TableHead>Key type</TableHead>
-                                                    <TableHead>Masked value</TableHead>
-                                                    <TableHead>Environment</TableHead>
-                                                    <TableHead>Created</TableHead>
-                                                    <TableHead>Last used</TableHead>
-                                                    <TableHead>Status</TableHead>
+                                                    <TableHead>
+                                                        Key type
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Masked value
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Environment
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Created
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Last used
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Status
+                                                    </TableHead>
                                                     <TableHead className="w-12">
-                                                        <span className="sr-only">Actions</span>
+                                                        <span className="sr-only">
+                                                            Actions
+                                                        </span>
                                                     </TableHead>
                                                 </TableRow>
                                             </TableHeader>
@@ -241,36 +294,66 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                                                         key={key.id}
                                                         className={cn(
                                                             'align-middle',
-                                                            key.is_revoked && 'opacity-60'
+                                                            key.is_revoked &&
+                                                                'opacity-60',
                                                         )}
                                                     >
-                                                        <TableCell>{typeBadges()}</TableCell>
+                                                        <TableCell>
+                                                            {typeBadges()}
+                                                        </TableCell>
                                                         <TableCell>
                                                             <div className="flex items-center gap-1">
                                                                 <code className="font-mono text-xs">
-                                                                    {maskKey(key.public_key)}
+                                                                    {maskKey(
+                                                                        key.public_key,
+                                                                    )}
                                                                 </code>
-                                                                <CopyButton value={key.public_key} size="sm" />
+                                                                <CopyButton
+                                                                    value={
+                                                                        key.public_key
+                                                                    }
+                                                                    size="sm"
+                                                                />
                                                             </div>
                                                         </TableCell>
-                                                        <TableCell>{environmentBadge(key.environment)}</TableCell>
-                                                        <TableCell className="text-muted-foreground">
-                                                            {formatDate(key.created_at)}
+                                                        <TableCell>
+                                                            {environmentBadge(
+                                                                key.environment,
+                                                            )}
                                                         </TableCell>
                                                         <TableCell className="text-muted-foreground">
-                                                            {formatDate(key.last_used_at)}
+                                                            {formatDate(
+                                                                key.created_at,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-muted-foreground">
+                                                            {formatDate(
+                                                                key.last_used_at,
+                                                            )}
                                                         </TableCell>
                                                         <TableCell>
-                                                            <StatusBadge revoked={key.is_revoked} />
+                                                            <StatusBadge
+                                                                revoked={
+                                                                    key.is_revoked
+                                                                }
+                                                            />
                                                         </TableCell>
                                                         <TableCell>
                                                             <KeyActions
                                                                 apiKey={key}
-                                                                onRotate={(target) => {
-                                                                    setRevealAction('rotated');
-                                                                    setRotateTarget(target);
+                                                                onRotate={(
+                                                                    target,
+                                                                ) => {
+                                                                    setRevealAction(
+                                                                        'rotated',
+                                                                    );
+                                                                    setRotateTarget(
+                                                                        target,
+                                                                    );
                                                                 }}
-                                                                onRevoke={setRevokeTarget}
+                                                                onRevoke={
+                                                                    setRevokeTarget
+                                                                }
                                                             />
                                                         </TableCell>
                                                     </TableRow>
@@ -285,41 +368,64 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                                                 key={key.id}
                                                 className={cn(
                                                     'rounded-lg border p-4',
-                                                    key.is_revoked && 'opacity-60'
+                                                    key.is_revoked &&
+                                                        'opacity-60',
                                                 )}
                                             >
                                                 <div className="flex items-start justify-between gap-2">
                                                     <div className="min-w-0">
-                                                        <p className="truncate font-medium">{key.name}</p>
+                                                        <p className="truncate font-medium">
+                                                            {key.name}
+                                                        </p>
                                                         <div className="mt-1 flex flex-wrap items-center gap-1.5">
                                                             {typeBadges()}
-                                                            {environmentBadge(key.environment)}
-                                                            <StatusBadge revoked={key.is_revoked} />
+                                                            {environmentBadge(
+                                                                key.environment,
+                                                            )}
+                                                            <StatusBadge
+                                                                revoked={
+                                                                    key.is_revoked
+                                                                }
+                                                            />
                                                         </div>
                                                     </div>
                                                     <KeyActions
                                                         apiKey={key}
                                                         onRotate={(target) => {
-                                                            setRevealAction('rotated');
-                                                            setRotateTarget(target);
+                                                            setRevealAction(
+                                                                'rotated',
+                                                            );
+                                                            setRotateTarget(
+                                                                target,
+                                                            );
                                                         }}
-                                                        onRevoke={setRevokeTarget}
+                                                        onRevoke={
+                                                            setRevokeTarget
+                                                        }
                                                     />
                                                 </div>
                                                 <div className="mt-3 flex items-center gap-1 rounded-md border bg-muted/50 p-2 pr-1">
-                                                    <code className="min-w-0 flex-1 break-all font-mono text-xs">
-                                                        {maskKey(key.public_key)}
+                                                    <code className="min-w-0 flex-1 font-mono text-xs break-all">
+                                                        {maskKey(
+                                                            key.public_key,
+                                                        )}
                                                     </code>
-                                                    <CopyButton value={key.public_key} />
+                                                    <CopyButton
+                                                        value={key.public_key}
+                                                    />
                                                 </div>
                                                 <div className="mt-3 grid gap-1 text-xs text-muted-foreground">
                                                     <p>
                                                         Created{' '}
-                                                        {formatDate(key.created_at)}
+                                                        {formatDate(
+                                                            key.created_at,
+                                                        )}
                                                     </p>
                                                     <p>
                                                         Last used{' '}
-                                                        {formatDate(key.last_used_at)}
+                                                        {formatDate(
+                                                            key.last_used_at,
+                                                        )}
                                                     </p>
                                                 </div>
                                             </li>
@@ -370,16 +476,3 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
         </>
     );
 }
-
-Keys.layout = {
-    breadcrumbs: [
-        {
-            title: 'Dashboard',
-            href: dashboard(),
-        },
-        {
-            title: 'Applications',
-            href: appsIndex(),
-        },
-    ],
-};

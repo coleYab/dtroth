@@ -15,7 +15,10 @@ type FilterSheetProps = {
     children: ReactNode;
 };
 
-export function FilterSheet({ description = 'Filter the list by the options below.', children }: FilterSheetProps) {
+export function FilterSheet({
+    description = 'Filter the list by the options below.',
+    children,
+}: FilterSheetProps) {
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -29,7 +32,7 @@ export function FilterSheet({ description = 'Filter the list by the options belo
                     <SheetTitle>Filters</SheetTitle>
                     <SheetDescription>{description}</SheetDescription>
                 </SheetHeader>
-                <div className="grid gap-4 py-4">{children}</div>
+                <div className="grid gap-4 px-4 py-4">{children}</div>
             </SheetContent>
         </Sheet>
     );

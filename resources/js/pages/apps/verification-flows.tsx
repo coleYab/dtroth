@@ -2,15 +2,26 @@ import { Head, setLayoutProps, useForm } from '@inertiajs/react';
 import { Info, Save } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import { BrandingPreviewCard } from '@/components/branding-preview-card';
 import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
 import { update as updateFlow } from '@/routes/apps/verification-flows';
@@ -34,7 +45,7 @@ export default function VerificationFlows({ app, flow }: Props) {
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
             { title: 'Applications', href: appsIndex() },
-            { title: app.name, href: `/apps/${app.id}` },
+            { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
 
@@ -67,13 +78,18 @@ export default function VerificationFlows({ app, flow }: Props) {
                     description="Customize the branded verification screen and redirect behaviour."
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Verification" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Verification"
+                    label="Application"
+                >
                     <form onSubmit={submit} className="grid gap-6" noValidate>
                         <Card>
                             <CardHeader>
                                 <CardTitle>Branding</CardTitle>
                                 <CardDescription>
-                                    Applied to the verification screen shown to your end users.
+                                    Applied to the verification screen shown to
+                                    your end users.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid gap-6">
@@ -99,22 +115,33 @@ export default function VerificationFlows({ app, flow }: Props) {
                                             type="file"
                                             accept="image/png,image/jpeg,image/webp,image/svg+xml"
                                             onChange={(event) => {
-                                                const file = event.target.files?.[0] ?? null;
+                                                const file =
+                                                    event.target.files?.[0] ??
+                                                    null;
 
-                                                setLogoPreview(file ? URL.createObjectURL(file) : null);
+                                                setLogoPreview(
+                                                    file
+                                                        ? URL.createObjectURL(
+                                                              file,
+                                                          )
+                                                        : null,
+                                                );
                                                 setData('logo', file);
                                             }}
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Shown in the header of the verification screen. PNG,
-                                            JPEG, WebP or SVG up to 2MB.
+                                            Shown in the header of the
+                                            verification screen. PNG, JPEG, WebP
+                                            or SVG up to 2MB.
                                         </p>
                                         <InputError message={errors.logo} />
                                     </div>
                                 </div>
 
                                 <div className="grid gap-2 sm:max-w-xs">
-                                    <Label htmlFor="brand_color">Brand color</Label>
+                                    <Label htmlFor="brand_color">
+                                        Brand color
+                                    </Label>
                                     <div className="flex gap-2">
                                         <Input
                                             id="brand_color"
@@ -122,20 +149,29 @@ export default function VerificationFlows({ app, flow }: Props) {
                                             type="color"
                                             value={data.brand_color}
                                             onChange={(event) =>
-                                                setData('brand_color', event.target.value)
+                                                setData(
+                                                    'brand_color',
+                                                    event.target.value,
+                                                )
                                             }
                                             className="h-9 w-14 shrink-0 p-1"
                                         />
                                         <Input
                                             type="text"
                                             value={data.brand_color}
-                                            onChange={(event) => setData('brand_color', event.target.value)}
+                                            onChange={(event) =>
+                                                setData(
+                                                    'brand_color',
+                                                    event.target.value,
+                                                )
+                                            }
                                             placeholder="#0f172a"
                                             aria-label="Brand color hex value"
                                         />
                                     </div>
                                     <p className="text-xs text-muted-foreground">
-                                        Hex value, e.g. #0f172a. Used for buttons and the header.
+                                        Hex value, e.g. #0f172a. Used for
+                                        buttons and the header.
                                     </p>
                                     <InputError message={errors.brand_color} />
                                 </div>
@@ -146,67 +182,97 @@ export default function VerificationFlows({ app, flow }: Props) {
                             <CardHeader>
                                 <CardTitle>Redirects</CardTitle>
                                 <CardDescription>
-                                    Where the end user is sent after a verification attempt.
+                                    Where the end user is sent after a
+                                    verification attempt.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid gap-6">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="success_redirect_url">Success redirect URL</Label>
+                                    <Label htmlFor="success_redirect_url">
+                                        Success redirect URL
+                                    </Label>
                                     <Input
                                         id="success_redirect_url"
                                         type="url"
                                         value={data.success_redirect_url}
                                         onChange={(event) =>
-                                            setData('success_redirect_url', event.target.value)
+                                            setData(
+                                                'success_redirect_url',
+                                                event.target.value,
+                                            )
                                         }
                                         placeholder="https://example.com/verified"
                                     />
-                                    <InputError message={errors.success_redirect_url} />
+                                    <InputError
+                                        message={errors.success_redirect_url}
+                                    />
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="failure_redirect_url">Failure redirect URL</Label>
+                                    <Label htmlFor="failure_redirect_url">
+                                        Failure redirect URL
+                                    </Label>
                                     <Input
                                         id="failure_redirect_url"
                                         type="url"
                                         value={data.failure_redirect_url}
                                         onChange={(event) =>
-                                            setData('failure_redirect_url', event.target.value)
+                                            setData(
+                                                'failure_redirect_url',
+                                                event.target.value,
+                                            )
                                         }
                                         placeholder="https://example.com/not-verified"
                                     />
-                                    <InputError message={errors.failure_redirect_url} />
+                                    <InputError
+                                        message={errors.failure_redirect_url}
+                                    />
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="callback_url">Callback URL</Label>
+                                    <Label htmlFor="callback_url">
+                                        Callback URL
+                                    </Label>
                                     <Input
                                         id="callback_url"
                                         type="url"
                                         value={data.callback_url}
-                                        onChange={(event) => setData('callback_url', event.target.value)}
+                                        onChange={(event) =>
+                                            setData(
+                                                'callback_url',
+                                                event.target.value,
+                                            )
+                                        }
                                         placeholder="https://example.com/webhook/verification"
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        Server-to-server result delivery. Falls back to the app’s
-                                        redirect URIs when left empty.
+                                        Server-to-server result delivery. Falls
+                                        back to the app’s redirect URIs when
+                                        left empty.
                                     </p>
                                     <InputError message={errors.callback_url} />
                                 </div>
 
                                 <Alert>
                                     <Info className="size-4" />
-                                    <AlertTitle>Flow-specific overrides</AlertTitle>
+                                    <AlertTitle>
+                                        Flow-specific overrides
+                                    </AlertTitle>
                                     <AlertDescription>
-                                        These URLs override the application’s registered redirect
-                                        URIs for the verification flow only.
+                                        These URLs override the application’s
+                                        registered redirect URIs for the
+                                        verification flow only.
                                     </AlertDescription>
                                 </Alert>
                             </CardContent>
                         </Card>
 
-                        <div className="lg:hidden sticky bottom-0 -mx-4 border-t bg-background p-4">
-                            <Button type="submit" className="w-full" disabled={processing || !isDirty}>
+                        <div className="sticky bottom-0 -mx-4 border-t bg-background p-4 lg:hidden">
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={processing || !isDirty}
+                            >
                                 {processing && <Spinner />}
                                 Save changes
                             </Button>

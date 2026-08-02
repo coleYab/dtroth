@@ -55,11 +55,15 @@ const eventTypeOptions: { value: string; label: string }[] = [
 
 export default function Activity({ events, filters }: Props) {
     function applyFilters(updates: Partial<Filters>) {
-        router.get(activity(), { ...filters, ...updates }, {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true,
-        });
+        router.get(
+            activity(),
+            { ...filters, ...updates },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
     }
 
     return (
@@ -70,8 +74,8 @@ export default function Activity({ events, filters }: Props) {
                 <div>
                     <h2 className="text-2xl font-semibold">Activity Log</h2>
                     <p className="text-sm text-muted-foreground">
-                        Key rotations, failed verifications, and scope changes across
-                        your applications.
+                        Key rotations, failed verifications, and scope changes
+                        across your applications.
                     </p>
                 </div>
 
@@ -80,14 +84,19 @@ export default function Activity({ events, filters }: Props) {
                         <Label htmlFor="event-type">Event type</Label>
                         <Select
                             value={filters.type}
-                            onValueChange={(value) => applyFilters({ type: value })}
+                            onValueChange={(value) =>
+                                applyFilters({ type: value })
+                            }
                         >
                             <SelectTrigger id="event-type" className="w-52">
                                 <SelectValue placeholder="All events" />
                             </SelectTrigger>
                             <SelectContent>
                                 {eventTypeOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
+                                    <SelectItem
+                                        key={option.value}
+                                        value={option.value}
+                                    >
                                         {option.label}
                                     </SelectItem>
                                 ))}
@@ -101,7 +110,9 @@ export default function Activity({ events, filters }: Props) {
                             id="from"
                             type="date"
                             value={filters.from}
-                            onChange={(event) => applyFilters({ from: event.target.value })}
+                            onChange={(event) =>
+                                applyFilters({ from: event.target.value })
+                            }
                         />
                     </div>
 
@@ -111,7 +122,9 @@ export default function Activity({ events, filters }: Props) {
                             id="to"
                             type="date"
                             value={filters.to}
-                            onChange={(event) => applyFilters({ to: event.target.value })}
+                            onChange={(event) =>
+                                applyFilters({ to: event.target.value })
+                            }
                         />
                     </div>
                 </div>
@@ -127,22 +140,33 @@ export default function Activity({ events, filters }: Props) {
                         <SheetHeader>
                             <SheetTitle>Filters</SheetTitle>
                             <SheetDescription>
-                                Filter the activity log by event type and date range.
+                                Filter the activity log by event type and date
+                                range.
                             </SheetDescription>
                         </SheetHeader>
-                        <div className="grid gap-4 py-4">
+                        <div className="grid gap-4 px-4 py-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="mobile-event-type">Event type</Label>
+                                <Label htmlFor="mobile-event-type">
+                                    Event type
+                                </Label>
                                 <Select
                                     value={filters.type}
-                                    onValueChange={(value) => applyFilters({ type: value })}
+                                    onValueChange={(value) =>
+                                        applyFilters({ type: value })
+                                    }
                                 >
-                                    <SelectTrigger id="mobile-event-type" className="w-full">
+                                    <SelectTrigger
+                                        id="mobile-event-type"
+                                        className="w-full"
+                                    >
                                         <SelectValue placeholder="All events" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {eventTypeOptions.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
+                                            <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
                                                 {option.label}
                                             </SelectItem>
                                         ))}
@@ -156,7 +180,11 @@ export default function Activity({ events, filters }: Props) {
                                     id="mobile-from"
                                     type="date"
                                     value={filters.from}
-                                    onChange={(event) => applyFilters({ from: event.target.value })}
+                                    onChange={(event) =>
+                                        applyFilters({
+                                            from: event.target.value,
+                                        })
+                                    }
                                 />
                             </div>
 
@@ -166,7 +194,9 @@ export default function Activity({ events, filters }: Props) {
                                     id="mobile-to"
                                     type="date"
                                     value={filters.to}
-                                    onChange={(event) => applyFilters({ to: event.target.value })}
+                                    onChange={(event) =>
+                                        applyFilters({ to: event.target.value })
+                                    }
                                 />
                             </div>
                         </div>
@@ -188,14 +218,18 @@ export default function Activity({ events, filters }: Props) {
                                         <TableHead>Event Type</TableHead>
                                         <TableHead>Description</TableHead>
                                         <TableHead>App</TableHead>
-                                        <TableHead className="text-right">Timestamp</TableHead>
+                                        <TableHead className="text-right">
+                                            Timestamp
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {events.data.map((event) => (
                                         <TableRow key={event.id}>
                                             <TableCell>
-                                                <EventTypeBadge type={event.type} />
+                                                <EventTypeBadge
+                                                    type={event.type}
+                                                />
                                             </TableCell>
                                             <TableCell className="max-w-md truncate">
                                                 {event.description}
@@ -203,13 +237,17 @@ export default function Activity({ events, filters }: Props) {
                                             <TableCell>
                                                 {event.app ? (
                                                     <Link
-                                                        href={showApp(event.app.id)}
+                                                        href={showApp(
+                                                            event.app.id,
+                                                        )}
                                                         className="text-primary hover:underline"
                                                     >
                                                         {event.app.name}
                                                     </Link>
                                                 ) : (
-                                                    <span className="text-muted-foreground">—</span>
+                                                    <span className="text-muted-foreground">
+                                                        —
+                                                    </span>
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-right">
@@ -235,7 +273,9 @@ export default function Activity({ events, filters }: Props) {
                                                 className="ml-auto text-xs text-muted-foreground"
                                             />
                                         </div>
-                                        <p className="mt-2 text-sm">{event.description}</p>
+                                        <p className="mt-2 text-sm">
+                                            {event.description}
+                                        </p>
                                         {event.app && (
                                             <p className="mt-1 text-xs text-muted-foreground">
                                                 <CalendarDays className="mr-1 inline size-3" />

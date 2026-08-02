@@ -2,15 +2,26 @@ import { Head, setLayoutProps, useForm } from '@inertiajs/react';
 import { Link2 } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
 import { store } from '@/routes/apps/webhooks';
@@ -32,22 +43,25 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
             { title: 'Applications', href: appsIndex() },
-            { title: app.name, href: `/apps/${app.id}` },
+            { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
 
     const [urlValid, setUrlValid] = useState(true);
 
-    const { data, setData, errors, processing, post } = useForm<WebhookFormData>({
-        url: '',
-        description: '',
-        events: [],
-    });
+    const { data, setData, errors, processing, post } =
+        useForm<WebhookFormData>({
+            url: '',
+            description: '',
+            events: [],
+        });
 
     function toggleEvent(name: string, checked: boolean) {
         setData(
             'events',
-            checked ? [...data.events, name] : data.events.filter((event) => event !== name),
+            checked
+                ? [...data.events, name]
+                : data.events.filter((event) => event !== name),
         );
     }
 
@@ -69,14 +83,19 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
                     description="Receive signed POST deliveries for verification events."
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Webhooks" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Webhooks"
+                    label="Application"
+                >
                     <form onSubmit={submit} className="grid gap-6" noValidate>
                         <Card>
                             <CardHeader>
                                 <CardTitle>Endpoint</CardTitle>
                                 <CardDescription>
-                                    Deliveries are sent to this URL with an HMAC-SHA256 signature in
-                                    the X-Troth-Signature header.
+                                    Deliveries are sent to this URL with an
+                                    HMAC-SHA256 signature in the
+                                    X-Troth-Signature header.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid gap-6">
@@ -88,12 +107,17 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
                                             name="url"
                                             type="url"
                                             value={data.url}
-                                            onChange={(event) => setData('url', event.target.value)}
+                                            onChange={(event) =>
+                                                setData(
+                                                    'url',
+                                                    event.target.value,
+                                                )
+                                            }
                                             placeholder="https://example.com/hooks/verification"
                                             className="pl-8"
                                             aria-invalid={!urlValid}
                                         />
-                                        <Link2 className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Link2 className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
                                     </div>
                                     {!urlValid && (
                                         <p className="text-sm text-destructive">
@@ -102,18 +126,26 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
                                     )}
                                     <InputError message={errors.url} />
                                     <p className="text-xs text-muted-foreground">
-                                        Must be a valid HTTPS URL. Localhost URLs are accepted in
-                                        sandbox environments.
+                                        Must be a valid HTTPS URL. Localhost
+                                        URLs are accepted in sandbox
+                                        environments.
                                     </p>
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="description">Description (optional)</Label>
+                                    <Label htmlFor="description">
+                                        Description (optional)
+                                    </Label>
                                     <Input
                                         id="description"
                                         name="description"
                                         value={data.description}
-                                        onChange={(event) => setData('description', event.target.value)}
+                                        onChange={(event) =>
+                                            setData(
+                                                'description',
+                                                event.target.value,
+                                            )
+                                        }
                                         placeholder="e.g. Production verification events"
                                     />
                                     <InputError message={errors.description} />
@@ -135,14 +167,21 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
                                         className="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
                                     >
                                         <Checkbox
-                                            checked={data.events.includes(event.name)}
+                                            checked={data.events.includes(
+                                                event.name,
+                                            )}
                                             onCheckedChange={(checked) =>
-                                                toggleEvent(event.name, checked === true)
+                                                toggleEvent(
+                                                    event.name,
+                                                    checked === true,
+                                                )
                                             }
                                             className="mt-0.5"
                                         />
                                         <span className="grid gap-0.5">
-                                            <span className="text-sm font-medium">{event.label}</span>
+                                            <span className="text-sm font-medium">
+                                                {event.label}
+                                            </span>
                                             <code className="text-xs text-muted-foreground">
                                                 {event.name}
                                             </code>
@@ -156,14 +195,19 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
                         <Alert>
                             <AlertTitle>About signing secrets</AlertTitle>
                             <AlertDescription>
-                                After creating the webhook you will see its signing secret exactly
-                                once. Keep it server-side and verify the X-Troth-Signature header on
-                                every delivery.
+                                After creating the webhook you will see its
+                                signing secret exactly once. Keep it server-side
+                                and verify the X-Troth-Signature header on every
+                                delivery.
                             </AlertDescription>
                         </Alert>
 
-                        <div className="lg:hidden sticky bottom-0 -mx-4 border-t bg-background p-4">
-                            <Button type="submit" className="w-full" disabled={processing}>
+                        <div className="sticky bottom-0 -mx-4 border-t bg-background p-4 lg:hidden">
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={processing}
+                            >
                                 {processing && <Spinner />}
                                 Create webhook
                             </Button>

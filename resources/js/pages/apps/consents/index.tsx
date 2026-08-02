@@ -2,7 +2,12 @@ import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { FileCheck } from 'lucide-react';
 import { useState } from 'react';
 import { AppPagination } from '@/components/app-pagination';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import { shortId } from '@/lib/utils';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import { ConsentStatusBadge } from '@/components/consent-status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { FilterSheet } from '@/components/filter-sheet';
@@ -27,9 +32,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
-import { index as consentsIndex, show as consentShow } from '@/routes/apps/consents';
+import {
+    index as consentsIndex,
+    show as consentShow,
+} from '@/routes/apps/consents';
 import type { Consent, DeveloperApp, Paginated } from '@/types';
 
 type Props = {
@@ -51,7 +60,7 @@ export default function Consents({ app, consents, counts, filters }: Props) {
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
             { title: 'Applications', href: appsIndex() },
-            { title: app.name, href: `/apps/${app.id}` },
+            { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
 
@@ -80,8 +89,16 @@ export default function Consents({ app, consents, counts, filters }: Props) {
 
     const summary = [
         { label: 'Active', value: counts.active, className: 'text-foreground' },
-        { label: 'Revoked', value: counts.revoked, className: 'text-destructive' },
-        { label: 'Expired', value: counts.expired, className: 'text-muted-foreground' },
+        {
+            label: 'Revoked',
+            value: counts.revoked,
+            className: 'text-destructive',
+        },
+        {
+            label: 'Expired',
+            value: counts.expired,
+            className: 'text-muted-foreground',
+        },
     ];
 
     return (
@@ -94,16 +111,27 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                     description="Anonymized consent records for age verifications."
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Consents" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Consents"
+                    label="Application"
+                >
                     <div className="grid gap-6">
                         <Card>
                             <CardContent className="grid grid-cols-3 gap-4 p-4">
                                 {summary.map((item) => (
-                                    <div key={item.label} className="text-center">
-                                        <p className={`text-2xl font-semibold tabular-nums ${item.className}`}>
+                                    <div
+                                        key={item.label}
+                                        className="text-center"
+                                    >
+                                        <p
+                                            className={`text-2xl font-semibold tabular-nums ${item.className}`}
+                                        >
                                             {item.value}
                                         </p>
-                                        <p className="mt-0.5 text-xs text-muted-foreground">{item.label}</p>
+                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                            {item.label}
+                                        </p>
                                     </div>
                                 ))}
                             </CardContent>
@@ -117,31 +145,51 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                 <div className="hidden items-end gap-3 md:flex">
                                     <div className="grid gap-1.5">
                                         <Label>Status</Label>
-                                        <Select value={status} onValueChange={setStatus}>
+                                        <Select
+                                            value={status}
+                                            onValueChange={setStatus}
+                                        >
                                             <SelectTrigger className="w-44">
                                                 <SelectValue placeholder="All statuses" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="">All statuses</SelectItem>
-                                                <SelectItem value="active">Active</SelectItem>
-                                                <SelectItem value="revoked">Revoked</SelectItem>
-                                                <SelectItem value="expired">Expired</SelectItem>
+                                                <SelectItem value="">
+                                                    All statuses
+                                                </SelectItem>
+                                                <SelectItem value="active">
+                                                    Active
+                                                </SelectItem>
+                                                <SelectItem value="revoked">
+                                                    Revoked
+                                                </SelectItem>
+                                                <SelectItem value="expired">
+                                                    Expired
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="grid gap-1.5">
-                                        <Label htmlFor="consent-query">Search</Label>
+                                        <Label htmlFor="consent-query">
+                                            Search
+                                        </Label>
                                         <Input
                                             id="consent-query"
                                             value={query}
-                                            onChange={(event) => setQuery(event.target.value)}
+                                            onChange={(event) =>
+                                                setQuery(event.target.value)
+                                            }
                                             placeholder="Identifier or age query"
                                             className="w-64"
                                         />
                                     </div>
-                                    <Button onClick={applyFilters}>Apply</Button>
+                                    <Button onClick={applyFilters}>
+                                        Apply
+                                    </Button>
                                     {(status || query) && (
-                                        <Button variant="ghost" onClick={resetFilters}>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={resetFilters}
+                                        >
                                             Reset
                                         </Button>
                                     )}
@@ -151,30 +199,50 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                     <FilterSheet description="Filter consents by status and identifier.">
                                         <div className="grid gap-2">
                                             <Label>Status</Label>
-                                            <Select value={status} onValueChange={setStatus}>
+                                            <Select
+                                                value={status}
+                                                onValueChange={setStatus}
+                                            >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="All statuses" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="">All statuses</SelectItem>
-                                                    <SelectItem value="active">Active</SelectItem>
-                                                    <SelectItem value="revoked">Revoked</SelectItem>
-                                                    <SelectItem value="expired">Expired</SelectItem>
+                                                    <SelectItem value="">
+                                                        All statuses
+                                                    </SelectItem>
+                                                    <SelectItem value="active">
+                                                        Active
+                                                    </SelectItem>
+                                                    <SelectItem value="revoked">
+                                                        Revoked
+                                                    </SelectItem>
+                                                    <SelectItem value="expired">
+                                                        Expired
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
                                         <div className="grid gap-2">
-                                            <Label htmlFor="consent-query-mobile">Search</Label>
+                                            <Label htmlFor="consent-query-mobile">
+                                                Search
+                                            </Label>
                                             <Input
                                                 id="consent-query-mobile"
                                                 value={query}
-                                                onChange={(event) => setQuery(event.target.value)}
+                                                onChange={(event) =>
+                                                    setQuery(event.target.value)
+                                                }
                                                 placeholder="Identifier or age query"
                                             />
                                         </div>
-                                        <Button onClick={applyFilters}>Apply</Button>
+                                        <Button onClick={applyFilters}>
+                                            Apply
+                                        </Button>
                                         {(status || query) && (
-                                            <Button variant="ghost" onClick={resetFilters}>
+                                            <Button
+                                                variant="ghost"
+                                                onClick={resetFilters}
+                                            >
                                                 Reset
                                             </Button>
                                         )}
@@ -192,44 +260,85 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                         <Table className="hidden md:table">
                                             <TableHeader>
                                                 <TableRow>
-                                                    <TableHead>User identifier</TableHead>
-                                                    <TableHead>Age-query sent</TableHead>
-                                                    <TableHead>Result</TableHead>
-                                                    <TableHead>Status</TableHead>
-                                                    <TableHead>Created</TableHead>
-                                                    <TableHead>Expires</TableHead>
+                                                    <TableHead>
+                                                        User identifier
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Age-query sent
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Result
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Status
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Created
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Expires
+                                                    </TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {consents.data.map((consent) => (
-                                                    <TableRow key={consent.id}>
-                                                        <TableCell>
-                                                            <a
-                                                                href={consentShow({ app: app.id, consent: consent.id }).url}
-                                                                className="font-mono text-xs text-primary hover:underline"
-                                                            >
-                                                                {consent.subject_identifier}
-                                                            </a>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {consent.age_query ?? '—'}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <ResultBadge result={consent.result} />
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <ConsentStatusBadge status={consent.status} />
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <RelativeTime date={consent.created_at} />
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {consent.expires_at
-                                                                ? new Date(consent.expires_at).toLocaleDateString()
-                                                                : '—'}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
+                                                {consents.data.map(
+                                                    (consent) => (
+                                                        <TableRow
+                                                            key={consent.id}
+                                                        >
+                                                            <TableCell>
+                                                                <a
+                                                                    href={
+                                                                        consentShow(
+                                                                            {
+                                                                                app: app.id,
+                                                                                consent:
+                                                                                    consent.id,
+                                                                            },
+                                                                        ).url
+                                                                    }
+                                                                    className="font-mono text-xs text-primary hover:underline"
+                                                                >
+                                                                    {shortId(
+                                                                        consent.subject_identifier,
+                                                                    )}
+                                                                </a>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {consent.age_query ??
+                                                                    '—'}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <ResultBadge
+                                                                    result={
+                                                                        consent.result
+                                                                    }
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <ConsentStatusBadge
+                                                                    status={
+                                                                        consent.status
+                                                                    }
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <RelativeTime
+                                                                    date={
+                                                                        consent.created_at
+                                                                    }
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {consent.expires_at
+                                                                    ? new Date(
+                                                                          consent.expires_at,
+                                                                      ).toLocaleDateString()
+                                                                    : '—'}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ),
+                                                )}
                                             </TableBody>
                                         </Table>
 
@@ -239,19 +348,29 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                                     <CardContent className="grid gap-2 p-4">
                                                         <div className="flex items-center justify-between gap-3">
                                                             <code className="min-w-0 truncate font-mono text-xs">
-                                                                {consent.subject_identifier}
+                                                                {shortId(
+                                                                    consent.subject_identifier,
+                                                                )}
                                                             </code>
-                                                            <ConsentStatusBadge status={consent.status} />
+                                                            <ConsentStatusBadge
+                                                                status={
+                                                                    consent.status
+                                                                }
+                                                            />
                                                         </div>
                                                         <p className="text-sm">
-                                                            {consent.age_query ?? 'No age query'}
+                                                            {consent.age_query ??
+                                                                'No age query'}
                                                             {' · '}
                                                             <span
                                                                 className={
-                                                                    consent.result ? 'text-primary' : 'text-destructive'
+                                                                    consent.result
+                                                                        ? 'text-primary'
+                                                                        : 'text-destructive'
                                                                 }
                                                             >
-                                                                {consent.result === null
+                                                                {consent.result ===
+                                                                null
                                                                     ? '—'
                                                                     : consent.result
                                                                       ? 'True'
@@ -259,7 +378,11 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                                             </span>
                                                         </p>
                                                         <p className="text-xs text-muted-foreground">
-                                                            <RelativeTime date={consent.created_at} />
+                                                            <RelativeTime
+                                                                date={
+                                                                    consent.created_at
+                                                                }
+                                                            />
                                                             {consent.expires_at
                                                                 ? ` · expires ${new Date(consent.expires_at).toLocaleDateString()}`
                                                                 : ''}
@@ -271,7 +394,15 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                                             className="justify-start"
                                                         >
                                                             <a
-                                                                href={consentShow({ app: app.id, consent: consent.id }).url}
+                                                                href={
+                                                                    consentShow(
+                                                                        {
+                                                                            app: app.id,
+                                                                            consent:
+                                                                                consent.id,
+                                                                        },
+                                                                    ).url
+                                                                }
                                                             >
                                                                 View details
                                                             </a>

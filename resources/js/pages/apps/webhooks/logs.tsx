@@ -2,7 +2,11 @@ import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { AppPagination } from '@/components/app-pagination';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import { FilterSheet } from '@/components/filter-sheet';
 import { PayloadViewDialog } from '@/components/payload-view-dialog';
 import { RelativeTime } from '@/components/relative-time';
@@ -27,10 +31,19 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { WebhookSecretRevealDialog } from '@/components/webhook-secret-reveal-dialog';
-import { DeliveryStatusBadge, EndpointCard, RecentFailureAlert } from '@/components/webhook-status';
+import {
+    DeliveryStatusBadge,
+    EndpointCard,
+    RecentFailureAlert,
+} from '@/components/webhook-status';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
-import { logs as webhooksIndex, regenerateSecret, retryDelivery } from '@/routes/apps/webhooks';
+import {
+    logs as webhooksIndex,
+    regenerateSecret,
+    retryDelivery,
+} from '@/routes/apps/webhooks';
 import type {
     DeveloperApp,
     Paginated,
@@ -51,12 +64,18 @@ type Props = {
     revealedSecret: RevealedSecret | null;
 };
 
-export default function WebhookLogs({ app, webhook, deliveries, filters, revealedSecret }: Props) {
+export default function WebhookLogs({
+    app,
+    webhook,
+    deliveries,
+    filters,
+    revealedSecret,
+}: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
             { title: 'Applications', href: appsIndex() },
-            { title: app.name, href: `/apps/${app.id}` },
+            { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
 
@@ -64,7 +83,9 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
     const [from, setFrom] = useState(filters.from ?? '');
     const [to, setTo] = useState(filters.to ?? '');
     const [retrying, setRetrying] = useState<number | null>(null);
-    const [payloadTarget, setPayloadTarget] = useState<WebhookDelivery | null>(null);
+    const [payloadTarget, setPayloadTarget] = useState<WebhookDelivery | null>(
+        null,
+    );
 
     function applyFilters(): void {
         const params: Record<string, string> = {};
@@ -81,27 +102,43 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
             params.to = to;
         }
 
-        router.get(webhooksIndex({ app: app.id, webhook: webhook.id }).url, params, {
-            preserveState: true,
-        });
+        router.get(
+            webhooksIndex({ app: app.id, webhook: webhook.id }).url,
+            params,
+            {
+                preserveState: true,
+            },
+        );
     }
 
     function resetFilters(): void {
         setStatus('');
         setFrom('');
         setTo('');
-        router.get(webhooksIndex({ app: app.id, webhook: webhook.id }).url, {}, {
-            preserveState: true,
-        });
+        router.get(
+            webhooksIndex({ app: app.id, webhook: webhook.id }).url,
+            {},
+            {
+                preserveState: true,
+            },
+        );
     }
 
     function retry(delivery: WebhookDelivery): void {
         setRetrying(delivery.id);
 
-        router.post(retryDelivery({ app: app.id, webhook: webhook.id, delivery: delivery.id }).url, {}, {
-            preserveState: true,
-            onFinish: () => setRetrying(null),
-        });
+        router.post(
+            retryDelivery({
+                app: app.id,
+                webhook: webhook.id,
+                delivery: delivery.id,
+            }).url,
+            {},
+            {
+                preserveState: true,
+                onFinish: () => setRetrying(null),
+            },
+        );
     }
 
     const statusFilters = [
@@ -122,7 +159,11 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                     description="Delivery history for this endpoint."
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Webhooks" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Webhooks"
+                    label="Application"
+                >
                     <div className="grid gap-6">
                         <EndpointCard
                             url={webhook.url}
@@ -130,11 +171,18 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                             secretPreview={webhook.secret_preview}
                             lastTriggeredAt={webhook.last_triggered_at}
                             onRegenerate={() =>
-                                router.post(regenerateSecret({ app: app.id, webhook: webhook.id }).url)
+                                router.post(
+                                    regenerateSecret({
+                                        app: app.id,
+                                        webhook: webhook.id,
+                                    }).url,
+                                )
                             }
                         />
 
-                        <RecentFailureAlert count={webhook.recent_failure_count} />
+                        <RecentFailureAlert
+                            count={webhook.recent_failure_count}
+                        />
 
                         <Card>
                             <CardHeader>
@@ -144,13 +192,19 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                                 <div className="hidden items-end gap-3 md:flex">
                                     <div className="grid gap-1.5">
                                         <Label>Status</Label>
-                                        <Select value={status} onValueChange={setStatus}>
+                                        <Select
+                                            value={status}
+                                            onValueChange={setStatus}
+                                        >
                                             <SelectTrigger className="w-44">
                                                 <SelectValue placeholder="All statuses" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {statusFilters.map((filter) => (
-                                                    <SelectItem key={filter.value} value={filter.value}>
+                                                    <SelectItem
+                                                        key={filter.value}
+                                                        value={filter.value}
+                                                    >
                                                         {filter.label}
                                                     </SelectItem>
                                                 ))}
@@ -158,12 +212,16 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                                         </Select>
                                     </div>
                                     <div className="grid gap-1.5">
-                                        <Label htmlFor="delivery-from">From</Label>
+                                        <Label htmlFor="delivery-from">
+                                            From
+                                        </Label>
                                         <Input
                                             id="delivery-from"
                                             type="date"
                                             value={from}
-                                            onChange={(event) => setFrom(event.target.value)}
+                                            onChange={(event) =>
+                                                setFrom(event.target.value)
+                                            }
                                         />
                                     </div>
                                     <div className="grid gap-1.5">
@@ -172,12 +230,19 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                                             id="delivery-to"
                                             type="date"
                                             value={to}
-                                            onChange={(event) => setTo(event.target.value)}
+                                            onChange={(event) =>
+                                                setTo(event.target.value)
+                                            }
                                         />
                                     </div>
-                                    <Button onClick={applyFilters}>Apply</Button>
+                                    <Button onClick={applyFilters}>
+                                        Apply
+                                    </Button>
                                     {(status || from || to) && (
-                                        <Button variant="ghost" onClick={resetFilters}>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={resetFilters}
+                                        >
                                             Reset
                                         </Button>
                                     )}
@@ -187,40 +252,65 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                                     <FilterSheet description="Filter deliveries by status and date.">
                                         <div className="grid gap-2">
                                             <Label>Status</Label>
-                                            <Select value={status} onValueChange={setStatus}>
+                                            <Select
+                                                value={status}
+                                                onValueChange={setStatus}
+                                            >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="All statuses" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {statusFilters.map((filter) => (
-                                                        <SelectItem key={filter.value} value={filter.value}>
-                                                            {filter.label}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {statusFilters.map(
+                                                        (filter) => (
+                                                            <SelectItem
+                                                                key={
+                                                                    filter.value
+                                                                }
+                                                                value={
+                                                                    filter.value
+                                                                }
+                                                            >
+                                                                {filter.label}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </div>
                                         <div className="grid gap-2">
-                                            <Label htmlFor="delivery-from-mobile">From</Label>
+                                            <Label htmlFor="delivery-from-mobile">
+                                                From
+                                            </Label>
                                             <Input
                                                 id="delivery-from-mobile"
                                                 type="date"
                                                 value={from}
-                                                onChange={(event) => setFrom(event.target.value)}
+                                                onChange={(event) =>
+                                                    setFrom(event.target.value)
+                                                }
                                             />
                                         </div>
                                         <div className="grid gap-2">
-                                            <Label htmlFor="delivery-to-mobile">To</Label>
+                                            <Label htmlFor="delivery-to-mobile">
+                                                To
+                                            </Label>
                                             <Input
                                                 id="delivery-to-mobile"
                                                 type="date"
                                                 value={to}
-                                                onChange={(event) => setTo(event.target.value)}
+                                                onChange={(event) =>
+                                                    setTo(event.target.value)
+                                                }
                                             />
                                         </div>
-                                        <Button onClick={applyFilters}>Apply</Button>
+                                        <Button onClick={applyFilters}>
+                                            Apply
+                                        </Button>
                                         {(status || from || to) && (
-                                            <Button variant="ghost" onClick={resetFilters}>
+                                            <Button
+                                                variant="ghost"
+                                                onClick={resetFilters}
+                                            >
                                                 Reset
                                             </Button>
                                         )}
@@ -237,59 +327,95 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                                             <TableHeader>
                                                 <TableRow>
                                                     <TableHead>Event</TableHead>
-                                                    <TableHead>Status</TableHead>
-                                                    <TableHead>Attempts</TableHead>
-                                                    <TableHead>Response</TableHead>
-                                                    <TableHead>Created</TableHead>
+                                                    <TableHead>
+                                                        Status
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Attempts
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Response
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Created
+                                                    </TableHead>
                                                     <TableHead className="w-28" />
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {deliveries.data.map((delivery) => (
-                                                    <TableRow key={delivery.id}>
-                                                        <TableCell className="font-mono text-xs">
-                                                            {delivery.event}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <DeliveryStatusBadge status={delivery.status} />
-                                                        </TableCell>
-                                                        <TableCell className="tabular-nums">
-                                                            {delivery.attempts}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {delivery.response_status ?? '—'}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <RelativeTime date={delivery.created_at} />
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <div className="flex items-center gap-1">
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() => setPayloadTarget(delivery)}
-                                                                >
-                                                                    Payload
-                                                                </Button>
-                                                                {delivery.status === 'failed' && (
+                                                {deliveries.data.map(
+                                                    (delivery) => (
+                                                        <TableRow
+                                                            key={delivery.id}
+                                                        >
+                                                            <TableCell className="font-mono text-xs">
+                                                                {delivery.event}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <DeliveryStatusBadge
+                                                                    status={
+                                                                        delivery.status
+                                                                    }
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell className="tabular-nums">
+                                                                {
+                                                                    delivery.attempts
+                                                                }
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {delivery.response_status ??
+                                                                    '—'}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <RelativeTime
+                                                                    date={
+                                                                        delivery.created_at
+                                                                    }
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <div className="flex items-center gap-1">
                                                                     <Button
                                                                         variant="outline"
-                                                                        size="icon"
-                                                                        onClick={() => retry(delivery)}
-                                                                        disabled={retrying === delivery.id}
-                                                                        aria-label={`Retry delivery ${delivery.id}`}
+                                                                        size="sm"
+                                                                        onClick={() =>
+                                                                            setPayloadTarget(
+                                                                                delivery,
+                                                                            )
+                                                                        }
                                                                     >
-                                                                        {retrying === delivery.id ? (
-                                                                            <Spinner className="size-4" />
-                                                                        ) : (
-                                                                            <RefreshCw />
-                                                                        )}
+                                                                        Payload
                                                                     </Button>
-                                                                )}
-                                                            </div>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
+                                                                    {delivery.status ===
+                                                                        'failed' && (
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="icon"
+                                                                            onClick={() =>
+                                                                                retry(
+                                                                                    delivery,
+                                                                                )
+                                                                            }
+                                                                            disabled={
+                                                                                retrying ===
+                                                                                delivery.id
+                                                                            }
+                                                                            aria-label={`Retry delivery ${delivery.id}`}
+                                                                        >
+                                                                            {retrying ===
+                                                                            delivery.id ? (
+                                                                                <Spinner className="size-4" />
+                                                                            ) : (
+                                                                                <RefreshCw />
+                                                                            )}
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ),
+                                                )}
                                             </TableBody>
                                         </Table>
 
@@ -301,21 +427,34 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                                                             <code className="min-w-0 truncate font-mono text-xs">
                                                                 {delivery.event}
                                                             </code>
-                                                            <DeliveryStatusBadge status={delivery.status} />
+                                                            <DeliveryStatusBadge
+                                                                status={
+                                                                    delivery.status
+                                                                }
+                                                            />
                                                         </div>
                                                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                                                             <span>
                                                                 Attempts:{' '}
-                                                                <span className="tabular-nums">{delivery.attempts}</span>
+                                                                <span className="tabular-nums">
+                                                                    {
+                                                                        delivery.attempts
+                                                                    }
+                                                                </span>
                                                             </span>
                                                             <span>
                                                                 Response:{' '}
                                                                 <span className="tabular-nums">
-                                                                    {delivery.response_status ?? '—'}
+                                                                    {delivery.response_status ??
+                                                                        '—'}
                                                                 </span>
                                                             </span>
                                                             <span>
-                                                                <RelativeTime date={delivery.created_at} />
+                                                                <RelativeTime
+                                                                    date={
+                                                                        delivery.created_at
+                                                                    }
+                                                                />
                                                             </span>
                                                         </div>
                                                         <div className="flex gap-2">
@@ -323,19 +462,32 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                                                                 variant="outline"
                                                                 size="sm"
                                                                 className="flex-1"
-                                                                onClick={() => setPayloadTarget(delivery)}
+                                                                onClick={() =>
+                                                                    setPayloadTarget(
+                                                                        delivery,
+                                                                    )
+                                                                }
                                                             >
                                                                 View payload
                                                             </Button>
-                                                            {delivery.status === 'failed' && (
+                                                            {delivery.status ===
+                                                                'failed' && (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
-                                                                    onClick={() => retry(delivery)}
-                                                                    disabled={retrying === delivery.id}
+                                                                    onClick={() =>
+                                                                        retry(
+                                                                            delivery,
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        retrying ===
+                                                                        delivery.id
+                                                                    }
                                                                     className="flex-1"
                                                                 >
-                                                                    {retrying === delivery.id ? (
+                                                                    {retrying ===
+                                                                    delivery.id ? (
                                                                         <Spinner className="size-4" />
                                                                     ) : (
                                                                         <RefreshCw />
@@ -360,19 +512,29 @@ export default function WebhookLogs({ app, webhook, deliveries, filters, reveale
                         open={Boolean(revealedSecret)}
                         onOpenChange={(open) => {
                             if (!open) {
-                                router.visit(webhooksIndex({ app: app.id, webhook: webhook.id }).url, {
-                                    preserveState: true,
-                                    replace: true,
-                                });
+                                router.visit(
+                                    webhooksIndex({
+                                        app: app.id,
+                                        webhook: webhook.id,
+                                    }).url,
+                                    {
+                                        preserveState: true,
+                                        replace: true,
+                                    },
+                                );
                             }
                         }}
-                        revealedSecret={revealedSecret ?? { id: 0, url: '', secret: '' }}
+                        revealedSecret={
+                            revealedSecret ?? { id: 0, url: '', secret: '' }
+                        }
                         isRegenerated
                     />
 
                     <PayloadViewDialog
                         open={payloadTarget !== null}
-                        onOpenChange={(open) => (open ? undefined : setPayloadTarget(null))}
+                        onOpenChange={(open) =>
+                            open ? undefined : setPayloadTarget(null)
+                        }
                         title={`Delivery payload · ${payloadTarget?.event ?? ''}`}
                         payload={payloadTarget?.payload ?? null}
                         response={{

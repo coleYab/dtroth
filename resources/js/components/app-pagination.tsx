@@ -7,7 +7,6 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from '@/components/ui/pagination';
-import { cn } from '@/lib/utils';
 import type { PaginationLink as PaginationLinkType } from '@/types';
 
 export function AppPagination({ links }: { links: PaginationLinkType[] }) {
@@ -38,17 +37,11 @@ export function AppPagination({ links }: { links: PaginationLinkType[] }) {
                 {pages.map((link, index) => (
                     <PaginationItem key={`${link.label}-${index}`}>
                         {link.url ? (
-                            <PaginationLink href={link.url} isActive={link.active}>
-                                <span
-                                    className={cn(
-                                        link.label.includes('Previous') || link.label.includes('Next') ? 'sr-only' : '',
-                                    )}
-                                >
-                                    {link.label}
-                                </span>
-                                <span aria-hidden="true">
-                                    {link.label.match(/\d+/)?.[0] ?? link.label}
-                                </span>
+                            <PaginationLink
+                                href={link.url}
+                                isActive={link.active}
+                            >
+                                {link.label}
                             </PaginationLink>
                         ) : (
                             <PaginationEllipsis />

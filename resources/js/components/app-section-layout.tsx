@@ -1,9 +1,28 @@
-import { Link } from '@inertiajs/react';
-import { BarChart3, FileCheck, KeyRound, LayoutDashboard, Layers, Palette, Settings, ShieldCheck, Terminal, User, Webhook } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import {
+    BarChart3,
+    FileCheck,
+    KeyRound,
+    LayoutDashboard,
+    Layers,
+    Palette,
+    Settings,
+    ShieldCheck,
+    Terminal,
+    User,
+    Webhook,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AppLogoImage } from '@/components/app-logo-image';
 import { Badge } from '@/components/ui/badge';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editApp, show as showApp } from '@/routes/apps';
@@ -31,14 +50,14 @@ export function appSectionNavItems(app: DeveloperApp): SectionNavItem[] {
             icon: LayoutDashboard,
         },
         {
-            title: 'Settings',
-            href: editApp(app.id).url,
-            icon: Settings,
-        },
-        {
             title: 'Verification',
             href: `/apps/${app.id}/verification-settings`,
             icon: ShieldCheck,
+        },
+        {
+            title: 'Consents',
+            href: consentsIndex(app.id).url,
+            icon: FileCheck,
         },
         {
             title: 'Environments',
@@ -56,11 +75,6 @@ export function appSectionNavItems(app: DeveloperApp): SectionNavItem[] {
             icon: Webhook,
         },
         {
-            title: 'Consents',
-            href: consentsIndex(app.id).url,
-            icon: FileCheck,
-        },
-        {
             title: 'Usage',
             href: usageRoute(app.id).url,
             icon: BarChart3,
@@ -69,6 +83,11 @@ export function appSectionNavItems(app: DeveloperApp): SectionNavItem[] {
             title: 'Logs',
             href: logsRoute(app.id).url,
             icon: Terminal,
+        },
+        {
+            title: 'Settings',
+            href: editApp(app.id).url,
+            icon: Settings,
         },
     ];
 }
@@ -103,40 +122,83 @@ export function AppNav({
     className?: string;
 }) {
     return (
-        <nav
-            aria-label={label ?? 'Section navigation'}
-            className={cn('w-full overflow-x-auto lg:w-56 lg:shrink-0 lg:overflow-visible', className)}
-        >
-            {label && (
-                <p className="mb-2 hidden px-2 text-xs font-medium text-muted-foreground lg:block">
-                    {label}
-                </p>
-            )}
-            <ul className="flex gap-1 lg:flex-col">
-                {items.map((item) => {
-                    const isActive = item.title === active;
+        <>
+            <div className="w-full lg:hidden">
+                {label && (
+                    <p className="mb-1 px-1 text-xs font-medium text-muted-foreground">
+                        {label}
+                    </p>
+                )}
+                <Select
+                    value={active}
+                    onValueChange={(value) => {
+                        const item = items.find(
+                            (candidate) => candidate.title === value,
+                        );
 
-                    return (
-                        <li key={item.title} className="shrink-0">
-                            <Link
-                                href={item.href}
-                                aria-current={isActive ? 'page' : undefined}
-                                className={cn(
-                                    'flex items-center gap-2 rounded-md p-2 text-sm outline-hidden transition-colors',
-                                    'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                                    isActive
-                                        ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
-                                        : 'text-sidebar-foreground',
-                                )}
-                            >
-                                {item.icon && <item.icon className="size-4 shrink-0" />}
-                                <span className="truncate">{item.title}</span>
-                            </Link>
-                        </li>
-                    );
-                })}
-            </ul>
-        </nav>
+                        if (item) {
+                            router.get(item.href);
+                        }
+                    }}
+                >
+                    <SelectTrigger
+                        className="w-full"
+                        aria-label={label ?? 'Section navigation'}
+                    >
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {items.map((item) => (
+                            <SelectItem key={item.title} value={item.title}>
+                                {item.title}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <nav
+                aria-label={label ?? 'Section navigation'}
+                className={cn(
+                    'hidden w-full overflow-y-auto lg:block lg:w-56 lg:shrink-0 lg:overflow-visible',
+                    className,
+                )}
+            >
+                {label && (
+                    <p className="mb-2 hidden px-2 text-xs font-medium text-muted-foreground lg:block">
+                        {label}
+                    </p>
+                )}
+                <ul className="flex flex-col gap-1">
+                    {items.map((item) => {
+                        const isActive = item.title === active;
+
+                        return (
+                            <li key={item.title}>
+                                <Link
+                                    href={item.href}
+                                    aria-current={isActive ? 'page' : undefined}
+                                    className={cn(
+                                        'flex items-center gap-2 rounded-md p-2 text-sm outline-hidden transition-colors',
+                                        'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                                        isActive
+                                            ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
+                                            : 'text-sidebar-foreground',
+                                    )}
+                                >
+                                    {item.icon && (
+                                        <item.icon className="size-4 shrink-0" />
+                                    )}
+                                    <span className="truncate">
+                                        {item.title}
+                                    </span>
+                                </Link>
+                            </li>
+                        );
+                    })}
+                </ul>
+            </nav>
+        </>
     );
 }
 
@@ -178,21 +240,37 @@ export function AppSectionHeader({
             <div className="flex min-w-0 items-start gap-4">
                 <AppLogoImage app={app} className="mt-0.5 size-14" />
                 <div className="min-w-0">
-                    <h2 className="truncate text-2xl font-semibold">{app.name}</h2>
+                    <h2 className="truncate text-2xl font-semibold">
+                        {app.name}
+                    </h2>
                     {description && (
-                        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            {description}
+                        </p>
                     )}
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                         {app.environments.map((environment) => (
                             <Badge
                                 key={environment.name}
-                                variant={environment.name === 'production' ? 'default' : 'secondary'}
+                                variant={
+                                    environment.name === 'production'
+                                        ? 'default'
+                                        : 'secondary'
+                                }
                             >
-                                {environment.name === 'production' ? 'Production' : 'Sandbox'}
+                                {environment.name === 'production'
+                                    ? 'Production'
+                                    : 'Sandbox'}
                                 {environment.is_live && ' — Live'}
                             </Badge>
                         ))}
-                        <Badge variant={app.status === 'active' ? 'default' : 'secondary'}>
+                        <Badge
+                            variant={
+                                app.status === 'active'
+                                    ? 'default'
+                                    : 'secondary'
+                            }
+                        >
                             {app.status === 'active' ? 'Active' : 'Disabled'}
                         </Badge>
                     </div>

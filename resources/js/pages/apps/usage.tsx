@@ -1,14 +1,25 @@
 import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { Activity, CheckCircle2, Hash, Layers } from 'lucide-react';
 import { useState } from 'react';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import { StatCard } from '@/components/stat-card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { UsageAreaChart, UsageByQueryChart } from '@/components/usage-charts';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex, usage as usageRoute } from '@/routes/apps';
 import { logs as logsRoute } from '@/routes/apps';
@@ -26,7 +37,7 @@ export default function Usage({ app, range, metrics, rangeLabel }: Props) {
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
             { title: 'Applications', href: appsIndex() },
-            { title: app.name, href: `/apps/${app.id}` },
+            { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
 
@@ -34,7 +45,11 @@ export default function Usage({ app, range, metrics, rangeLabel }: Props) {
     const [to, setTo] = useState('');
 
     function selectRange(next: string): void {
-        router.get(usageRoute(app.id).url, { range: next }, { preserveState: true });
+        router.get(
+            usageRoute(app.id).url,
+            { range: next },
+            { preserveState: true },
+        );
     }
 
     function applyCustom(): void {
@@ -57,13 +72,21 @@ export default function Usage({ app, range, metrics, rangeLabel }: Props) {
                     description="API call and verification volume for this application."
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Usage" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Usage"
+                    label="Application"
+                >
                     <div className="grid gap-6">
                         <Card>
                             <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-4">
                                 <div>
-                                    <CardTitle className="text-base">Time range</CardTitle>
-                                    <CardDescription>{rangeLabel}</CardDescription>
+                                    <CardTitle className="text-base">
+                                        Time range
+                                    </CardTitle>
+                                    <CardDescription>
+                                        {rangeLabel}
+                                    </CardDescription>
                                 </div>
                                 <ToggleGroup
                                     type="single"
@@ -74,10 +97,18 @@ export default function Usage({ app, range, metrics, rangeLabel }: Props) {
                                         }
                                     }}
                                 >
-                                    <ToggleGroupItem value="7">7 days</ToggleGroupItem>
-                                    <ToggleGroupItem value="30">30 days</ToggleGroupItem>
-                                    <ToggleGroupItem value="90">90 days</ToggleGroupItem>
-                                    <ToggleGroupItem value="custom">Custom</ToggleGroupItem>
+                                    <ToggleGroupItem value="7">
+                                        7 days
+                                    </ToggleGroupItem>
+                                    <ToggleGroupItem value="30">
+                                        30 days
+                                    </ToggleGroupItem>
+                                    <ToggleGroupItem value="90">
+                                        90 days
+                                    </ToggleGroupItem>
+                                    <ToggleGroupItem value="custom">
+                                        Custom
+                                    </ToggleGroupItem>
                                 </ToggleGroup>
                             </CardHeader>
                             {range === 'custom' && (
@@ -88,7 +119,9 @@ export default function Usage({ app, range, metrics, rangeLabel }: Props) {
                                             id="usage-from"
                                             type="date"
                                             value={from}
-                                            onChange={(event) => setFrom(event.target.value)}
+                                            onChange={(event) =>
+                                                setFrom(event.target.value)
+                                            }
                                         />
                                     </div>
                                     <div className="grid gap-2">
@@ -97,10 +130,15 @@ export default function Usage({ app, range, metrics, rangeLabel }: Props) {
                                             id="usage-to"
                                             type="date"
                                             value={to}
-                                            onChange={(event) => setTo(event.target.value)}
+                                            onChange={(event) =>
+                                                setTo(event.target.value)
+                                            }
                                         />
                                     </div>
-                                    <Button onClick={applyCustom} disabled={!from || !to}>
+                                    <Button
+                                        onClick={applyCustom}
+                                        disabled={!from || !to}
+                                    >
                                         Apply
                                     </Button>
                                 </CardContent>

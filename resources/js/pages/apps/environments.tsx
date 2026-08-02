@@ -1,17 +1,31 @@
 import { Head, setLayoutProps, useForm } from '@inertiajs/react';
 import { Plus, X } from 'lucide-react';
-import { AppSectionHeader, AppSectionLayout, appSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionHeader,
+    AppSectionLayout,
+    appSectionNavItems,
+} from '@/components/app-section-layout';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
-import { index as environmentsIndex, update as updateEnvironment } from '@/routes/apps/environments';
+import {
+    index as environmentsIndex,
+    update as updateEnvironment,
+} from '@/routes/apps/environments';
 import type { AppEnvironment, DeveloperApp, EnvironmentName } from '@/types';
 type Props = {
     app: DeveloperApp;
@@ -39,21 +53,28 @@ function EnvironmentCard({
     environment: AppEnvironment;
     app: DeveloperApp;
 }) {
-    const { data, setData, errors, processing, put } = useForm<EnvironmentFormData>({
-        is_enabled: environment.is_enabled,
-        is_live: environment.is_live,
-        redirect_uris: environment.redirect_uris.length
-            ? environment.redirect_uris
-            : [''],
-        allowed_origins: environment.allowed_origins.length
-            ? environment.allowed_origins
-            : [''],
-    });
+    const { data, setData, errors, processing, put } =
+        useForm<EnvironmentFormData>({
+            is_enabled: environment.is_enabled,
+            is_live: environment.is_live,
+            redirect_uris: environment.redirect_uris.length
+                ? environment.redirect_uris
+                : [''],
+            allowed_origins: environment.allowed_origins.length
+                ? environment.allowed_origins
+                : [''],
+        });
 
-    function updateListItem(field: 'redirect_uris' | 'allowed_origins', index: number, value: string) {
+    function updateListItem(
+        field: 'redirect_uris' | 'allowed_origins',
+        index: number,
+        value: string,
+    ) {
         setData(
             field,
-            data[field].map((item, itemIndex) => (itemIndex === index ? value : item)),
+            data[field].map((item, itemIndex) =>
+                itemIndex === index ? value : item,
+            ),
         );
     }
 
@@ -61,7 +82,10 @@ function EnvironmentCard({
         setData(field, [...data[field], '']);
     }
 
-    function removeListItem(field: 'redirect_uris' | 'allowed_origins', index: number) {
+    function removeListItem(
+        field: 'redirect_uris' | 'allowed_origins',
+        index: number,
+    ) {
         setData(
             field,
             data[field].filter((_, itemIndex) => itemIndex !== index),
@@ -76,7 +100,9 @@ function EnvironmentCard({
                 <div>
                     <CardTitle className="flex items-center gap-2">
                         {label}
-                        {environment.is_live && <Badge variant="default">Live</Badge>}
+                        {environment.is_live && (
+                            <Badge variant="default">Live</Badge>
+                        )}
                     </CardTitle>
                     <CardDescription className="mt-1">
                         {environment.is_live
@@ -85,13 +111,18 @@ function EnvironmentCard({
                     </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Label htmlFor={`enable-${environment.id}`} className="text-sm font-normal">
+                    <Label
+                        htmlFor={`enable-${environment.id}`}
+                        className="text-sm font-normal"
+                    >
                         Enabled
                     </Label>
                     <Switch
                         id={`enable-${environment.id}`}
                         checked={data.is_enabled}
-                        onCheckedChange={(checked) => setData('is_enabled', checked)}
+                        onCheckedChange={(checked) =>
+                            setData('is_enabled', checked)
+                        }
                         aria-label={`Enable ${label} environment`}
                     />
                 </div>
@@ -107,7 +138,11 @@ function EnvironmentCard({
                                         type="url"
                                         value={uri}
                                         onChange={(event) =>
-                                            updateListItem('redirect_uris', index, event.target.value)
+                                            updateListItem(
+                                                'redirect_uris',
+                                                index,
+                                                event.target.value,
+                                            )
                                         }
                                         placeholder="https://example.com/callback"
                                         aria-label={`${label} redirect URI ${index + 1}`}
@@ -116,15 +151,26 @@ function EnvironmentCard({
                                         type="button"
                                         variant="outline"
                                         size="icon"
-                                        onClick={() => removeListItem('redirect_uris', index)}
-                                        disabled={data.redirect_uris.length === 1}
+                                        onClick={() =>
+                                            removeListItem(
+                                                'redirect_uris',
+                                                index,
+                                            )
+                                        }
+                                        disabled={
+                                            data.redirect_uris.length === 1
+                                        }
                                         aria-label={`Remove ${label} redirect URI ${index + 1}`}
                                     >
                                         <X />
                                     </Button>
                                 </div>
                                 <InputError
-                                    message={getArrayError(errors, 'redirect_uris', index)}
+                                    message={getArrayError(
+                                        errors,
+                                        'redirect_uris',
+                                        index,
+                                    )}
                                 />
                             </div>
                         ))}
@@ -152,7 +198,11 @@ function EnvironmentCard({
                                         type="url"
                                         value={origin}
                                         onChange={(event) =>
-                                            updateListItem('allowed_origins', index, event.target.value)
+                                            updateListItem(
+                                                'allowed_origins',
+                                                index,
+                                                event.target.value,
+                                            )
                                         }
                                         placeholder="https://example.com"
                                         aria-label={`${label} allowed origin ${index + 1}`}
@@ -161,15 +211,26 @@ function EnvironmentCard({
                                         type="button"
                                         variant="outline"
                                         size="icon"
-                                        onClick={() => removeListItem('allowed_origins', index)}
-                                        disabled={data.allowed_origins.length === 1}
+                                        onClick={() =>
+                                            removeListItem(
+                                                'allowed_origins',
+                                                index,
+                                            )
+                                        }
+                                        disabled={
+                                            data.allowed_origins.length === 1
+                                        }
                                         aria-label={`Remove ${label} allowed origin ${index + 1}`}
                                     >
                                         <X />
                                     </Button>
                                 </div>
                                 <InputError
-                                    message={getArrayError(errors, 'allowed_origins', index)}
+                                    message={getArrayError(
+                                        errors,
+                                        'allowed_origins',
+                                        index,
+                                    )}
                                 />
                             </div>
                         ))}
@@ -193,8 +254,10 @@ function EnvironmentCard({
                         disabled={processing}
                         onClick={() =>
                             put(
-                                updateEnvironment({ app: app.id, environment: environment.id })
-                                    .url,
+                                updateEnvironment({
+                                    app: app.id,
+                                    environment: environment.id,
+                                }).url,
                             )
                         }
                         className="w-full sm:w-auto"
@@ -214,7 +277,10 @@ function environmentOrder(
     const order: EnvironmentName[] = ['sandbox', 'production'];
 
     return order.map((name) => {
-        return environments.find((environment) => environment.name === name) ?? null;
+        return (
+            environments.find((environment) => environment.name === name) ??
+            null
+        );
     });
 }
 
@@ -230,7 +296,7 @@ export default function Environments({ app }: Props) {
                 href: appsIndex(),
             },
             {
-                title: `${app.name} Environments`,
+                title: `${shortAppName(app.name)} Environments`,
                 href: environmentsIndex(app.id),
             },
         ],
@@ -248,15 +314,26 @@ export default function Environments({ app }: Props) {
                     description="Configure the sandbox and production environments for this application."
                 />
 
-                <AppSectionLayout items={appSectionNavItems(app)} active="Environments" label="Application">
+                <AppSectionLayout
+                    items={appSectionNavItems(app)}
+                    active="Environments"
+                    label="Application"
+                >
                     <p className="text-sm text-muted-foreground">
-                        Fields are pre-filled from the application defaults; saving applies
-                        environment-specific overrides.
+                        Fields are pre-filled from the application defaults;
+                        saving applies environment-specific overrides.
                     </p>
 
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
-                        {sandbox && <EnvironmentCard environment={sandbox} app={app} />}
-                        {production && <EnvironmentCard environment={production} app={app} />}
+                        {sandbox && (
+                            <EnvironmentCard environment={sandbox} app={app} />
+                        )}
+                        {production && (
+                            <EnvironmentCard
+                                environment={production}
+                                app={app}
+                            />
+                        )}
                     </div>
                 </AppSectionLayout>
             </div>
