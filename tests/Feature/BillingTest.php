@@ -128,7 +128,10 @@ test('the chapa webhook marks failed transactions as failed invoices', function 
 test('the billing usage page shows the per-app breakdown', function () {
     $user = User::factory()->create();
     $app = App::factory()->create(['user_id' => $user->id]);
-    Subscription::factory()->active()->create(['user_id' => $user->id]);
+    Subscription::factory()->active()->create([
+        'user_id' => $user->id,
+        'renews_at' => now()->addDays(10)->addHours(5),
+    ]);
     actingAs($user);
 
     $this->get(route('billing.usage'))
@@ -137,7 +140,20 @@ test('the billing usage page shows the per-app breakdown', function () {
             ->component('billing/usage')
             ->where('apps.0.app_id', $app->id)
             ->where('cycle.total_calls', 0)
-            ->where('cycle.estimated_cost_etb', 0));
+            ->where('cycle.estimated_cost_etb', 0)
+            ->where('cycle.days_remaining', 11));
+});
+
+test('the billing usage page rounds days remaining up for trial users', function () {
+    $user = User::factory()->create(['created_at' => now()->subHours(6)]);
+    actingAs($user);
+
+    $this->get(route('billing.usage'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('billing/usage')
+            ->where('cycle.days_remaining', 14)
+            ->where('cycle.plan_calls', 1000));
 });
 
 test('users can download their own invoices as pdf', function () {

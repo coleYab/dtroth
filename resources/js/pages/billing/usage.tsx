@@ -65,7 +65,7 @@ export default function BillingUsage({ cycle, apps }: Props) {
                     />
                     <StatCard
                         title="Days remaining"
-                        value={cycle.days_remaining}
+                        value={Math.max(0, Math.ceil(cycle.days_remaining)).toLocaleString()}
                         icon={BarChart3}
                     />
                 </div>

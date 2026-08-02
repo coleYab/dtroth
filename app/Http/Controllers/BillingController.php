@@ -74,11 +74,12 @@ class BillingController extends Controller
         $user = $request->user();
 
         $subscription = $user->subscription;
-        $periodStart = $subscription?->renews_at?->subMonth() ?? $user->created_at->startOfMonth();
-        $periodEnd = $subscription?->renews_at ?? now();
+        $trialEnd = $user->created_at->addDays(config('billing.trial_days'));
+        $periodStart = $subscription?->renews_at?->subMonth() ?? $user->created_at;
+        $periodEnd = $subscription?->renews_at ?? $trialEnd;
 
         $cycle = $usage->forUser($user, $periodStart, $periodEnd);
-        $daysRemaining = max(0, $periodEnd->diffInDays(now()));
+        $daysRemaining = max(0, (int) ceil(now()->diffInDays($periodEnd)));
 
         $planCalls = config('billing.plans.'.$this->currentPlan($user).'.calls_per_month', 0);
 
