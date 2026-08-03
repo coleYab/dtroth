@@ -1,6 +1,6 @@
 ---
 title: Rate Limits
-order: 6
+order: 7
 ---
 
 Rate limits protect the API from accidental or malicious traffic and keep latency predictable for everyone.

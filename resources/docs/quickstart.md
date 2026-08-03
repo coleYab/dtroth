@@ -79,9 +79,27 @@ A successful response looks like this:
 - Keep `query_id` for your records and audits.
 - Cache the result until `expires_at` instead of re-verifying on every request.
 
+## Step 6 — Try the hosted flow
+
+Don't want to collect national IDs yourself? The hosted flow gives you a branded page Troth runs for you.
+
+1. Open **Verification flows** for your application.
+2. Set your `success_redirect_url` and `failure_redirect_url` (e.g. `https://yourapp.com/continue`).
+3. Create a session and redirect your user to it:
+
+```curl
+curl -X POST "https://api.troth.dev/v1/verify/session" \
+  -H "Authorization: Bearer sk_sandbox_..." \
+  -H "Content-Type: application/json" \
+  -d '{"age":18,"type":"equal_above","subject":"user-123"}'
+```
+
+The response contains a `verification_url` — send the user there. In sandbox mode, use the test key `fayda-test-a` on the flow page. See the [Hosted Verification Flow](/docs/hosted-flow) reference for callbacks and signature verification.
+
 ## Next steps
 
 - Read the [Age Query Endpoint](/docs/age-query-endpoint) reference for the full schema.
+- Delegate the user-facing step to the [Hosted Verification Flow](/docs/hosted-flow).
 - Configure [Webhooks](/docs/webhooks) to react to expirations and consent revocations.
 - Check [Error Codes](/docs/error-codes) and [Rate Limits](/docs/rate-limits) before going live.
 

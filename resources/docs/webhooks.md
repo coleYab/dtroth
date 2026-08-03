@@ -1,6 +1,6 @@
 ---
 title: Webhooks
-order: 4
+order: 6
 ---
 
 Webhooks notify your servers about asynchronous events, such as a verification expiring or a consent being revoked.

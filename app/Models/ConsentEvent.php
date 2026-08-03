@@ -24,6 +24,8 @@ class ConsentEvent extends Model
 
     public const TYPE_GRANTED = 'granted';
 
+    public const TYPE_RENEWED = 'renewed';
+
     public const TYPE_REVOKED = 'revoked';
 
     public const TYPE_EXPIRED = 'expired';

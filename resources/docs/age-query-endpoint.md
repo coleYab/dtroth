@@ -5,6 +5,8 @@ order: 3
 
 The Age Query Endpoint is the core of the Troth API. It verifies a single age query against a subject identity and returns a boolean result.
 
+> **Prefer the hosted flow?** If you would rather redirect your users to a branded, Troth-hosted page instead of sending national IDs through your own servers, use [`POST /v1/verify/session`](hosted-flow) — the request body is identical to this endpoint.
+
 ## Endpoint
 
 ```

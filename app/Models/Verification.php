@@ -13,18 +13,46 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property int $app_id
+ * @property int|null $app_environment_id
+ * @property string|null $token
+ * @property Carbon|null $expires_at
+ * @property Carbon|null $completed_at
+ * @property string|null $subject_identifier
+ * @property string|null $callback_url
  * @property string $status
  * @property AgeQueryType|null $query_type
  * @property int|null $query_value
  * @property bool|null $result
  * @property Carbon $created_at
  * @property-read App $app
+ * @property-read AppEnvironment|null $environment
  */
-#[Fillable(['app_id', 'status', 'query_type', 'query_value', 'result', 'created_at'])]
+#[Fillable([
+    'app_id',
+    'app_environment_id',
+    'token',
+    'expires_at',
+    'completed_at',
+    'subject_identifier',
+    'callback_url',
+    'status',
+    'query_type',
+    'query_value',
+    'result',
+    'created_at',
+])]
 class Verification extends Model
 {
     /** @use HasFactory<VerificationFactory> */
     use HasFactory;
+
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_EXPIRED = 'expired';
+
+    public const STATUS_FAILED = 'failed';
 
     /**
      * Indicates if the model should be timestamped.
@@ -42,6 +70,8 @@ class Verification extends Model
             'query_type' => AgeQueryType::class,
             'query_value' => 'integer',
             'result' => 'boolean',
+            'expires_at' => 'datetime',
+            'completed_at' => 'datetime',
             'created_at' => 'datetime',
         ];
     }
@@ -61,5 +91,10 @@ class Verification extends Model
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class);
+    }
+
+    public function environment(): BelongsTo
+    {
+        return $this->belongsTo(AppEnvironment::class, 'app_environment_id');
     }
 }

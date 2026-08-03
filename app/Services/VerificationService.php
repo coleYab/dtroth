@@ -99,11 +99,12 @@ class VerificationService
         array $payload,
         int $statusCode,
         int $responseTimeMs,
+        string $path = '/v1/verify/age',
     ): void {
         ApiCall::create([
             'app_id' => $key->app_id,
             'method' => 'POST',
-            'path' => '/v1/verify/age',
+            'path' => $path,
             'query_type' => $type,
             'query_value' => $age,
             'result' => $payload['result'] ?? null,
@@ -120,7 +121,7 @@ class VerificationService
      *
      * @throws VerificationException
      */
-    private function ensurePresetAllowed(int $appId, AgeQueryType $type, int $age): void
+    public function ensurePresetAllowed(int $appId, AgeQueryType $type, int $age): void
     {
         $allowed = AgeQueryPreset::query()
             ->where('type', $type)

@@ -6,6 +6,7 @@ use App\Enums\AgeQueryType;
 use App\Models\App;
 use App\Models\Verification;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Verification>
@@ -46,6 +47,43 @@ class VerificationFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'approved',
+        ]);
+    }
+
+    /**
+     * Indicate a pending hosted-flow verification awaiting the subject.
+     */
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => Verification::STATUS_PENDING,
+            'token' => Str::uuid()->toString(),
+            'expires_at' => now()->addMinutes(15),
+        ]);
+    }
+
+    /**
+     * Indicate a completed hosted-flow verification.
+     */
+    public function completed(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => Verification::STATUS_COMPLETED,
+            'token' => Str::uuid()->toString(),
+            'expires_at' => now()->addMinutes(15),
+            'completed_at' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate an expired hosted-flow verification.
+     */
+    public function expired(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => Verification::STATUS_EXPIRED,
+            'token' => Str::uuid()->toString(),
+            'expires_at' => now()->subMinutes(5),
         ]);
     }
 }

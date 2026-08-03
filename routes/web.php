@@ -11,6 +11,7 @@ use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocsController;
 use App\Http\Controllers\DocsFeedbackController;
+use App\Http\Controllers\PublicVerificationController;
 use App\Http\Controllers\SandboxController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\SupportTicketController;
@@ -24,6 +25,13 @@ Route::inertia('/', 'welcome')->name('home');
 
 Route::inertia('legal/terms', 'legal/terms')->name('legal.terms');
 Route::inertia('legal/privacy-policy', 'legal/privacy-policy')->name('legal.privacy-policy');
+
+Route::middleware('flow.headers')->group(function () {
+    Route::get('verify/{token}', [PublicVerificationController::class, 'show'])->name('verify.flow');
+    Route::post('verify/{token}', [PublicVerificationController::class, 'submit'])
+        ->middleware('throttle:10,1')
+        ->name('verify.flow.submit');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
