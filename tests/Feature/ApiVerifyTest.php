@@ -7,6 +7,7 @@ use App\Models\ApiCall;
 use App\Models\ApiKey;
 use App\Models\App;
 use App\Models\AppEnvironment;
+use App\Models\ProviderIdentity;
 use App\Models\SandboxIdentity;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -37,6 +38,16 @@ function sandboxKeyFor(App $app): ApiKey
     $key = makeSandboxKey($app);
 
     $key->forceFill(['secret_hash' => hash('sha256', 'sk-test-'.$key->id)])->saveQuietly();
+
+    return $key;
+}
+
+function productionKeyFor(App $app): ApiKey
+{
+    $environment = $app->environments()->create(['name' => EnvironmentName::Production, 'is_live' => true]);
+    $key = ApiKey::factory()->forEnvironment($environment)->create(['app_id' => $app->id]);
+
+    $key->forceFill(['secret_hash' => hash('sha256', 'sk-prod-'.$key->id)])->saveQuietly();
 
     return $key;
 }
@@ -172,17 +183,137 @@ test('validation errors return 422 with the validation_error code', function () 
     ])->assertStatus(422)->assertJsonPath('error.code', 'validation_error');
 });
 
-test('production keys are rejected until the identity provider is available', function () {
+test('a production key verifies a known national id through the mock provider', function () {
     $app = App::factory()->create();
-    $production = $app->environments()->create(['name' => EnvironmentName::Production, 'is_live' => true]);
-    $key = ApiKey::factory()->forEnvironment($production)->create(['app_id' => $app->id]);
-    $key->forceFill(['secret_hash' => hash('sha256', 'sk-prod-'.$key->id)])->saveQuietly();
+    $key = productionKeyFor($app);
+    enablePreset($app, AgeQueryType::EqualAbove, 18);
+    ProviderIdentity::factory()->create([
+        'national_id' => '185026948372154',
+        'birth_date' => now()->subYears(23)->format('Y-m-d'),
+        'status' => 'active',
+    ]);
 
-    $this->postJson(route('api.v1.verify.age'), verifyPayload(18, 'equal_above', 'fayda-test-a'), [
+    $this->postJson(route('api.v1.verify.age'), verifyPayload(18, 'equal_above', '185026948372154'), [
         'Authorization' => 'Bearer sk-prod-'.$key->id,
     ])
-        ->assertStatus(501)
-        ->assertJsonPath('error.code', 'identity_provider_unavailable');
+        ->assertOk()
+        ->assertJsonPath('result', true)
+        ->assertJsonPath('provider_reference', fn ($value) => is_string($value) && str_starts_with($value, 'fayda-'));
+});
+
+test('a production key returns false for a national id below the threshold', function () {
+    $app = App::factory()->create();
+    $key = productionKeyFor($app);
+    enablePreset($app, AgeQueryType::EqualAbove, 18);
+    ProviderIdentity::factory()->create([
+        'national_id' => '185063384725618',
+        'birth_date' => now()->subYears(16)->format('Y-m-d'),
+        'status' => 'active',
+    ]);
+
+    $this->postJson(route('api.v1.verify.age'), verifyPayload(18, 'equal_above', '185063384725618'), [
+        'Authorization' => 'Bearer sk-prod-'.$key->id,
+    ])
+        ->assertOk()
+        ->assertJsonPath('result', false);
+});
+
+test('a production verify with an unknown national id returns 404 subject_not_found', function () {
+    $app = App::factory()->create();
+    $key = productionKeyFor($app);
+    enablePreset($app, AgeQueryType::EqualAbove, 18);
+
+    $this->postJson(route('api.v1.verify.age'), verifyPayload(18, 'equal_above', '000000000000000'), [
+        'Authorization' => 'Bearer sk-prod-'.$key->id,
+    ])
+        ->assertNotFound()
+        ->assertJsonPath('error.code', 'subject_not_found');
+});
+
+test('a production verify with a blocked national id returns 403 identity_provider_declined', function () {
+    $app = App::factory()->create();
+    $key = productionKeyFor($app);
+    enablePreset($app, AgeQueryType::EqualAbove, 18);
+    ProviderIdentity::factory()->create([
+        'national_id' => '185141583902674',
+        'birth_date' => now()->subYears(23)->format('Y-m-d'),
+        'status' => 'blocked',
+    ]);
+
+    $this->postJson(route('api.v1.verify.age'), verifyPayload(18, 'equal_above', '185141583902674'), [
+        'Authorization' => 'Bearer sk-prod-'.$key->id,
+    ])
+        ->assertForbidden()
+        ->assertJsonPath('error.code', 'identity_provider_declined');
+});
+
+test('the simulated provider latency is reflected in the recorded response time', function () {
+    config()->set('verify.providers.mock_fayda.latency_min_ms', 150);
+    config()->set('verify.providers.mock_fayda.latency_max_ms', 150);
+
+    $app = App::factory()->create();
+    $key = productionKeyFor($app);
+    enablePreset($app, AgeQueryType::EqualAbove, 18);
+    ProviderIdentity::factory()->create([
+        'national_id' => '185026948372154',
+        'birth_date' => now()->subYears(23)->format('Y-m-d'),
+        'status' => 'active',
+    ]);
+
+    $this->postJson(route('api.v1.verify.age'), verifyPayload(18, 'equal_above', '185026948372154'), [
+        'Authorization' => 'Bearer sk-prod-'.$key->id,
+    ])->assertOk();
+
+    $call = ApiCall::query()->latest('id')->first();
+
+    expect($call->response_time_ms)->toBeGreaterThanOrEqual(150);
+});
+
+test('the provider reference is recorded in the api_calls log for production verifies', function () {
+    $app = App::factory()->create();
+    $key = productionKeyFor($app);
+    enablePreset($app, AgeQueryType::EqualAbove, 18);
+    ProviderIdentity::factory()->create([
+        'national_id' => '185026948372154',
+        'birth_date' => now()->subYears(23)->format('Y-m-d'),
+        'status' => 'active',
+    ]);
+
+    $this->postJson(route('api.v1.verify.age'), verifyPayload(18, 'equal_above', '185026948372154'), [
+        'Authorization' => 'Bearer sk-prod-'.$key->id,
+    ])->assertOk();
+
+    $call = ApiCall::query()->latest('id')->first();
+
+    expect($call->response_payload['provider_reference'])->toStartWith('fayda-')
+        ->and($call->response_payload)->not->toHaveKey('birth_date')
+        ->and($call->response_payload)->not->toHaveKey('full_name');
+});
+
+test('a production provider failure is recorded as a failed call', function () {
+    config()->set('verify.providers.mock_fayda.failure_rate', 1.0);
+    config()->set('verify.providers.mock_fayda.latency_min_ms', 0);
+    config()->set('verify.providers.mock_fayda.latency_max_ms', 0);
+
+    $app = App::factory()->create();
+    $key = productionKeyFor($app);
+    enablePreset($app, AgeQueryType::EqualAbove, 18);
+    ProviderIdentity::factory()->create([
+        'national_id' => '185026948372154',
+        'birth_date' => now()->subYears(23)->format('Y-m-d'),
+        'status' => 'active',
+    ]);
+
+    $response = $this->postJson(route('api.v1.verify.age'), verifyPayload(18, 'equal_above', '185026948372154'), [
+        'Authorization' => 'Bearer sk-prod-'.$key->id,
+    ]);
+
+    expect($response->getStatusCode())->toBeIn([502, 504]);
+
+    $call = ApiCall::query()->latest('id')->first();
+
+    expect($call->status_code)->toBe($response->getStatusCode())
+        ->and($call->response_payload['error']['code'])->toBeIn(['identity_provider_unreachable', 'identity_provider_timeout']);
 });
 
 test('the endpoint is rate limited per key', function () {

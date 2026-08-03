@@ -10,7 +10,7 @@ Every request to the Age Verification API must be authenticated with a secret ke
 API keys are created per application in **App settings → API keys**. Each key belongs to an environment:
 
 - **Sandbox keys** — for development. They verify against mock test identities and never touch real data.
-- **Production keys** — for live traffic. They are only usable once your application has been reviewed and enabled for production verification.
+- **Production keys** — for live traffic. They verify the national ID presented by the subject against the identity provider and return the verdict in milliseconds.
 
 Key secrets are shown **once** at creation. Store them somewhere safe — Troth only keeps a hash of the secret, so it can never be recovered or re-shown.
 

@@ -1,7 +1,10 @@
 <?php
 
+use App\Contracts\IdentityProvider;
 use App\Enums\ComponentStatus;
+use App\Enums\EnvironmentName;
 use App\Models\StatusCheck;
+use App\Services\IdentityProviderRegistry;
 use Illuminate\Support\Facades\Http;
 
 test('the status:check command records a down check when a component is unreachable', function () {
@@ -47,8 +50,47 @@ test('the status:check command records response time for healthy components', fu
 
     $this->artisan('status:check')->assertSuccessful();
 
+    $componentCount = count(config('status.components'));
+
     expect(StatusCheck::query()->where('status', ComponentStatus::Ok)->count())
-        ->toBe(count(config('status.components')))
+        ->toBe($componentCount + 1)
         ->and(StatusCheck::query()->whereNotNull('response_time_ms')->count())
-        ->toBe(count(config('status.components')));
+        ->toBe($componentCount);
+});
+
+test('the status:check command records an ok check for the identity provider', function () {
+    Http::fake([
+        '*' => Http::response(null, 200),
+    ]);
+
+    $this->artisan('status:check')->assertSuccessful();
+
+    $check = StatusCheck::query()->where('component', 'identity_provider')->latest('checked_at')->first();
+
+    expect($check)->not->toBeNull()
+        ->and($check->status)->toBe(ComponentStatus::Ok);
+});
+
+test('the status:check command records a down check when the identity provider is unavailable', function () {
+    Http::fake([
+        '*' => Http::response(null, 200),
+    ]);
+
+    $unavailable = Mockery::mock(IdentityProvider::class, function ($mock): void {
+        $mock->shouldReceive('isAvailable')->andReturn(false);
+        $mock->shouldReceive('name')->andReturn('mock_fayda');
+    });
+
+    $registry = Mockery::mock(IdentityProviderRegistry::class, function ($mock) use ($unavailable): void {
+        $mock->shouldReceive('resolve')->with(EnvironmentName::Production)->andReturn($unavailable);
+    });
+
+    $this->app->instance(IdentityProviderRegistry::class, $registry);
+
+    $this->artisan('status:check')->assertSuccessful();
+
+    $check = StatusCheck::query()->where('component', 'identity_provider')->latest('checked_at')->first();
+
+    expect($check)->not->toBeNull()
+        ->and($check->status)->toBe(ComponentStatus::Down);
 });

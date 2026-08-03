@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Enums\ComponentStatus;
+use App\Enums\EnvironmentName;
 use App\Models\StatusCheck;
+use App\Services\IdentityProviderRegistry;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -13,6 +15,11 @@ use Illuminate\Support\Facades\Http;
 #[Description('Ping each configured component and record the result in status_checks')]
 class CheckComponents extends Command
 {
+    public function __construct(private readonly IdentityProviderRegistry $registry)
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      */
@@ -50,6 +57,30 @@ class CheckComponents extends Command
             $this->line(sprintf('[%s] %s', $component['key'], $status->value));
         }
 
+        $this->checkIdentityProvider();
+
         return self::SUCCESS;
+    }
+
+    /**
+     * Probe the configured identity provider and record its availability.
+     */
+    private function checkIdentityProvider(): void
+    {
+        try {
+            $provider = $this->registry->resolve(EnvironmentName::Production);
+            $status = $provider->isAvailable() ? ComponentStatus::Ok : ComponentStatus::Down;
+        } catch (\Throwable) {
+            $status = ComponentStatus::Down;
+        }
+
+        StatusCheck::create([
+            'component' => 'identity_provider',
+            'status' => $status,
+            'response_time_ms' => null,
+            'checked_at' => now(),
+        ]);
+
+        $this->line(sprintf('[identity_provider] %s', $status->value));
     }
 }

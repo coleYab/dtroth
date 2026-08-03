@@ -19,7 +19,7 @@ The request body is JSON. All fields are required.
 | --- | --- | --- | --- |
 | `age` | integer | yes | The age to compare against. Must be between 1 and 130. |
 | `type` | enum | yes | The operator: `equal_above` (e.g. "18+") or `equal_below` (e.g. "16-"). |
-| `subject` | string | yes | The identifier of the person to verify. In the sandbox, one of the mock test identities (see the [Sandbox](/sandbox)). |
+| `subject` | string | yes | The identifier of the person to verify. In the sandbox, one of the mock test identities (see the [Sandbox](/sandbox)). In production, the national ID of the person to verify. |
 
 The request must also include an `Authorization: Bearer <secret_key>` header — see [Authentication](authentication).
 
@@ -69,6 +69,7 @@ On success the API returns `200` with the following JSON body:
 | `query_id` | string | A unique identifier for this verification, useful for audits and support. |
 | `verified_at` | string | ISO 8601 timestamp of when the verification was performed. |
 | `expires_at` | string | ISO 8601 timestamp after which the result should be re-verified. |
+| `provider_reference` | string | The identity provider's reference for this verification, useful when contacting support. |
 
 ## Example response
 
@@ -77,7 +78,8 @@ On success the API returns `200` with the following JSON body:
   "result": true,
   "query_id": "6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6",
   "verified_at": "2026-08-02T12:00:00+00:00",
-  "expires_at": "2026-10-31T12:00:00+00:00"
+  "expires_at": "2026-10-31T12:00:00+00:00",
+  "provider_reference": "fayda-3f9e2a5b-1c4d-4e6f-8a9b-0c1d2e3f4a5b"
 }
 ```
 
@@ -89,8 +91,12 @@ Errors are returned with a non-2xx status and a JSON body in the shape `{"error"
 | --- | --- | --- |
 | `invalid_key` | 401 | Missing or invalid bearer token. |
 | `preset_not_allowed` | 403 | The requested query is not enabled for this application. |
+| `identity_provider_declined` | 403 | The national ID presented is not valid for verification at this time. |
+| `unknown_subject` | 404 | The subject does not match a known test identity (sandbox). |
+| `subject_not_found` | 404 | The national ID does not match a known identity (production). |
 | `validation_error` | 422 | Malformed request body. |
 | `too_many_requests` | 429 | Rate limit exceeded. |
-| `identity_provider_unavailable` | 501 | Production verification is not available yet. |
+| `identity_provider_unreachable` | 502 | The identity provider could not be reached. |
+| `identity_provider_timeout` | 504 | The identity provider took too long to respond. |
 
 See [Error Codes](error-codes) for details.

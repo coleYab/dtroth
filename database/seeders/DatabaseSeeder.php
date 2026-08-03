@@ -240,6 +240,8 @@ class DatabaseSeeder extends Seeder
             SandboxIdentity::firstOrCreate(['key' => $identity['key']], $identity);
         }
 
+        $this->call(ProviderIdentitySeeder::class);
+
         if (! StatusCheck::query()->exists()) {
             foreach (config('status.components', []) as $component) {
                 for ($day = 0; $day < 30; $day++) {

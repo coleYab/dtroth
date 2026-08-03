@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use App\Enums\AgeQueryType;
-use App\Enums\EnvironmentName;
+use App\Exceptions\IdentityProvider\IdentityProviderException;
 use App\Exceptions\VerificationException;
 use App\Models\AgeQueryPreset;
 use App\Models\ApiCall;
 use App\Models\ApiKey;
-use App\Models\SandboxIdentity;
+use App\ValueObjects\IdentityQuery;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -22,6 +23,8 @@ class VerificationService
      * How long a verified result remains valid before it expires.
      */
     public const RESULT_TTL_DAYS = 90;
+
+    public function __construct(private readonly IdentityProviderRegistry $registry) {}
 
     /**
      * Authenticate the caller with the bearer secret and return their key.
@@ -55,39 +58,33 @@ class VerificationService
     /**
      * Verify an age query against the given environment and subject.
      *
-     * @return array{result: bool, query_id: string, verified_at: string, expires_at: string}
+     * @return array{result: bool, query_id: string, verified_at: string, expires_at: string, provider_reference: string}
      *
      * @throws VerificationException
      */
     public function verify(ApiKey $key, int $age, AgeQueryType $type, string $subject): array
     {
-        $environment = $key->environment;
-
-        if ($environment->name !== EnvironmentName::Sandbox) {
-            throw new VerificationException(501, 'identity_provider_unavailable', 'Verification for this environment is not available yet. Use a sandbox key to test the API.');
-        }
-
         $this->ensurePresetAllowed($key->app_id, $type, $age);
 
-        $identity = SandboxIdentity::query()->where('key', $subject)->first();
+        $provider = $this->registry->resolve($key->environment->name);
 
-        if ($identity === null) {
-            throw new VerificationException(404, 'unknown_subject', 'The provided subject does not match a known test identity.');
+        try {
+            $providerResult = $provider->verify(new IdentityQuery($subject, $age, $type));
+        } catch (IdentityProviderException $e) {
+            Log::warning(sprintf('[identity-provider:%s] %s', $provider->name(), $e->errorCode));
+
+            throw new VerificationException($e->statusCode(), $e->errorCode, $e->getMessage());
         }
-
-        $result = match ($type) {
-            AgeQueryType::EqualAbove => $identity->age >= $age,
-            AgeQueryType::EqualBelow => $identity->age <= $age,
-        };
 
         $verifiedAt = now();
         $expiresAt = $verifiedAt->copy()->addDays(self::RESULT_TTL_DAYS);
 
         return [
-            'result' => $result,
+            'result' => $providerResult->result,
             'query_id' => (string) Str::uuid(),
             'verified_at' => $verifiedAt->toIso8601String(),
             'expires_at' => $expiresAt->toIso8601String(),
+            'provider_reference' => $providerResult->reference,
         ];
     }
 

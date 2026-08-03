@@ -8,6 +8,8 @@ use App\Models\Observers\ApiKeyObserver;
 use App\Models\Observers\AppObserver;
 use App\Models\Observers\WebhookObserver;
 use App\Models\Webhook;
+use App\Providers\Identity\MockFaydaProvider;
+use App\Providers\Identity\SandboxIdentityProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(MockFaydaProvider::class);
+        $this->app->singleton(SandboxIdentityProvider::class);
     }
 
     /**
