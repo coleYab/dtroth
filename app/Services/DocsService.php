@@ -22,6 +22,7 @@ class DocsService
      * The markdown files that make up the reference sections, in nav order.
      */
     private const SECTION_FILES = [
+        'quickstart',
         'introduction',
         'authentication',
         'age-query-endpoint',
@@ -46,16 +47,6 @@ class DocsService
         }
 
         return $sections;
-    }
-
-    /**
-     * Render the quickstart guide.
-     *
-     * @return array{slug: string, title: string, html: string, headings: array<int, array{id: string, text: string, level: int}>}
-     */
-    public function quickstart(): array
-    {
-        return $this->load('quickstart');
     }
 
     /**

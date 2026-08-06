@@ -98,7 +98,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('billing.invoices.download');
 
     Route::get('docs', [DocsController::class, 'index'])->name('docs.index');
-    Route::get('docs/quickstart', [DocsController::class, 'quickstart'])->name('docs.quickstart');
     Route::get('docs/openapi', [DocsController::class, 'openapi'])->name('docs.openapi');
     Route::get('docs/openapi.json', [DocsController::class, 'openapiJson'])->name('docs.openapi.json');
     Route::post('docs/feedback', [DocsFeedbackController::class, 'store'])->name('docs.feedback');

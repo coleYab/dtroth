@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import { BookOpen, Menu, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { quickstart } from '@/routes/docs';
 
 interface DocsSection {
     slug: string;
@@ -72,23 +70,6 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
         setTimeout(() => onSelectSection(slug), 100);
     };
 
-    const quickstartLink = (onClick?: () => void) => (
-        <Link
-            href={quickstart().url}
-            onClick={onClick}
-            prefetch
-            className={cn(
-                'inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
-                activeSlug === 'quickstart'
-                    ? 'bg-accent font-medium text-accent-foreground'
-                    : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
-            )}
-        >
-            <BookOpen className="size-4" />
-            Quickstart
-        </Link>
-    );
-
     const sectionButtons = (onSelect: (slug: string) => void) => (
         <>
             {matches.map(({ section }) => (
@@ -125,18 +106,17 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                         />
                     </div>
                     <nav className="flex flex-col gap-1">
-                        {quickstartLink()}
                         {sectionButtons(onSelectSection)}
                     </nav>
                 </div>
             </aside>
 
             <Card className="sticky top-16 z-20 lg:hidden">
-                <CardContent className="space-y-3 p-3">
+                <CardContent className="p-2">
                     <div className="flex items-center gap-2">
                         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                             <SheetTrigger asChild>
-                                <Button type="button" variant="outline" size="sm">
+                                <Button type="button" variant="outline" size="sm" className="h-8">
                                     <Menu className="size-4" />
                                     Menu
                                 </Button>
@@ -148,7 +128,7 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                                         Documentation
                                     </SheetTitle>
                                 </SheetHeader>
-                                <div className="mt-4 flex flex-col gap-4">
+                                <div className="mt-4 flex flex-col gap-4 px-3">
                                     <div className="relative">
                                         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                         <Input
@@ -160,7 +140,6 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                                         />
                                     </div>
                                     <nav className="flex flex-col gap-1">
-                                        {quickstartLink(() => setSheetOpen(false))}
                                         {sectionButtons(selectFromSheet)}
                                     </nav>
                                 </div>

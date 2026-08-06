@@ -9,32 +9,22 @@ beforeEach(function () {
     actingAs(User::factory()->create());
 });
 
-test('the docs page renders every reference section', function () {
+test('the docs page renders the quickstart and every reference section', function () {
     $this->get(route('docs.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('docs')
-            ->has('sections', 8)
-            ->where('sections.0.slug', 'introduction')
-            ->where('sections.2.slug', 'age-query-endpoint')
-            ->where('sections.2.title', 'Age Query Endpoint')
-            ->where('sections.2.html', fn ($html) => str_contains($html, '<table'))
-            ->where('sections.2.html', fn ($html) => str_contains($html, 'data-label="Status"'))
-            ->where('sections.2.html', fn ($html) => str_contains($html, '<h2 id='))
-            ->where('sections.2.html', fn ($html) => str_contains($html, '/docs/authentication'))
-            ->has('searchIndex', 8));
-});
-
-test('the quickstart page renders the guide content', function () {
-    $this->get(route('docs.quickstart'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('docs/quickstart')
-            ->where('content.slug', 'quickstart')
-            ->where('content.html', fn ($html) => str_contains($html, 'Step 1'))
-            ->has('sections', 8)
-            ->where('sections.0.slug', 'introduction')
-            ->has('searchIndex', 8));
+            ->has('sections', 9)
+            ->where('sections.0.slug', 'quickstart')
+            ->where('sections.0.html', fn ($html) => str_contains($html, 'Step 1'))
+            ->where('sections.1.slug', 'introduction')
+            ->where('sections.3.slug', 'age-query-endpoint')
+            ->where('sections.3.title', 'Age Query Endpoint')
+            ->where('sections.3.html', fn ($html) => str_contains($html, '<table'))
+            ->where('sections.3.html', fn ($html) => str_contains($html, 'data-label="Status"'))
+            ->where('sections.3.html', fn ($html) => str_contains($html, '<h2 id='))
+            ->where('sections.3.html', fn ($html) => str_contains($html, '/docs/authentication'))
+            ->has('searchIndex', 9));
 });
 
 test('docs feedback can be recorded as helpful', function () {

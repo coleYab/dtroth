@@ -16,7 +16,7 @@ class DocsFeedbackController extends Controller
     public function store(Request $request, DocsService $docs): RedirectResponse
     {
         $validated = $request->validate([
-            'slug' => ['required', 'string', Rule::in(collect($docs->sections())->pluck('slug')->push('quickstart'))],
+            'slug' => ['required', 'string', Rule::in(collect($docs->sections())->pluck('slug'))],
             'helpful' => ['required', 'boolean'],
             'comment' => ['nullable', 'string', 'max:1000'],
         ]);

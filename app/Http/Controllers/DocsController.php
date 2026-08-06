@@ -23,18 +23,6 @@ class DocsController extends Controller
     }
 
     /**
-     * Show the quickstart guide.
-     */
-    public function quickstart(DocsService $docs): InertiaResponse
-    {
-        return Inertia::render('docs/quickstart', [
-            'content' => $docs->quickstart(),
-            'sections' => $docs->sections(),
-            'searchIndex' => $docs->searchIndex(),
-        ]);
-    }
-
-    /**
      * Download the OpenAPI specification (YAML).
      */
     public function openapi(): Response

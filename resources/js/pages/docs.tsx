@@ -14,7 +14,7 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { segmentDocHtml } from '@/lib/markdown-segments';
-import { feedback, openapi, quickstart } from '@/routes/docs';
+import { feedback, openapi } from '@/routes/docs';
 import { index as supportIndex } from '@/routes/support';
 
 interface DocHeading {
@@ -267,13 +267,12 @@ export default function Docs({ sections, searchIndex }: DocsProps) {
                                 <p className="text-muted-foreground mt-1 text-sm">
                                     Can't find what you're looking for? Check
                                     the{' '}
-                                    <Link
-                                        href={quickstart().url}
-                                        prefetch
+                                    <a
+                                        href="#quickstart"
                                         className="underline-offset-3 underline"
                                     >
                                         Quickstart
-                                    </Link>{' '}
+                                    </a>{' '}
                                     or open a{' '}
                                     <Link
                                         href={supportIndex().url}
