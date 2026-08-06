@@ -66,11 +66,13 @@ class AuditLog extends Model
         ];
     }
 
+    /** @phpstan-return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @phpstan-return BelongsTo<App, $this> */
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class);

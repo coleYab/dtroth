@@ -21,14 +21,22 @@ export function StatCard({
         <Card className={className}>
             <CardContent className="flex items-center justify-between gap-4 p-6">
                 <div className="min-w-0">
-                    <p className="truncate text-sm text-muted-foreground">{title}</p>
-                    <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-                    {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+                    <p className="text-muted-foreground truncate text-sm">
+                        {title}
+                    </p>
+                    <p className="mt-1 text-2xl font-semibold tabular-nums">
+                        {value}
+                    </p>
+                    {hint && (
+                        <p className="text-muted-foreground mt-1 text-xs">
+                            {hint}
+                        </p>
+                    )}
                 </div>
                 {Icon && (
                     <div
                         className={cn(
-                            'flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted',
+                            'bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg',
                             alert && 'bg-destructive/10 text-destructive',
                         )}
                     >

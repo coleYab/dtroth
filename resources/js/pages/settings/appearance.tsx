@@ -1,5 +1,8 @@
 import { Head } from '@inertiajs/react';
-import { AppSectionLayout, settingsSectionNavItems } from '@/components/app-section-layout';
+import {
+    AppSectionLayout,
+    settingsSectionNavItems,
+} from '@/components/app-section-layout';
 import AppearanceTabs from '@/components/appearance-tabs';
 import Heading from '@/components/heading';
 import { edit as editAppearance } from '@/routes/appearance';

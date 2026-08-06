@@ -6,6 +6,7 @@ use App\Enums\AgeQueryType;
 use Database\Factories\ConsentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,7 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read App $app
- * @property-read ConsentEvent[] $events
+ * @property-read Collection<int, ConsentEvent> $events
  */
 #[Fillable(['app_id', 'subject_identifier', 'query_type', 'query_value', 'result', 'status', 'expires_at', 'revoked_at'])]
 class Consent extends Model
@@ -85,6 +86,9 @@ class Consent extends Model
 
     /**
      * Scope the query to active consents.
+     *
+     * @param  Builder<Consent>  $query
+     * @return Builder<Consent>
      */
     public function scopeActive(Builder $query): Builder
     {
@@ -92,11 +96,13 @@ class Consent extends Model
             ->where(fn (Builder $q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()));
     }
 
+    /** @phpstan-return BelongsTo<App, $this> */
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class);
     }
 
+    /** @phpstan-return HasMany<ConsentEvent, $this> */
     public function events(): HasMany
     {
         return $this->hasMany(ConsentEvent::class)->orderByDesc('created_at');

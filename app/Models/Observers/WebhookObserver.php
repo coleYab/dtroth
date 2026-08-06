@@ -17,7 +17,7 @@ class WebhookObserver
     {
         $this->log(
             AuditLog::ACTION_WEBHOOK_CHANGED,
-            "Webhook to {$webhook->url} created for \"{$webhook->app?->name}\".",
+            "Webhook to {$webhook->url} created for \"{$webhook->app->name}\".",
             $webhook->app_id,
         );
     }
@@ -29,7 +29,7 @@ class WebhookObserver
     {
         $this->log(
             AuditLog::ACTION_WEBHOOK_CHANGED,
-            "Webhook to {$webhook->url} updated for \"{$webhook->app?->name}\".",
+            "Webhook to {$webhook->url} updated for \"{$webhook->app->name}\".",
             $webhook->app_id,
         );
     }
@@ -41,7 +41,7 @@ class WebhookObserver
     {
         $this->log(
             AuditLog::ACTION_WEBHOOK_CHANGED,
-            "Webhook to {$webhook->url} deleted for \"{$webhook->app?->name}\".",
+            "Webhook to {$webhook->url} deleted for \"{$webhook->app->name}\".",
             $webhook->app_id,
         );
     }

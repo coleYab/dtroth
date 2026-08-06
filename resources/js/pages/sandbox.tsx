@@ -1,5 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
-import { AlertTriangle, Clock3, FlaskConical, Loader2, Send, Zap } from 'lucide-react';
+import {
+    AlertTriangle,
+    Clock3,
+    FlaskConical,
+    Loader2,
+    Send,
+    Zap,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { CodeBlock } from '@/components/code-block';
 import { CodeTabs } from '@/components/code-tabs';
@@ -7,10 +14,22 @@ import { PageHeader } from '@/components/page-header';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { verify as sandboxVerify } from '@/routes/sandbox';
 
@@ -62,7 +81,12 @@ const statusTone = (statusCode: number): 'green' | 'red' | 'yellow' => {
     return 'yellow';
 };
 
-export default function Sandbox({ apps, identities, outcome, rateLimit }: SandboxProps) {
+export default function Sandbox({
+    apps,
+    identities,
+    outcome,
+    rateLimit,
+}: SandboxProps) {
     const { data, setData, post, processing, errors, transform } = useForm({
         app_id: apps[0]?.id ?? 0,
         age: '18',
@@ -80,11 +104,22 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
         });
     };
 
-    const selectedIdentity = identities.find((identity) => identity.key === data.subject);
+    const selectedIdentity = identities.find(
+        (identity) => identity.key === data.subject,
+    );
     const selectedApp = apps.find((app) => app.id === Number(data.app_id));
 
     const requestJson = useMemo(
-        () => JSON.stringify({ age: Number(data.age), type: data.type, subject: data.subject }, null, 2),
+        () =>
+            JSON.stringify(
+                {
+                    age: Number(data.age),
+                    type: data.type,
+                    subject: data.subject,
+                },
+                null,
+                2,
+            ),
         [data.age, data.type, data.subject],
     );
 
@@ -123,18 +158,22 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
     return (
         <>
             <Head title="Sandbox" />
-            <PageHeader title="Sandbox" description="Send real verification requests against mock test identities — no code required." />
+            <PageHeader
+                title="Sandbox"
+                description="Send real verification requests against mock test identities — no code required."
+            />
 
             <div className="grid gap-6 lg:grid-cols-2">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
-                            <FlaskConical className="size-4 text-muted-foreground" />
+                            <FlaskConical className="text-muted-foreground size-4" />
                             Request Builder
                         </CardTitle>
                         <CardDescription>
-                            Build a payload and send it to the sandbox API. Requests hit your sandbox environment and
-                            are recorded in your app logs.
+                            Build a payload and send it to the sandbox API.
+                            Requests hit your sandbox environment and are
+                            recorded in your app logs.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -143,24 +182,37 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                                 <Label htmlFor="sandbox-app">Application</Label>
                                 <Select
                                     value={String(data.app_id)}
-                                    onValueChange={(value) => setData('app_id', Number(value))}
+                                    onValueChange={(value) =>
+                                        setData('app_id', Number(value))
+                                    }
                                 >
                                     <SelectTrigger id="sandbox-app">
                                         <SelectValue placeholder="Select an application" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {apps.map((app) => (
-                                            <SelectItem key={app.id} value={String(app.id)}>
+                                            <SelectItem
+                                                key={app.id}
+                                                value={String(app.id)}
+                                            >
                                                 {app.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                {errors.app_id && <p className="text-sm text-destructive">{errors.app_id}</p>}
+                                {errors.app_id && (
+                                    <p className="text-destructive text-sm">
+                                        {errors.app_id}
+                                    </p>
+                                )}
                                 {apps.length === 0 && (
-                                    <p className="text-sm text-muted-foreground">
-                                        No applications with a sandbox environment yet —{' '}
-                                        <a href="/apps/new" className="underline underline-offset-3">
+                                    <p className="text-muted-foreground text-sm">
+                                        No applications with a sandbox
+                                        environment yet —{' '}
+                                        <a
+                                            href="/apps/new"
+                                            className="underline-offset-3 underline"
+                                        >
                                             create one
                                         </a>
                                         .
@@ -177,51 +229,97 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                                         min={1}
                                         max={130}
                                         value={data.age}
-                                        onChange={(e) => setData('age', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('age', e.target.value)
+                                        }
                                     />
-                                    {errors.age && <p className="text-sm text-destructive">{errors.age}</p>}
+                                    {errors.age && (
+                                        <p className="text-destructive text-sm">
+                                            {errors.age}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="sandbox-type">Query type</Label>
-                                    <Select value={data.type} onValueChange={(value) => setData('type', value)}>
+                                    <Label htmlFor="sandbox-type">
+                                        Query type
+                                    </Label>
+                                    <Select
+                                        value={data.type}
+                                        onValueChange={(value) =>
+                                            setData('type', value)
+                                        }
+                                    >
                                         <SelectTrigger id="sandbox-type">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="equal_above">equal_above (18+)</SelectItem>
-                                            <SelectItem value="equal_below">equal_below (16−)</SelectItem>
+                                            <SelectItem value="equal_above">
+                                                equal_above (18+)
+                                            </SelectItem>
+                                            <SelectItem value="equal_below">
+                                                equal_below (16−)
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.type && <p className="text-sm text-destructive">{errors.type}</p>}
+                                    {errors.type && (
+                                        <p className="text-destructive text-sm">
+                                            {errors.type}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="sandbox-subject">Test identity</Label>
-                                <Select value={data.subject} onValueChange={(value) => setData('subject', value)}>
+                                <Label htmlFor="sandbox-subject">
+                                    Test identity
+                                </Label>
+                                <Select
+                                    value={data.subject}
+                                    onValueChange={(value) =>
+                                        setData('subject', value)
+                                    }
+                                >
                                     <SelectTrigger id="sandbox-subject">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {identities.map((identity) => (
-                                            <SelectItem key={identity.key} value={identity.key}>
-                                                {identity.label} — age {identity.age}
+                                            <SelectItem
+                                                key={identity.key}
+                                                value={identity.key}
+                                            >
+                                                {identity.label} — age{' '}
+                                                {identity.age}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                {errors.subject && <p className="text-sm text-destructive">{errors.subject}</p>}
+                                {errors.subject && (
+                                    <p className="text-destructive text-sm">
+                                        {errors.subject}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
-                        <Button type="button" onClick={send} disabled={processing || apps.length === 0} className="w-full gap-2">
-                            {processing ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                        <Button
+                            type="button"
+                            onClick={send}
+                            disabled={processing || apps.length === 0}
+                            className="w-full gap-2"
+                        >
+                            {processing ? (
+                                <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                                <Send className="size-4" />
+                            )}
                             {processing ? 'Sending...' : 'Send Request'}
                         </Button>
 
-                        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
                             <Zap className="size-3.5 text-amber-500" />
-                            {rateLimit.remaining} of {rateLimit.limit} sandbox requests remaining this minute
+                            {rateLimit.remaining} of {rateLimit.limit} sandbox
+                            requests remaining this minute
                         </p>
                     </CardContent>
                 </Card>
@@ -229,7 +327,7 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
-                            <Clock3 className="size-4 text-muted-foreground" />
+                            <Clock3 className="text-muted-foreground size-4" />
                             Response
                         </CardTitle>
                         <CardDescription>
@@ -240,7 +338,7 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {outcome === null ? (
-                            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+                            <div className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
                                 Send a request to see the live JSON response.
                             </div>
                         ) : (
@@ -259,10 +357,18 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                                         )}
                                     >
                                         <span className="size-1.5 rounded-full bg-current" />
-                                        {outcome.statusCode} {outcome.statusCode < 300 ? 'OK' : outcome.statusCode < 500 ? 'Error' : 'Server Error'}
+                                        {outcome.statusCode}{' '}
+                                        {outcome.statusCode < 300
+                                            ? 'OK'
+                                            : outcome.statusCode < 500
+                                              ? 'Error'
+                                              : 'Server Error'}
                                     </Badge>
                                     {outcome.durationMs !== null && (
-                                        <Badge variant="secondary" className="gap-1">
+                                        <Badge
+                                            variant="secondary"
+                                            className="gap-1"
+                                        >
                                             <Clock3 className="size-3" />
                                             {outcome.durationMs} ms
                                         </Badge>
@@ -272,17 +378,22 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                                 {isRateLimited ? (
                                     <Alert variant="destructive">
                                         <AlertTriangle className="size-4" />
-                                        <AlertTitle>Rate limit reached</AlertTitle>
+                                        <AlertTitle>
+                                            Rate limit reached
+                                        </AlertTitle>
                                         <AlertDescription>
-                                            {outcome.payload.error?.message} Try again in about{' '}
-                                            {rateLimit.retryAfter ?? 60} seconds.
+                                            {outcome.payload.error?.message} Try
+                                            again in about{' '}
+                                            {rateLimit.retryAfter ?? 60}{' '}
+                                            seconds.
                                         </AlertDescription>
                                     </Alert>
                                 ) : outcome.payload.error ? (
                                     <Alert variant="default">
                                         <AlertTriangle className="size-4" />
                                         <AlertTitle>
-                                            {outcome.statusCode} — {outcome.payload.error.code}
+                                            {outcome.statusCode} —{' '}
+                                            {outcome.payload.error.code}
                                         </AlertTitle>
                                         <AlertDescription>
                                             {outcome.payload.error.message}{' '}
@@ -291,7 +402,7 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                                                     Enable this query in{' '}
                                                     <a
                                                         href={`/apps/${data.app_id}/verification-settings`}
-                                                        className="underline underline-offset-3"
+                                                        className="underline-offset-3 underline"
                                                     >
                                                         verification settings
                                                     </a>
@@ -303,7 +414,9 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                                 ) : (
                                     <div className="grid grid-cols-3 gap-2">
                                         <div className="rounded-lg border p-3">
-                                            <p className="text-xs text-muted-foreground">Result</p>
+                                            <p className="text-muted-foreground text-xs">
+                                                Result
+                                            </p>
                                             <p
                                                 className={cn(
                                                     'text-xl font-semibold',
@@ -316,13 +429,22 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                                             </p>
                                         </div>
                                         <div className="col-span-2 rounded-lg border p-3">
-                                            <p className="text-xs text-muted-foreground">Query ID</p>
-                                            <p className="truncate font-mono text-sm">{outcome.payload.query_id}</p>
+                                            <p className="text-muted-foreground text-xs">
+                                                Query ID
+                                            </p>
+                                            <p className="truncate font-mono text-sm">
+                                                {outcome.payload.query_id}
+                                            </p>
                                         </div>
                                     </div>
                                 )}
 
-                                {responseJson !== null && <CodeBlock code={responseJson} language="json" />}
+                                {responseJson !== null && (
+                                    <CodeBlock
+                                        code={responseJson}
+                                        language="json"
+                                    />
+                                )}
                             </>
                         )}
                     </CardContent>
@@ -333,11 +455,13 @@ export default function Sandbox({ apps, identities, outcome, rateLimit }: Sandbo
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base">
-                            {selectedIdentity?.label} — exact request you just sent
+                            {selectedIdentity?.label} — exact request you just
+                            sent
                         </CardTitle>
                         <CardDescription>
-                            Copy the snippet for your stack — it reflects exactly what the sandbox sent, including the
-                            test identity.
+                            Copy the snippet for your stack — it reflects
+                            exactly what the sandbox sent, including the test
+                            identity.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

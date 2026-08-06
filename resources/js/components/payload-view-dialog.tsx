@@ -21,7 +21,9 @@ type PayloadViewDialogProps = {
 function JsonBlock({ value }: { value: Record<string, unknown> | null }) {
     if (value === null) {
         return (
-            <p className="text-sm text-muted-foreground">No payload was recorded for this request.</p>
+            <p className="text-muted-foreground text-sm">
+                No payload was recorded for this request.
+            </p>
         );
     }
 
@@ -29,7 +31,7 @@ function JsonBlock({ value }: { value: Record<string, unknown> | null }) {
 
     return (
         <div className="relative">
-            <pre className="max-h-72 overflow-auto rounded-md border bg-muted/50 p-3 font-mono text-xs leading-relaxed">
+            <pre className="bg-muted/50 max-h-72 overflow-auto rounded-md border p-3 font-mono text-xs leading-relaxed">
                 {pretty}
             </pre>
             <div className="absolute right-2 top-2">
@@ -39,33 +41,48 @@ function JsonBlock({ value }: { value: Record<string, unknown> | null }) {
     );
 }
 
-export function PayloadViewDialog({ open, onOpenChange, title, payload, response }: PayloadViewDialogProps) {
+export function PayloadViewDialog({
+    open,
+    onOpenChange,
+    title,
+    payload,
+    response,
+}: PayloadViewDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Braces className="size-4 text-muted-foreground" />
+                        <Braces className="text-muted-foreground size-4" />
                         {title}
                     </DialogTitle>
-                    <DialogDescription>Raw request and response payloads.</DialogDescription>
+                    <DialogDescription>
+                        Raw request and response payloads.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid max-h-[70vh] gap-4 overflow-y-auto pr-1">
                     <div className="grid gap-2">
-                        <Label className="text-xs text-muted-foreground">Request payload</Label>
+                        <Label className="text-muted-foreground text-xs">
+                            Request payload
+                        </Label>
                         <JsonBlock value={payload} />
                     </div>
 
                     {response !== undefined && (
                         <div className="grid gap-2">
-                            <Label className="text-xs text-muted-foreground">Response</Label>
-                            <div className={cn('rounded-md border p-3 text-xs')}>
+                            <Label className="text-muted-foreground text-xs">
+                                Response
+                            </Label>
+                            <div
+                                className={cn('rounded-md border p-3 text-xs')}
+                            >
                                 <p className="mb-2 font-medium">
                                     Status: {response.status ?? '—'}
                                 </p>
                                 <pre className="max-h-48 overflow-auto whitespace-pre-wrap font-mono text-xs leading-relaxed">
-                                    {response.body ?? 'No response body was recorded.'}
+                                    {response.body ??
+                                        'No response body was recorded.'}
                                 </pre>
                             </div>
                         </div>

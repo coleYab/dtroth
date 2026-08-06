@@ -71,6 +71,7 @@ class Invitation extends Model
         return route('teams.invitations.accept', ['token' => $this->token]);
     }
 
+    /** @phpstan-return BelongsTo<Team, $this> */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);

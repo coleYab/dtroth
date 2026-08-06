@@ -60,6 +60,7 @@ class Invoice extends Model
         return $this->currency.' '.number_format($this->amount / 100, 2);
     }
 
+    /** @phpstan-return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

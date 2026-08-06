@@ -4,7 +4,13 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import {
     Table,
@@ -27,12 +33,21 @@ type Props = {
     chapa_configured: boolean;
 };
 
-export default function Billing({ plans, current_plan, subscription, invoices, chapa_configured }: Props) {
+export default function Billing({
+    plans,
+    current_plan,
+    subscription,
+    invoices,
+    chapa_configured,
+}: Props) {
     setLayoutProps({
         breadcrumbs: [{ title: 'Billing', href: billingIndex() }],
     });
 
-    const defaultPlan = plans.find((p) => p.slug === current_plan)?.slug ?? plans[0]?.slug ?? '';
+    const defaultPlan =
+        plans.find((p) => p.slug === current_plan)?.slug ??
+        plans[0]?.slug ??
+        '';
     const [plan, setPlan] = useState(defaultPlan);
     const { setData, post, processing } = useForm<{ plan: string }>({
         plan: defaultPlan,
@@ -56,11 +71,18 @@ export default function Billing({ plans, current_plan, subscription, invoices, c
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h2 className="text-2xl font-semibold">Billing</h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Choose a plan, manage your payment method, and download invoices.
+                        <p className="text-muted-foreground mt-1 text-sm">
+                            Choose a plan, manage your payment method, and
+                            download invoices.
                         </p>
                     </div>
-                    <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
+                    <Badge
+                        variant={
+                            subscription.status === 'active'
+                                ? 'default'
+                                : 'secondary'
+                        }
+                    >
                         {statusLabel} plan
                     </Badge>
                 </div>
@@ -78,25 +100,29 @@ export default function Billing({ plans, current_plan, subscription, invoices, c
                                     className={cn(
                                         'rounded-xl border p-5 text-left transition-colors',
                                         selected
-                                            ? 'border-primary ring-1 ring-primary'
+                                            ? 'border-primary ring-primary ring-1'
                                             : 'hover:border-muted-foreground/40',
                                     )}
                                 >
                                     <div className="flex items-center justify-between gap-2">
-                                        <p className="font-semibold">{item.name}</p>
-                                        {item.is_current && <Badge>Current</Badge>}
+                                        <p className="font-semibold">
+                                            {item.name}
+                                        </p>
+                                        {item.is_current && (
+                                            <Badge>Current</Badge>
+                                        )}
                                     </div>
                                     <p className="mt-3 text-2xl font-semibold tabular-nums">
                                         {item.price_formatted}
-                                        <span className="text-sm font-normal text-muted-foreground">
+                                        <span className="text-muted-foreground text-sm font-normal">
                                             /month
                                         </span>
                                     </p>
-                                    <p className="mt-2 text-sm text-muted-foreground">
+                                    <p className="text-muted-foreground mt-2 text-sm">
                                         {item.description}
                                     </p>
                                     {selected && (
-                                        <p className="mt-3 flex items-center gap-1 text-xs font-medium text-primary">
+                                        <p className="text-primary mt-3 flex items-center gap-1 text-xs font-medium">
                                             <Check className="size-3" />
                                             Selected
                                         </p>
@@ -109,7 +135,7 @@ export default function Billing({ plans, current_plan, subscription, invoices, c
                     <Card className={cn(!chapa_configured && 'opacity-60')}>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-base">
-                                <Sparkles className="size-4 text-muted-foreground" />
+                                <Sparkles className="text-muted-foreground size-4" />
                                 Upgrade
                             </CardTitle>
                             <CardDescription>
@@ -119,10 +145,20 @@ export default function Billing({ plans, current_plan, subscription, invoices, c
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={upgrade} className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                <Button type="submit" disabled={processing || !plan || !chapa_configured}>
+                            <form
+                                onSubmit={upgrade}
+                                className="flex flex-col gap-3 sm:flex-row sm:items-center"
+                            >
+                                <Button
+                                    type="submit"
+                                    disabled={
+                                        processing || !plan || !chapa_configured
+                                    }
+                                >
                                     {processing && <Spinner />}
-                                    Upgrade to {plans.find((p) => p.slug === plan)?.name ?? 'plan'}
+                                    Upgrade to{' '}
+                                    {plans.find((p) => p.slug === plan)?.name ??
+                                        'plan'}
                                 </Button>
                                 <Button asChild type="button" variant="outline">
                                     <a href={billing.usage().url}>View usage</a>
@@ -134,52 +170,77 @@ export default function Billing({ plans, current_plan, subscription, invoices, c
                     <div className="grid gap-4 md:grid-cols-2">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">Payment method</CardTitle>
+                                <CardTitle className="text-base">
+                                    Payment method
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="grid gap-3 text-sm">
                                 <div className="flex items-center justify-between gap-3">
-                                    <span className="text-muted-foreground">Method</span>
-                                    <span>{subscription.payment_method ?? 'No payment method'}</span>
+                                    <span className="text-muted-foreground">
+                                        Method
+                                    </span>
+                                    <span>
+                                        {subscription.payment_method ??
+                                            'No payment method'}
+                                    </span>
                                 </div>
                                 <div className="flex items-center justify-between gap-3">
-                                    <span className="text-muted-foreground">Trial ends</span>
+                                    <span className="text-muted-foreground">
+                                        Trial ends
+                                    </span>
                                     <span>
                                         {subscription.trial_ends_at
-                                            ? new Date(subscription.trial_ends_at).toLocaleDateString()
+                                            ? new Date(
+                                                  subscription.trial_ends_at,
+                                              ).toLocaleDateString()
                                             : '—'}
                                     </span>
                                 </div>
                                 {subscription.renews_at && (
                                     <div className="flex items-center justify-between gap-3">
-                                        <span className="text-muted-foreground">Renews</span>
+                                        <span className="text-muted-foreground">
+                                            Renews
+                                        </span>
                                         <span>
-                                            {new Date(subscription.renews_at).toLocaleDateString()}
+                                            {new Date(
+                                                subscription.renews_at,
+                                            ).toLocaleDateString()}
                                         </span>
                                     </div>
                                 )}
-                                <p className="text-xs text-muted-foreground">
-                                    Card details are handled by Chapa and never stored by us.
+                                <p className="text-muted-foreground text-xs">
+                                    Card details are handled by Chapa and never
+                                    stored by us.
                                 </p>
                             </CardContent>
                         </Card>
 
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">Invoices</CardTitle>
+                                <CardTitle className="text-base">
+                                    Invoices
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 {invoices.length === 0 ? (
-                                    <p className="py-6 text-center text-sm text-muted-foreground">
-                                        No invoices yet. Your trial is free for 14 days.
+                                    <p className="text-muted-foreground py-6 text-center text-sm">
+                                        No invoices yet. Your trial is free for
+                                        14 days.
                                     </p>
                                 ) : (
                                     <>
                                         <Table className="hidden md:table">
                                             <TableHeader>
                                                 <TableRow>
-                                                    <TableHead>Number</TableHead>
-                                                    <TableHead>Amount</TableHead>
-                                                    <TableHead>Status</TableHead>
+                                                    <TableHead>
+                                                        Number
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Amount
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Status
+                                                    </TableHead>
                                                     <TableHead>Paid</TableHead>
                                                     <TableHead className="w-12" />
                                                 </TableRow>
@@ -196,9 +257,11 @@ export default function Billing({ plans, current_plan, subscription, invoices, c
                                                         <TableCell>
                                                             <Badge
                                                                 variant={
-                                                                    invoice.status === 'paid'
+                                                                    invoice.status ===
+                                                                    'paid'
                                                                         ? 'default'
-                                                                        : invoice.status === 'pending'
+                                                                        : invoice.status ===
+                                                                            'pending'
                                                                           ? 'secondary'
                                                                           : 'destructive'
                                                                 }
@@ -208,14 +271,26 @@ export default function Billing({ plans, current_plan, subscription, invoices, c
                                                         </TableCell>
                                                         <TableCell>
                                                             {invoice.paid_at
-                                                                ? new Date(invoice.paid_at).toLocaleDateString()
+                                                                ? new Date(
+                                                                      invoice.paid_at,
+                                                                  ).toLocaleDateString()
                                                                 : '—'}
                                                         </TableCell>
                                                         <TableCell>
-                                                            {invoice.status === 'paid' && (
-                                                                <Button asChild variant="ghost" size="icon">
+                                                            {invoice.status ===
+                                                                'paid' && (
+                                                                <Button
+                                                                    asChild
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                >
                                                                     <a
-                                                                        href={billing.invoices.download(invoice.id).url}
+                                                                        href={
+                                                                            billing.invoices.download(
+                                                                                invoice.id,
+                                                                            )
+                                                                                .url
+                                                                        }
                                                                         aria-label={`Download invoice ${invoice.number}`}
                                                                     >
                                                                         <Download />
@@ -245,19 +320,30 @@ export default function Billing({ plans, current_plan, subscription, invoices, c
                                                     <div className="flex shrink-0 items-center gap-2">
                                                         <Badge
                                                             variant={
-                                                                invoice.status === 'paid'
+                                                                invoice.status ===
+                                                                'paid'
                                                                     ? 'default'
-                                                                    : invoice.status === 'pending'
+                                                                    : invoice.status ===
+                                                                        'pending'
                                                                       ? 'secondary'
                                                                       : 'destructive'
                                                             }
                                                         >
                                                             {invoice.status}
                                                         </Badge>
-                                                        {invoice.status === 'paid' && (
-                                                            <Button asChild variant="outline" size="sm">
+                                                        {invoice.status ===
+                                                            'paid' && (
+                                                            <Button
+                                                                asChild
+                                                                variant="outline"
+                                                                size="sm"
+                                                            >
                                                                 <a
-                                                                    href={billing.invoices.download(invoice.id).url}
+                                                                    href={
+                                                                        billing.invoices.download(
+                                                                            invoice.id,
+                                                                        ).url
+                                                                    }
                                                                 >
                                                                     <Download />
                                                                     PDF

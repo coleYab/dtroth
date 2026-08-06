@@ -47,6 +47,7 @@ class ConsentEvent extends Model
         ];
     }
 
+    /** @phpstan-return BelongsTo<Consent, $this> */
     public function consent(): BelongsTo
     {
         return $this->belongsTo(Consent::class);

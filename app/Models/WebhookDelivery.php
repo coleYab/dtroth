@@ -47,6 +47,7 @@ class WebhookDelivery extends Model
         ];
     }
 
+    /** @phpstan-return BelongsTo<Webhook, $this> */
     public function webhook(): BelongsTo
     {
         return $this->belongsTo(Webhook::class);

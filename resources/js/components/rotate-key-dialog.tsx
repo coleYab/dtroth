@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
-import type {FormEvent} from 'react';
+import type { FormEvent } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +22,12 @@ type RotateKeyDialogProps = {
     onOpenChange: (open: boolean) => void;
 };
 
-export function RotateKeyDialog({ app, apiKey, open, onOpenChange }: RotateKeyDialogProps) {
+export function RotateKeyDialog({
+    app,
+    apiKey,
+    open,
+    onOpenChange,
+}: RotateKeyDialogProps) {
     const { post, processing } = useForm();
 
     if (!apiKey) {
@@ -36,22 +41,29 @@ export function RotateKeyDialog({ app, apiKey, open, onOpenChange }: RotateKeyDi
     };
 
     return (
-        <Dialog open={open} onOpenChange={(next) => (next ? undefined : onOpenChange(false))}>
+        <Dialog
+            open={open}
+            onOpenChange={(next) => (next ? undefined : onOpenChange(false))}
+        >
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Rotate API key</DialogTitle>
                     <DialogDescription>
-                        A new secret is issued for "{apiKey.name}". The key keeps the same public key.
+                        A new secret is issued for "{apiKey.name}". The key
+                        keeps the same public key.
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={rotateKey} className="grid gap-4">
                     <Alert variant="destructive">
                         <AlertTriangle className="size-4" />
-                        <AlertTitle>Your current secret stops working immediately</AlertTitle>
+                        <AlertTitle>
+                            Your current secret stops working immediately
+                        </AlertTitle>
                         <AlertDescription>
-                            After rotating, requests using the old secret will be rejected. Update
-                            your servers to the new secret as soon as it is shown.
+                            After rotating, requests using the old secret will
+                            be rejected. Update your servers to the new secret
+                            as soon as it is shown.
                         </AlertDescription>
                     </Alert>
 
@@ -64,7 +76,11 @@ export function RotateKeyDialog({ app, apiKey, open, onOpenChange }: RotateKeyDi
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" variant="destructive" disabled={processing}>
+                        <Button
+                            type="submit"
+                            variant="destructive"
+                            disabled={processing}
+                        >
                             {processing ? <Spinner /> : <RefreshCw />}
                             Rotate key
                         </Button>

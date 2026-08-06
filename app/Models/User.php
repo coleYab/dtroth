@@ -53,6 +53,8 @@ class User extends Authenticatable
 
     /**
      * Get the developer applications owned by the user.
+     *
+     * @phpstan-return HasMany<App, $this>
      */
     public function apps(): HasMany
     {
@@ -61,6 +63,8 @@ class User extends Authenticatable
 
     /**
      * Get the team owned by the user.
+     *
+     * @phpstan-return HasOne<Team, $this>
      */
     public function team(): HasOne
     {
@@ -69,6 +73,8 @@ class User extends Authenticatable
 
     /**
      * Get the teams the user is a member of.
+     *
+     * @phpstan-return BelongsToMany<Team, $this>
      */
     public function teams(): BelongsToMany
     {
@@ -105,6 +111,8 @@ class User extends Authenticatable
 
     /**
      * Get the user's billing subscription.
+     *
+     * @phpstan-return HasOne<Subscription, $this>
      */
     public function subscription(): HasOne
     {
@@ -113,6 +121,8 @@ class User extends Authenticatable
 
     /**
      * Get the invoices issued to the user.
+     *
+     * @phpstan-return HasMany<Invoice, $this>
      */
     public function invoices(): HasMany
     {

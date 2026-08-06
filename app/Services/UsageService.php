@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\ApiCall;
 use App\Models\App;
+use App\Models\User;
 use App\Models\Verification;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -43,24 +44,26 @@ class UsageService
         );
 
         $byQuery = $calls->filter(fn (ApiCall $call) => $call->ageQuery() !== null)
-            ->groupBy(fn (ApiCall $call) => $call->ageQuery())
+            ->groupBy(fn (ApiCall $call) => (string) $call->ageQuery())
             ->map(fn (Collection $group) => $group->count())
             ->sortDesc()
             ->map(fn (int $count, string $query) => ['query' => $query, 'calls' => $count])
             ->values();
 
         $mostUsed = $verifications->filter(fn (Verification $v) => $v->ageQuery() !== null)
-            ->groupBy(fn (Verification $v) => $v->ageQuery())
+            ->groupBy(fn (Verification $v) => (string) $v->ageQuery())
             ->map(fn (Collection $group) => $group->count())
             ->sortDesc()
             ->keys()
             ->first();
 
+        $mostUsedQuery = $mostUsed === null ? null : (string) $mostUsed;
+
         return [
             'total_calls' => $totalCalls,
             'total_verifications' => $verifications->count(),
             'success_rate' => $totalCalls > 0 ? round($succeeded / $totalCalls * 100, 1) : 100.0,
-            'most_used_query' => $mostUsed,
+            'most_used_query' => $mostUsedQuery,
             'daily' => $daily,
             'by_query' => $byQuery,
         ];
@@ -69,17 +72,17 @@ class UsageService
     /**
      * Merge per-day call and verification counts into a sorted series.
      *
-     * @param  Collection<int, int>  $callsByDay
-     * @param  Collection<int, int>  $verificationsByDay
+     * @param  Collection<int|string, int<0, max>>  $callsByDay
+     * @param  Collection<int|string, int<0, max>>  $verificationsByDay
      * @return Collection<int, array{date: string, calls: int, verifications: int}>
      */
     private function dailySeries(Collection $callsByDay, Collection $verificationsByDay): Collection
     {
         return $callsByDay
-            ->union($verificationsByDay->map(fn (int $count) => 0))
-            ->map(fn (int $count, string $date) => [
-                'date' => $date,
-                'calls' => $count,
+            ->union($verificationsByDay)
+            ->map(fn (int $count, int|string $date) => [
+                'date' => (string) $date,
+                'calls' => $callsByDay->get($date, 0),
                 'verifications' => $verificationsByDay->get($date, 0),
             ])
             ->sortKeys()
@@ -93,10 +96,10 @@ class UsageService
      *     total_calls: int,
      *     total_verifications: int,
      *     estimated_cost_etb: int,
-     *     per_app: Collection<int, array{app_id: int, app_name: string, calls: int, verifications: int, estimated_cost_etb: int}>
+     *     per_app: Collection<int, array{app_id: int, app_name: string, calls: int<0, max>, verifications: int<0, max>, estimated_cost_etb: int}>
      * }
      */
-    public function forUser($user, CarbonInterface $from, CarbonInterface $to): array
+    public function forUser(User $user, CarbonInterface $from, CarbonInterface $to): array
     {
         $perApp = $user->apps()
             ->withCount([
@@ -112,12 +115,10 @@ class UsageService
                 'estimated_cost_etb' => $this->estimateCost($app->calls_count),
             ]);
 
-        $totalCalls = $perApp->sum('calls');
-
         return [
-            'total_calls' => $totalCalls,
-            'total_verifications' => $perApp->sum('verifications'),
-            'estimated_cost_etb' => $perApp->sum('estimated_cost_etb'),
+            'total_calls' => (int) $perApp->sum('calls'),
+            'total_verifications' => (int) $perApp->sum('verifications'),
+            'estimated_cost_etb' => (int) $perApp->sum('estimated_cost_etb'),
             'per_app' => $perApp,
         ];
     }

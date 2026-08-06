@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\TeamRole;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,9 +21,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read User $owner
- * @property-read TeamMember[] $memberships
- * @property-read App[] $apps
- * @property-read Invitation[] $invitations
+ * @property-read Collection<int, TeamMember> $memberships
+ * @property-read Collection<int, App> $apps
+ * @property-read Collection<int, Invitation> $invitations
  */
 #[Fillable(['owner_user_id', 'name', 'slug'])]
 class Team extends Model
@@ -40,6 +41,7 @@ class Team extends Model
         return [];
     }
 
+    /** @phpstan-return BelongsTo<User, $this> */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_user_id');
@@ -47,6 +49,8 @@ class Team extends Model
 
     /**
      * The accepted members of the team, including the owner.
+     *
+     * @phpstan-return BelongsToMany<User, $this>
      */
     public function members(): BelongsToMany
     {
@@ -57,17 +61,21 @@ class Team extends Model
 
     /**
      * The raw membership rows (accepted members plus pending invites).
+     *
+     * @phpstan-return HasMany<TeamMember, $this>
      */
     public function memberships(): HasMany
     {
         return $this->hasMany(TeamMember::class);
     }
 
+    /** @phpstan-return HasMany<App, $this> */
     public function apps(): HasMany
     {
         return $this->hasMany(App::class);
     }
 
+    /** @phpstan-return HasMany<Invitation, $this> */
     public function invitations(): HasMany
     {
         return $this->hasMany(Invitation::class);

@@ -8,13 +8,17 @@ export default function PrivacyPolicy() {
             <div className="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:p-8 dark:bg-[#0a0a0a]">
                 <LandingHeader />
                 <main className="w-full max-w-[335px] rounded-lg bg-white p-6 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:max-w-4xl lg:p-12 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]">
-                    <h1 className="mb-1 text-2xl font-medium">Privacy Policy</h1>
+                    <h1 className="mb-1 text-2xl font-medium">
+                        Privacy Policy
+                    </h1>
                     <p className="mb-6 text-[#706f6c] dark:text-[#A1A09A]">
                         Last updated: August 1, 2026
                     </p>
 
                     <section className="mb-6">
-                        <h2 className="mb-2 font-medium">1. Information We Collect</h2>
+                        <h2 className="mb-2 font-medium">
+                            1. Information We Collect
+                        </h2>
                         <p className="text-[#706f6c] dark:text-[#A1A09A]">
                             We collect information you provide directly to us,
                             such as your name, email address, and password when
@@ -24,7 +28,9 @@ export default function PrivacyPolicy() {
                     </section>
 
                     <section className="mb-6">
-                        <h2 className="mb-2 font-medium">2. How We Use Your Information</h2>
+                        <h2 className="mb-2 font-medium">
+                            2. How We Use Your Information
+                        </h2>
                         <p className="text-[#706f6c] dark:text-[#A1A09A]">
                             We use the information we collect to provide,
                             maintain, and improve our services, to communicate
@@ -34,7 +40,9 @@ export default function PrivacyPolicy() {
                     </section>
 
                     <section className="mb-6">
-                        <h2 className="mb-2 font-medium">3. Sharing of Information</h2>
+                        <h2 className="mb-2 font-medium">
+                            3. Sharing of Information
+                        </h2>
                         <p className="text-[#706f6c] dark:text-[#A1A09A]">
                             We do not sell your personal information. We may
                             share your information with service providers who
@@ -63,7 +71,9 @@ export default function PrivacyPolicy() {
                     </section>
 
                     <section>
-                        <h2 className="mb-2 font-medium">6. Changes to This Policy</h2>
+                        <h2 className="mb-2 font-medium">
+                            6. Changes to This Policy
+                        </h2>
                         <p className="text-[#706f6c] dark:text-[#A1A09A]">
                             We may update this Privacy Policy from time to time.
                             We will notify you of any changes by posting the new

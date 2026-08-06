@@ -20,6 +20,7 @@ class ActivityEventFactory extends Factory
      */
     public function definition(): array
     {
+        /** @var ActivityEventType $type */
         $type = fake()->randomElement(ActivityEventType::cases());
 
         return [

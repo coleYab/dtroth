@@ -49,16 +49,19 @@ class TeamMember extends Model
         ];
     }
 
+    /** @phpstan-return BelongsTo<Team, $this> */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
+    /** @phpstan-return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @phpstan-return BelongsTo<User, $this> */
     public function inviter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'invited_by');

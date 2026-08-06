@@ -28,7 +28,13 @@ function formatTimeAgo(date: Date): string {
     return date.toLocaleDateString();
 }
 
-export function RelativeTime({ date, className }: { date: string | null; className?: string }) {
+export function RelativeTime({
+    date,
+    className,
+}: {
+    date: string | null;
+    className?: string;
+}) {
     const [, setNow] = useState(() => Date.now());
 
     useEffect(() => {

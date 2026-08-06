@@ -22,7 +22,7 @@ class ActivityEventResource extends JsonResource
             'id' => $this->id,
             'type' => $this->type->value,
             'description' => $this->description,
-            'created_at' => $this->created_at?->toISOString(),
+            'created_at' => $this->created_at->toISOString(),
             'app' => $this->whenLoaded('app', fn () => [
                 'id' => $this->app->id,
                 'name' => $this->app->name,

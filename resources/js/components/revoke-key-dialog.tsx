@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { AlertTriangle, Ban } from 'lucide-react';
-import type {FormEvent} from 'react';
+import type { FormEvent } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,8 +24,15 @@ type RevokeKeyDialogProps = {
     onOpenChange: (open: boolean) => void;
 };
 
-export function RevokeKeyDialog({ app, apiKey, open, onOpenChange }: RevokeKeyDialogProps) {
-    const { data, setData, patch, processing, errors } = useForm({ confirm: '' });
+export function RevokeKeyDialog({
+    app,
+    apiKey,
+    open,
+    onOpenChange,
+}: RevokeKeyDialogProps) {
+    const { data, setData, patch, processing, errors } = useForm({
+        confirm: '',
+    });
 
     if (!apiKey) {
         return null;
@@ -41,12 +48,16 @@ export function RevokeKeyDialog({ app, apiKey, open, onOpenChange }: RevokeKeyDi
     };
 
     return (
-        <Dialog open={open} onOpenChange={(next) => (next ? undefined : onOpenChange(false))}>
+        <Dialog
+            open={open}
+            onOpenChange={(next) => (next ? undefined : onOpenChange(false))}
+        >
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Revoke API key</DialogTitle>
                     <DialogDescription>
-                        "{apiKey.name}" will stop working immediately. This action cannot be undone.
+                        "{apiKey.name}" will stop working immediately. This
+                        action cannot be undone.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -55,22 +66,30 @@ export function RevokeKeyDialog({ app, apiKey, open, onOpenChange }: RevokeKeyDi
                         <AlertTriangle className="size-4" />
                         <AlertTitle>Permanent lockout</AlertTitle>
                         <AlertDescription>
-                            Anything relying on this key pair will lose access right away. The key
-                            stays listed as revoked for auditing, and cannot be rotated or restored.
+                            Anything relying on this key pair will lose access
+                            right away. The key stays listed as revoked for
+                            auditing, and cannot be rotated or restored.
                         </AlertDescription>
                     </Alert>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="confirm">Type the key label or its last 4 characters to confirm</Label>
+                        <Label htmlFor="confirm">
+                            Type the key label or its last 4 characters to
+                            confirm
+                        </Label>
                         <Input
                             id="confirm"
                             value={data.confirm}
-                            onChange={(event) => setData('confirm', event.target.value)}
+                            onChange={(event) =>
+                                setData('confirm', event.target.value)
+                            }
                             placeholder={apiKey.name}
                             autoComplete="off"
                         />
                         {errors.confirm ? (
-                            <p className="text-sm text-destructive">{errors.confirm}</p>
+                            <p className="text-destructive text-sm">
+                                {errors.confirm}
+                            </p>
                         ) : null}
                     </div>
 

@@ -12,7 +12,10 @@ export function AppLogoImage({
             <img
                 src={app.image}
                 alt=""
-                className={cn('size-12 shrink-0 rounded-lg object-cover', className)}
+                className={cn(
+                    'size-12 shrink-0 rounded-lg object-cover',
+                    className,
+                )}
             />
         );
     }
@@ -21,7 +24,7 @@ export function AppLogoImage({
         <div
             aria-hidden
             className={cn(
-                'flex size-12 shrink-0 items-center justify-center rounded-lg bg-muted text-lg font-semibold text-muted-foreground',
+                'bg-muted text-muted-foreground flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-semibold',
                 className,
             )}
         >

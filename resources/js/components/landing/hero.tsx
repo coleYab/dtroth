@@ -40,12 +40,7 @@ export default function LandingHero() {
                 <h1 className="max-w-5xl text-balance text-4xl font-bold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
                     Verify age at the{' '}
                     <AuroraText
-                        colors={[
-                            '#FF2D78',
-                            '#7928CA',
-                            '#00D4A0',
-                            '#FF2D78',
-                        ]}
+                        colors={['#FF2D78', '#7928CA', '#00D4A0', '#FF2D78']}
                         className="font-bold"
                     >
                         speed of light
@@ -53,10 +48,9 @@ export default function LandingHero() {
                 </h1>
 
                 <p className="text-muted-foreground max-w-2xl text-pretty text-base sm:text-lg">
-                        Troth Verify is the consent-first age
-                        verification API for the digital age. Confirm how old
-                        your users are in milliseconds - without ever storing
-                        their date of birth.
+                    Troth Verify is the consent-first age verification API for
+                    the digital age. Confirm how old your users are in
+                    milliseconds - without ever storing their date of birth.
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-4">

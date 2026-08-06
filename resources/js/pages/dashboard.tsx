@@ -1,5 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, AppWindow, BarChart3, Plus, ShieldCheck } from 'lucide-react';
+import {
+    AlertTriangle,
+    AppWindow,
+    BarChart3,
+    Plus,
+    ShieldCheck,
+} from 'lucide-react';
 import { CreateAppDialog } from '@/components/create-app-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { EventTypeBadge } from '@/components/event-type-badge';
@@ -25,7 +31,7 @@ export default function Dashboard({ stats, recentActivity }: Props) {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-2xl font-semibold">Dashboard</h2>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                             An overview of your account activity.
                         </p>
                     </div>
@@ -91,9 +97,11 @@ export default function Dashboard({ stats, recentActivity }: Props) {
                                         <div className="flex min-w-0 items-start gap-3">
                                             <EventTypeBadge type={event.type} />
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm">{event.description}</p>
+                                                <p className="truncate text-sm">
+                                                    {event.description}
+                                                </p>
                                                 {event.app && (
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-muted-foreground text-xs">
                                                         {event.app.name}
                                                     </p>
                                                 )}
@@ -101,7 +109,7 @@ export default function Dashboard({ stats, recentActivity }: Props) {
                                         </div>
                                         <RelativeTime
                                             date={event.created_at}
-                                            className="shrink-0 text-xs text-muted-foreground"
+                                            className="text-muted-foreground shrink-0 text-xs"
                                         />
                                     </li>
                                 ))}

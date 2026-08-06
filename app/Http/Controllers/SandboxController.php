@@ -10,6 +10,7 @@ use App\Models\App;
 use App\Models\SandboxIdentity;
 use App\Models\User;
 use App\Services\VerificationService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
@@ -29,7 +30,7 @@ class SandboxController extends Controller
     /**
      * Send a verification request against the sandbox backend.
      */
-    public function verify(Request $request, VerificationService $service): Response
+    public function verify(Request $request, VerificationService $service): Response|RedirectResponse
     {
         $user = $request->user();
 
@@ -40,7 +41,7 @@ class SandboxController extends Controller
             'subject' => ['required', 'string', 'max:100'],
         ]);
 
-        $app = App::query()->forMember($user)->find($request->input('app_id'));
+        $app = App::query()->forMember($user)->where('id', $request->input('app_id'))->first();
 
         if ($app === null) {
             return back()->withErrors(['app_id' => 'The selected application is invalid.'])->withInput();

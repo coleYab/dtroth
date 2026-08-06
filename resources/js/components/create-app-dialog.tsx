@@ -16,7 +16,11 @@ interface CreateAppDialogProps {
     onOpenChange?: (open: boolean) => void;
 }
 
-export function CreateAppDialog({ trigger, open, onOpenChange }: CreateAppDialogProps) {
+export function CreateAppDialog({
+    trigger,
+    open,
+    onOpenChange,
+}: CreateAppDialogProps) {
     const [internalOpen, setInternalOpen] = useState(false);
 
     const isControlled = open !== undefined;
@@ -30,13 +34,17 @@ export function CreateAppDialog({ trigger, open, onOpenChange }: CreateAppDialog
     };
 
     return (
-        <Dialog open={isControlled ? open : internalOpen} onOpenChange={handleOpenChange}>
+        <Dialog
+            open={isControlled ? open : internalOpen}
+            onOpenChange={handleOpenChange}
+        >
             <DialogTrigger asChild>{trigger}</DialogTrigger>
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>Create New App</DialogTitle>
                     <DialogDescription>
-                        Register a new application to start verifying users with Fayda.
+                        Register a new application to start verifying users with
+                        Fayda.
                     </DialogDescription>
                 </DialogHeader>
                 <AppForm embedded onCancel={() => handleOpenChange(false)} />

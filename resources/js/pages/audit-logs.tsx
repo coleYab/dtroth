@@ -24,8 +24,16 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { exportMethod as exportAuditLogs, index as auditLogsIndex } from '@/routes/audit-logs';
-import type { AppFilter, AuditLogAction, AuditLogEntry, Paginated } from '@/types';
+import {
+    exportMethod as exportAuditLogs,
+    index as auditLogsIndex,
+} from '@/routes/audit-logs';
+import type {
+    AppFilter,
+    AuditLogAction,
+    AuditLogEntry,
+    Paginated,
+} from '@/types';
 
 type Props = {
     logs: Paginated<AuditLogEntry>;
@@ -108,7 +116,10 @@ export default function AuditLogs({ logs, apps, actions, filters }: Props) {
                     <SelectContent>
                         <SelectItem value="">All applications</SelectItem>
                         {apps.map((item) => (
-                            <SelectItem key={item.id ?? 'none'} value={item.id === null ? '' : String(item.id)}>
+                            <SelectItem
+                                key={item.id ?? 'none'}
+                                value={item.id === null ? '' : String(item.id)}
+                            >
                                 {item.name}
                             </SelectItem>
                         ))}
@@ -117,11 +128,21 @@ export default function AuditLogs({ logs, apps, actions, filters }: Props) {
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="audit-from">From</Label>
-                <Input id="audit-from" type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
+                <Input
+                    id="audit-from"
+                    type="date"
+                    value={from}
+                    onChange={(event) => setFrom(event.target.value)}
+                />
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="audit-to">To</Label>
-                <Input id="audit-to" type="date" value={to} onChange={(event) => setTo(event.target.value)} />
+                <Input
+                    id="audit-to"
+                    type="date"
+                    value={to}
+                    onChange={(event) => setTo(event.target.value)}
+                />
             </div>
             <Button onClick={applyFilters}>Apply</Button>
             {hasFilters && (
@@ -140,11 +161,16 @@ export default function AuditLogs({ logs, apps, actions, filters }: Props) {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h2 className="text-2xl font-semibold">Audit logs</h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Account-wide security trail of app, key, and webhook changes.
+                        <p className="text-muted-foreground mt-1 text-sm">
+                            Account-wide security trail of app, key, and webhook
+                            changes.
                         </p>
                     </div>
-                    <Button asChild variant="outline" className="w-full sm:w-auto">
+                    <Button
+                        asChild
+                        variant="outline"
+                        className="w-full sm:w-auto"
+                    >
                         <a href={exportAuditLogs().url}>
                             <Download />
                             Export CSV
@@ -157,7 +183,9 @@ export default function AuditLogs({ logs, apps, actions, filters }: Props) {
                         <CardTitle className="text-base">Events</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                        <div className="hidden items-end gap-3 md:flex">{filterControls}</div>
+                        <div className="hidden items-end gap-3 md:flex">
+                            {filterControls}
+                        </div>
 
                         <div className="md:hidden">
                             <FilterSheet description="Filter the audit trail by action, app, and date.">
@@ -187,16 +215,24 @@ export default function AuditLogs({ logs, apps, actions, filters }: Props) {
                                         {logs.data.map((log) => (
                                             <TableRow key={log.id}>
                                                 <TableCell>
-                                                    <RelativeTime date={log.created_at} />
+                                                    <RelativeTime
+                                                        date={log.created_at}
+                                                    />
                                                 </TableCell>
                                                 <TableCell>
-                                                    <code className="text-xs">{log.action}</code>
+                                                    <code className="text-xs">
+                                                        {log.action}
+                                                    </code>
                                                 </TableCell>
                                                 <TableCell className="max-w-md">
                                                     {log.description}
                                                 </TableCell>
-                                                <TableCell>{log.app_name ?? '—'}</TableCell>
-                                                <TableCell>{log.actor ?? '—'}</TableCell>
+                                                <TableCell>
+                                                    {log.app_name ?? '—'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {log.actor ?? '—'}
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -212,13 +248,17 @@ export default function AuditLogs({ logs, apps, actions, filters }: Props) {
                                                     </code>
                                                     <RelativeTime
                                                         date={log.created_at}
-                                                        className="shrink-0 text-xs text-muted-foreground"
+                                                        className="text-muted-foreground shrink-0 text-xs"
                                                     />
                                                 </div>
-                                                <p className="text-sm">{log.description}</p>
-                                                <p className="text-xs text-muted-foreground">
+                                                <p className="text-sm">
+                                                    {log.description}
+                                                </p>
+                                                <p className="text-muted-foreground text-xs">
                                                     {log.app_name ?? 'No app'}
-                                                    {log.actor ? ` · ${log.actor}` : ''}
+                                                    {log.actor
+                                                        ? ` · ${log.actor}`
+                                                        : ''}
                                                 </p>
                                             </CardContent>
                                         </Card>

@@ -36,20 +36,23 @@ export function DeleteAppDialog({
                 <AlertDialogHeader>
                     <AlertDialogTitle>Delete {app.name}?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This will permanently delete the application and all of its
-                        environments, API keys, calls, verifications, consents, and
-                        activity. This action cannot be undone.
+                        This will permanently delete the application and all of
+                        its environments, API keys, calls, verifications,
+                        consents, and activity. This action cannot be undone.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
 
                 <div className="grid gap-2">
                     <Label htmlFor="confirm-delete">
-                        Type <span className="font-semibold">{app.name}</span> to confirm
+                        Type <span className="font-semibold">{app.name}</span>{' '}
+                        to confirm
                     </Label>
                     <Input
                         id="confirm-delete"
                         value={confirmation}
-                        onChange={(event) => setConfirmation(event.target.value)}
+                        onChange={(event) =>
+                            setConfirmation(event.target.value)
+                        }
                         placeholder={app.name}
                         autoComplete="off"
                     />

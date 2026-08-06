@@ -98,7 +98,9 @@ export default function LandingTerminal() {
                             <span className="size-1.5 rounded-full bg-emerald-500" />
                             200 OK · result: true
                         </span>
-                        <span>Cache until expires_at · keep query_id for audits</span>
+                        <span>
+                            Cache until expires_at · keep query_id for audits
+                        </span>
                     </div>
                 </div>
                 <ShineBorder

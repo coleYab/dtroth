@@ -17,7 +17,7 @@ class ApiKeyObserver
     {
         $this->log(
             AuditLog::ACTION_KEY_CREATED,
-            "API key \"{$key->name}\" created for \"{$key->app?->name}\".",
+            "API key \"{$key->name}\" created for \"{$key->app->name}\".",
             $key->app_id,
         );
     }
@@ -30,7 +30,7 @@ class ApiKeyObserver
         if ($key->wasChanged('secret_hash')) {
             $this->log(
                 AuditLog::ACTION_KEY_ROTATED,
-                "API key \"{$key->name}\" rotated for \"{$key->app?->name}\".",
+                "API key \"{$key->name}\" rotated for \"{$key->app->name}\".",
                 $key->app_id,
             );
         }

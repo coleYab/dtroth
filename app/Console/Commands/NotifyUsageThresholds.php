@@ -44,7 +44,7 @@ class NotifyUsageThresholds extends Command
             /** @var Subscription|null $subscription */
             $subscription = $app->user->subscription;
 
-            $quota = (int) config('billing.plans.'.($subscription?->plan ?? Subscription::PLAN_TRIAL).'.calls_per_month', 0);
+            $quota = (int) config('billing.plans.'.($subscription->plan ?? Subscription::PLAN_TRIAL).'.calls_per_month', 0);
 
             $used = (int) UsageDailyRollup::query()
                 ->where('app_id', $app->id)

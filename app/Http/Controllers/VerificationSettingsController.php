@@ -97,8 +97,8 @@ class VerificationSettingsController extends Controller
         return [
             'app' => (new AppResource($app->load('environments')))->resolve(),
             'settings' => [
-                'consent_text' => $settings?->consent_text ?? VerificationSetting::DEFAULT_CONSENT_TEXT,
-                're_verify_months' => $settings?->re_verify_months ?? 6,
+                'consent_text' => $settings->consent_text ?? VerificationSetting::DEFAULT_CONSENT_TEXT,
+                're_verify_months' => $settings->re_verify_months ?? 6,
                 'consent_updated_at' => $settings?->updated_at?->toISOString(),
             ],
             'presets' => $presets,

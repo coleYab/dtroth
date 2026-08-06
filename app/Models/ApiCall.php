@@ -73,6 +73,7 @@ class ApiCall extends Model
         return $this->status_code >= 200 && $this->status_code < 300;
     }
 
+    /** @phpstan-return BelongsTo<App, $this> */
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class);

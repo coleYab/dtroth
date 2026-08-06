@@ -25,12 +25,12 @@ curl -X POST "https://api.troth.dev/v1/verify/session" \
 
 ```js
 const response = await fetch('https://api.troth.dev/v1/verify/session', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer sk_sandbox_...',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ age: 18, type: 'equal_above', subject: 'user-123' }),
+    method: 'POST',
+    headers: {
+        Authorization: 'Bearer sk_sandbox_...',
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ age: 18, type: 'equal_above', subject: 'user-123' }),
 });
 
 const { verification_url } = await response.json();
@@ -58,11 +58,11 @@ The request body is identical to the [age-query endpoint](age-query-endpoint) â€
 
 On success the API returns `200` with the following JSON body:
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `session_id` | string | The opaque session identifier. |
-| `verification_url` | string | The branded flow URL to redirect the user to. |
-| `expires_at` | string | ISO 8601 timestamp after which the session is no longer valid. |
+| Field              | Type   | Description                                                    |
+| ------------------ | ------ | -------------------------------------------------------------- |
+| `session_id`       | string | The opaque session identifier.                                 |
+| `verification_url` | string | The branded flow URL to redirect the user to.                  |
+| `expires_at`       | string | ISO 8601 timestamp after which the session is no longer valid. |
 
 Sessions expire after **15 minutes** and can only be used **once**.
 
@@ -74,14 +74,14 @@ When the user finishes the flow, Troth redirects to your configured redirect URL
 https://yourapp.com/continue?verification=success&query_id=42&subject=user-123&result=true&verified_at=...&expires_at=...
 ```
 
-| Parameter | Description |
-| --- | --- |
-| `verification` | `success` or `failed`. |
-| `query_id` | The verification reference, matches the callback payload. |
-| `subject` | The subject identifier you supplied. |
-| `result` | `true` or `false`. |
-| `verified_at` / `expires_at` | ISO 8601 timestamps for the result window. |
-| `error` | Present on failures, e.g. `identity_failed`. |
+| Parameter                    | Description                                               |
+| ---------------------------- | --------------------------------------------------------- |
+| `verification`               | `success` or `failed`.                                    |
+| `query_id`                   | The verification reference, matches the callback payload. |
+| `subject`                    | The subject identifier you supplied.                      |
+| `result`                     | `true` or `false`.                                        |
+| `verified_at` / `expires_at` | ISO 8601 timestamps for the result window.                |
+| `error`                      | Present on failures, e.g. `identity_failed`.              |
 
 ## Signed callbacks
 
@@ -97,15 +97,15 @@ Content-Type: application/json
 
 ```json
 {
-  "query_id": "42",
-  "subject": "user-123",
-  "age": 18,
-  "type": "equal_above",
-  "result": true,
-  "provider_reference": "fayda-3f9e2a5b-1c4d-4e6f-8a9b-0c1d2e3f4a5b",
-  "verified_at": "2026-08-05T12:00:00+00:00",
-  "expires_at": "2026-11-03T12:00:00+00:00",
-  "occurred_at": "2026-08-05T12:00:05+00:00"
+    "query_id": "42",
+    "subject": "user-123",
+    "age": 18,
+    "type": "equal_above",
+    "result": true,
+    "provider_reference": "fayda-3f9e2a5b-1c4d-4e6f-8a9b-0c1d2e3f4a5b",
+    "verified_at": "2026-08-05T12:00:00+00:00",
+    "expires_at": "2026-11-03T12:00:00+00:00",
+    "occurred_at": "2026-08-05T12:00:05+00:00"
 }
 ```
 
@@ -121,13 +121,20 @@ X-Troth-Signature = "sha256=" + sha256
 ```js
 const crypto = require('crypto');
 
-const expected = 'sha256=' + crypto
-  .createHmac('sha256', process.env.TROTH_CALLBACK_SECRET)
-  .update(rawBody) // the raw request body string
-  .digest('hex');
+const expected =
+    'sha256=' +
+    crypto
+        .createHmac('sha256', process.env.TROTH_CALLBACK_SECRET)
+        .update(rawBody) // the raw request body string
+        .digest('hex');
 
-if (crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(req.headers['x-troth-signature']))) {
-  // signature is valid
+if (
+    crypto.timingSafeEqual(
+        Buffer.from(expected),
+        Buffer.from(req.headers['x-troth-signature']),
+    )
+) {
+    // signature is valid
 }
 ```
 
@@ -155,13 +162,13 @@ In sandbox mode the flow page shows a test banner and accepts the mock test keys
 
 ## Errors
 
-| Code | Status | Meaning |
-| --- | --- | --- |
-| `preset_not_allowed` | 403 | The requested query is not enabled for this application. |
-| `session_expired` | 410 | The session link has expired. |
-| `session_already_used` | 410 | The session link has already been completed. |
-| `invalid_national_id` | 422 | The national ID submitted on the flow page is not valid. |
-| `consent_required` | 422 | The user did not consent to verification. |
-| `subject_not_found` | 404 | The national ID does not match a known identity. |
+| Code                   | Status | Meaning                                                  |
+| ---------------------- | ------ | -------------------------------------------------------- |
+| `preset_not_allowed`   | 403    | The requested query is not enabled for this application. |
+| `session_expired`      | 410    | The session link has expired.                            |
+| `session_already_used` | 410    | The session link has already been completed.             |
+| `invalid_national_id`  | 422    | The national ID submitted on the flow page is not valid. |
+| `consent_required`     | 422    | The user did not consent to verification.                |
+| `subject_not_found`    | 404    | The national ID does not match a known identity.         |
 
 See [Error Codes](error-codes) for the full list.

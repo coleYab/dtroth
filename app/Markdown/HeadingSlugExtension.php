@@ -3,10 +3,12 @@
 namespace App\Markdown;
 
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use League\CommonMark\Environment\EnvironmentBuilderInterface;
 use League\CommonMark\Extension\CommonMark\Node\Block\Heading;
 use League\CommonMark\Extension\CommonMark\Renderer\Block\HeadingRenderer;
 use League\CommonMark\Extension\ExtensionInterface;
+use League\CommonMark\Node\Inline\Text;
 use League\CommonMark\Node\Node;
 use League\CommonMark\Renderer\ChildNodeRendererInterface;
 use League\CommonMark\Renderer\NodeRendererInterface;
@@ -24,19 +26,19 @@ final class HeadingSlugExtension implements ExtensionInterface
 
             public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
             {
-                $rendered = $this->inner->render($node, $childRenderer);
-
                 if (! $node instanceof Heading) {
-                    return $rendered;
+                    throw new InvalidArgumentException('Incompatible node type: '.get_class($node));
                 }
 
-                $text = $node->firstChild()?->getLiteral() ?? '';
+                $rendered = $this->inner->render($node, $childRenderer);
+                $firstChild = $node->firstChild();
+                $text = $firstChild instanceof Text ? $firstChild->getLiteral() : '';
 
                 if ($text === '') {
                     return $rendered;
                 }
 
-                return preg_replace('/^<h(\d)/', '<h$1 id="'.Str::slug($text).'"', $rendered, 1) ?? $rendered;
+                return preg_replace('/^<h(\d)/', '<h$1 id="'.Str::slug($text).'"', $rendered, 1);
             }
         }, 100);
     }

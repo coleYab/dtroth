@@ -90,14 +90,14 @@ export default function Login({ status, canResetPassword }: Props) {
                             </Button>
                         </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
+                        <div className="text-muted-foreground text-center text-sm">
                             Don't have an account?{' '}
                             <TextLink href={register()} tabIndex={5}>
                                 Sign up
                             </TextLink>
                         </div>
 
-                        <p className="text-center text-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-center text-xs">
                             By signing in, you agree to our{' '}
                             <TextLink href={terms()} className="underline">
                                 Terms

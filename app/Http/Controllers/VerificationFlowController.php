@@ -87,7 +87,7 @@ class VerificationFlowController extends Controller
                 'logo_url' => $flow?->logo_path !== null
                     ? Storage::disk(self::LOGO_DISK)->url($flow->logo_path)
                     : null,
-                'brand_color' => $flow?->brand_color ?? '#0f172a',
+                'brand_color' => $flow->brand_color ?? '#0f172a',
                 'success_redirect_url' => $flow?->success_redirect_url,
                 'failure_redirect_url' => $flow?->failure_redirect_url,
                 'callback_url' => $flow?->callback_url,

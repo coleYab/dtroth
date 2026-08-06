@@ -6,6 +6,7 @@ use App\Enums\AgeQueryType;
 use Database\Factories\AgeQueryPresetFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -21,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read App[] $apps
+ * @property-read Collection<int, App> $apps
  */
 #[Fillable(['type', 'value', 'label', 'description', 'sort_order', 'is_active'])]
 class AgeQueryPreset extends Model
@@ -46,12 +47,16 @@ class AgeQueryPreset extends Model
 
     /**
      * Scope the query to presets available for selection.
+     *
+     * @param  Builder<AgeQueryPreset>  $query
+     * @return Builder<AgeQueryPreset>
      */
     public function scopeAvailable(Builder $query): Builder
     {
         return $query->where('is_active', true)->orderBy('sort_order');
     }
 
+    /** @phpstan-return BelongsToMany<App, $this> */
     public function apps(): BelongsToMany
     {
         return $this->belongsToMany(App::class, 'age_query_preset_app', 'preset_id', 'app_id')

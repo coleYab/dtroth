@@ -168,7 +168,7 @@ class AppController extends Controller
             return null;
         }
 
-        return $request->file('image')->store('app-images', 'public');
+        return $request->file('image')->store('app-images', 'public') ?: null;
     }
 
     /**

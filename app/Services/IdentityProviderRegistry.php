@@ -56,6 +56,10 @@ class IdentityProviderRegistry
 
         $class = $config['class'];
 
+        if (! is_string($class)) {
+            throw new RuntimeException(sprintf('Identity provider class for "%s" must be a string.', $key));
+        }
+
         if (! is_subclass_of($class, IdentityProvider::class)) {
             throw new RuntimeException(sprintf('Identity provider "%s" must implement %s.', $class, IdentityProvider::class));
         }

@@ -15,10 +15,16 @@ interface CodeGroupSegment {
 
 export type DocSegment = HtmlSegment | CodeGroupSegment;
 
-const CODE_BLOCK_RE = /<pre><code class="language-([\w+-]+)">([\s\S]*?)<\/code><\/pre>/g;
+const CODE_BLOCK_RE =
+    /<pre><code class="language-([\w+-]+)">([\s\S]*?)<\/code><\/pre>/g;
 
 const decodeEntities = (html: string): string =>
-    html.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+    html
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&amp;/g, '&');
 
 const parseCodeBlock = (match: RegExpExecArray): CodeGroupItem => ({
     language: match[1],

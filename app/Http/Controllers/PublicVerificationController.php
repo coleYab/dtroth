@@ -17,9 +17,9 @@ use App\Services\VerificationService;
 use App\Services\WebhookDispatcher;
 use App\Services\WebhookSignature;
 use App\ValueObjects\IdentityQuery;
-use Carbon\CarbonInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -195,6 +195,8 @@ class PublicVerificationController extends Controller
 
     /**
      * Deliver the completed callback to the developer, signed with HMAC.
+     *
+     * @param  array<string, mixed>  $payload
      */
     private function sendCallback(Verification $verification, array $payload): void
     {
@@ -223,6 +225,8 @@ class PublicVerificationController extends Controller
 
     /**
      * Send the subject to the app's redirect URL with the outcome query params.
+     *
+     * @param  array<string, mixed>  $payload
      */
     private function redirectOutcome(Verification $verification, bool $result, array $payload): RedirectResponse|Response
     {
@@ -314,11 +318,11 @@ class PublicVerificationController extends Controller
         $setting = $app?->verificationSetting;
 
         return Inertia::render('verify/flow', [
-            'app' => ['name' => $app?->name ?? 'Troth'],
+            'app' => ['name' => $app->name ?? 'Troth'],
             'branding' => [
                 'logo_url' => $flow?->logo_path !== null ? asset('storage/'.$flow->logo_path) : null,
-                'brand_color' => $flow?->brand_color ?? '#0f172a',
-                'consent_text' => $setting?->consent_text ?? VerificationSetting::DEFAULT_CONSENT_TEXT,
+                'brand_color' => $flow->brand_color ?? '#0f172a',
+                'consent_text' => $setting->consent_text ?? VerificationSetting::DEFAULT_CONSENT_TEXT,
                 'success_redirect_url' => $flow?->success_redirect_url,
                 'failure_redirect_url' => $flow?->failure_redirect_url,
             ],
@@ -352,11 +356,11 @@ class PublicVerificationController extends Controller
     /**
      * Determine when the result expires, honouring the app's re-verification cadence.
      */
-    private function consentExpiry(int $appId): CarbonInterface
+    private function consentExpiry(int $appId): Carbon
     {
         $months = (int) VerificationSetting::query()->where('app_id', $appId)->value('re_verify_months');
 
-        return $months > 0 ? now()->addMonths($months) : now()->addDays(VerificationService::RESULT_TTL_DAYS);
+        return $months > 0 ? Carbon::instance(now()->addMonths($months)) : Carbon::instance(now()->addDays(VerificationService::RESULT_TTL_DAYS));
     }
 
     /**

@@ -1,15 +1,29 @@
 import { Head, useForm } from '@inertiajs/react';
-import { AlertTriangle, ArrowRight, CheckCircle2, Loader2, ShieldCheck, XCircle } from 'lucide-react';
-import { useMemo, type CSSProperties } from 'react';
+import {
+    AlertTriangle,
+    ArrowRight,
+    CheckCircle2,
+    Loader2,
+    ShieldCheck,
+    XCircle,
+} from 'lucide-react';
+import { useMemo } from 'react';
+import type { CSSProperties } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { flow as verifyFlow } from '@/routes/verify';
 import { submit as flowSubmit } from '@/routes/verify/flow';
 
 interface FlowBranding {
@@ -50,7 +64,16 @@ const unformatNationalId = (value: string): string => value.replace(/\D/g, '');
 const maskReference = (value: string): string =>
     value.length <= 8 ? value : `${value.slice(0, 4)}…${value.slice(-4)}`;
 
-export default function VerifyFlow({ app, branding, query, mode, state, error, outcome, token }: FlowProps) {
+export default function VerifyFlow({
+    app,
+    branding,
+    query,
+    mode,
+    state,
+    error,
+    outcome,
+    token,
+}: FlowProps) {
     const sandbox = isSandbox(mode);
 
     const { data, setData, post, processing, errors } = useForm({
@@ -64,7 +87,10 @@ export default function VerifyFlow({ app, branding, query, mode, state, error, o
     );
 
     const onNationalIdChange = (value: string) => {
-        setData('national_id', sandbox ? value.slice(0, 40) : formatNationalId(value));
+        setData(
+            'national_id',
+            sandbox ? value.slice(0, 40) : formatNationalId(value),
+        );
     };
 
     const submit = () => {
@@ -131,7 +157,13 @@ export default function VerifyFlow({ app, branding, query, mode, state, error, o
 
         return (
             <div className="flex min-h-dvh flex-col items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-zinc-950">
-                <Head title={succeeded ? 'Verification complete' : 'Verification not confirmed'} />
+                <Head
+                    title={
+                        succeeded
+                            ? 'Verification complete'
+                            : 'Verification not confirmed'
+                    }
+                />
 
                 <div className="w-full max-w-md">
                     <Card className="border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
@@ -141,7 +173,11 @@ export default function VerifyFlow({ app, branding, query, mode, state, error, o
                             ) : (
                                 <XCircle className="mb-2 size-12 text-rose-500" />
                             )}
-                            <CardTitle>{succeeded ? 'Verification complete' : 'Verification not confirmed'}</CardTitle>
+                            <CardTitle>
+                                {succeeded
+                                    ? 'Verification complete'
+                                    : 'Verification not confirmed'}
+                            </CardTitle>
                             <CardDescription>
                                 {succeeded
                                     ? `Your age check for ${app.name} was successful. You can now return to ${app.name}.`
@@ -151,21 +187,34 @@ export default function VerifyFlow({ app, branding, query, mode, state, error, o
                         <CardContent className="space-y-2">
                             {outcome?.query_id && (
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Reference</span>
-                                    <span className="font-mono text-xs">{maskReference(outcome.query_id)}</span>
+                                    <span className="text-muted-foreground">
+                                        Reference
+                                    </span>
+                                    <span className="font-mono text-xs">
+                                        {maskReference(outcome.query_id)}
+                                    </span>
                                 </div>
                             )}
                             {outcome?.expires_at && (
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Valid until</span>
-                                    <span>{new Date(outcome.expires_at).toLocaleString()}</span>
+                                    <span className="text-muted-foreground">
+                                        Valid until
+                                    </span>
+                                    <span>
+                                        {new Date(
+                                            outcome.expires_at,
+                                        ).toLocaleString()}
+                                    </span>
                                 </div>
                             )}
                         </CardContent>
                         <CardFooter className="justify-center pb-6">
                             {succeeded && branding.success_redirect_url && (
                                 <a href={branding.success_redirect_url}>
-                                    <Button style={brandStyle} className="text-white">
+                                    <Button
+                                        style={brandStyle}
+                                        className="text-white"
+                                    >
                                         Continue to {app.name}
                                         <ArrowRight className="size-4" />
                                     </Button>
@@ -195,7 +244,8 @@ export default function VerifyFlow({ app, branding, query, mode, state, error, o
                     <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-800 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-200">
                         <AlertTriangle className="size-4 shrink-0" />
                         <span>
-                            Test environment — use a sandbox test key such as <code className="font-mono">fayda-test-a</code>.
+                            Test environment — use a sandbox test key such as{' '}
+                            <code className="font-mono">fayda-test-a</code>.
                         </span>
                     </div>
                 )}
@@ -219,21 +269,31 @@ export default function VerifyFlow({ app, branding, query, mode, state, error, o
                         <CardTitle className="text-xl">
                             {query.label ?? 'Confirm your age'}
                             {!sandbox && (
-                                <Badge variant="secondary" className="ml-2 align-middle">
+                                <Badge
+                                    variant="secondary"
+                                    className="ml-2 align-middle"
+                                >
                                     {query.label}
                                 </Badge>
                             )}
                         </CardTitle>
                         <CardDescription>
-                            {query.description ?? `${app.name} needs to confirm your age to continue.`}
+                            {query.description ??
+                                `${app.name} needs to confirm your age to continue.`}
                         </CardDescription>
                     </CardHeader>
 
                     <CardContent className="space-y-5">
                         {error && (
                             <Alert variant="destructive">
-                                <AlertTitle>{error.code === 'identity_provider_declined' ? 'Verification declined' : 'We could not verify your details'}</AlertTitle>
-                                <AlertDescription>{error.message}</AlertDescription>
+                                <AlertTitle>
+                                    {error.code === 'identity_provider_declined'
+                                        ? 'Verification declined'
+                                        : 'We could not verify your details'}
+                                </AlertTitle>
+                                <AlertDescription>
+                                    {error.message}
+                                </AlertDescription>
                             </Alert>
                         )}
 
@@ -243,35 +303,59 @@ export default function VerifyFlow({ app, branding, query, mode, state, error, o
                                 id="national_id"
                                 name="national_id"
                                 value={data.national_id}
-                                onChange={(event) => onNationalIdChange(event.target.value)}
-                                placeholder={sandbox ? 'e.g. fayda-test-a' : '000 000 000 000 000'}
-                                className={cn('h-11 text-base', sandbox && 'font-mono')}
+                                onChange={(event) =>
+                                    onNationalIdChange(event.target.value)
+                                }
+                                placeholder={
+                                    sandbox
+                                        ? 'e.g. fayda-test-a'
+                                        : '000 000 000 000 000'
+                                }
+                                className={cn(
+                                    'h-11 text-base',
+                                    sandbox && 'font-mono',
+                                )}
                                 inputMode={sandbox ? 'text' : 'numeric'}
                                 autoComplete="off"
                                 autoFocus
                             />
-                            {errors.national_id && <p className="text-sm text-rose-600 dark:text-rose-400">{errors.national_id}</p>}
+                            {errors.national_id && (
+                                <p className="text-sm text-rose-600 dark:text-rose-400">
+                                    {errors.national_id}
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 dark:border-zinc-800 dark:bg-zinc-950/40">
                             <Checkbox
                                 id="consent"
                                 checked={data.consent}
-                                onCheckedChange={(checked) => setData('consent', checked === true)}
+                                onCheckedChange={(checked) =>
+                                    setData('consent', checked === true)
+                                }
                                 aria-label="Consent to age verification"
                             />
                             <div className="space-y-1">
-                                <Label htmlFor="consent" className="text-sm font-medium leading-snug">
+                                <Label
+                                    htmlFor="consent"
+                                    className="text-sm font-medium leading-snug"
+                                >
                                     I consent to age verification
                                 </Label>
-                                <p className="text-xs leading-relaxed text-muted-foreground">{branding.consent_text}</p>
+                                <p className="text-muted-foreground text-xs leading-relaxed">
+                                    {branding.consent_text}
+                                </p>
                             </div>
                         </div>
-                        {errors.consent && <p className="text-sm text-rose-600 dark:text-rose-400">{errors.consent}</p>}
+                        {errors.consent && (
+                            <p className="text-sm text-rose-600 dark:text-rose-400">
+                                {errors.consent}
+                            </p>
+                        )}
 
                         <Button
                             type="submit"
-                            className="w-full h-11 text-white disabled:opacity-60"
+                            className="h-11 w-full text-white disabled:opacity-60"
                             style={brandStyle}
                             disabled={processing || data.national_id === ''}
                             onClick={submit}
@@ -291,9 +375,10 @@ export default function VerifyFlow({ app, branding, query, mode, state, error, o
                     </CardContent>
 
                     <CardFooter className="justify-center border-t border-zinc-100 pb-6 dark:border-zinc-800">
-                        <p className="text-xs text-muted-foreground">
-                            Your national ID is checked once and never stored. Only the outcome of this check is shared
-                            with {app.name}.
+                        <p className="text-muted-foreground text-xs">
+                            Your national ID is checked once and never stored.
+                            Only the outcome of this check is shared with{' '}
+                            {app.name}.
                         </p>
                     </CardFooter>
                 </Card>

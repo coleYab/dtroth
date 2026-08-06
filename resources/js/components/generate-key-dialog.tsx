@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { KeyRound } from 'lucide-react';
-import type {FormEvent} from 'react';
+import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -29,9 +29,15 @@ type GenerateKeyDialogProps = {
     onOpenChange: (open: boolean) => void;
 };
 
-export function GenerateKeyDialog({ app, open, onOpenChange }: GenerateKeyDialogProps) {
+export function GenerateKeyDialog({
+    app,
+    open,
+    onOpenChange,
+}: GenerateKeyDialogProps) {
     const { data, setData, post, processing, errors } = useForm({
-        environment: app.environments.find((env) => env.name === 'sandbox') ? 'sandbox' : 'production',
+        environment: app.environments.find((env) => env.name === 'sandbox')
+            ? 'sandbox'
+            : 'production',
         name: '',
     });
 
@@ -47,8 +53,8 @@ export function GenerateKeyDialog({ app, open, onOpenChange }: GenerateKeyDialog
                 <DialogHeader>
                     <DialogTitle>Generate API key</DialogTitle>
                     <DialogDescription>
-                        A public/secret key pair is created for one environment. You will see the
-                        secret only once.
+                        A public/secret key pair is created for one environment.
+                        You will see the secret only once.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -57,7 +63,9 @@ export function GenerateKeyDialog({ app, open, onOpenChange }: GenerateKeyDialog
                         <Label htmlFor="environment">Environment</Label>
                         <Select
                             value={data.environment}
-                            onValueChange={(value) => setData('environment', value)}
+                            onValueChange={(value) =>
+                                setData('environment', value)
+                            }
                         >
                             <SelectTrigger id="environment" className="w-full">
                                 <SelectValue placeholder="Select environment" />
@@ -65,13 +73,17 @@ export function GenerateKeyDialog({ app, open, onOpenChange }: GenerateKeyDialog
                             <SelectContent>
                                 {app.environments.map((env) => (
                                     <SelectItem key={env.id} value={env.name}>
-                                        {env.name === 'sandbox' ? 'Sandbox' : 'Production'}
+                                        {env.name === 'sandbox'
+                                            ? 'Sandbox'
+                                            : 'Production'}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                         {errors.environment ? (
-                            <p className="text-sm text-destructive">{errors.environment}</p>
+                            <p className="text-destructive text-sm">
+                                {errors.environment}
+                            </p>
                         ) : null}
                     </div>
 
@@ -80,10 +92,16 @@ export function GenerateKeyDialog({ app, open, onOpenChange }: GenerateKeyDialog
                         <Input
                             id="name"
                             value={data.name}
-                            onChange={(event) => setData('name', event.target.value)}
+                            onChange={(event) =>
+                                setData('name', event.target.value)
+                            }
                             placeholder="e.g. Mobile app"
                         />
-                        {errors.name ? <p className="text-sm text-destructive">{errors.name}</p> : null}
+                        {errors.name ? (
+                            <p className="text-destructive text-sm">
+                                {errors.name}
+                            </p>
+                        ) : null}
                     </div>
 
                     <DialogFooter>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\Subscription;
+use App\Models\User;
 use App\Notifications\InvoiceFailed;
 use App\Services\ChapaService;
 use App\Services\NotificationGate;
@@ -25,7 +26,7 @@ class BillingController extends Controller
         $user = $request->user();
 
         $subscription = $user->subscription;
-        $currentPlan = $subscription?->plan ?? Subscription::PLAN_TRIAL;
+        $currentPlan = $subscription->plan ?? Subscription::PLAN_TRIAL;
 
         $invoices = $user->invoices()
             ->latest('created_at')
@@ -41,8 +42,11 @@ class BillingController extends Controller
                 'created_at' => $invoice->created_at?->toISOString(),
             ]);
 
+        /** @var array<string, array{name: string, price_etb: int, description: string, calls_per_month: int, sort: int}> $billingPlans */
+        $billingPlans = config('billing.plans');
+
         return Inertia::render('billing/index', [
-            'plans' => collect(config('billing.plans'))
+            'plans' => collect($billingPlans)
                 ->reject(fn (array $plan, string $slug) => $slug === Subscription::PLAN_TRIAL)
                 ->map(fn (array $plan, string $slug) => [
                     'slug' => $slug,
@@ -56,7 +60,7 @@ class BillingController extends Controller
                 ->values(),
             'current_plan' => $currentPlan,
             'subscription' => [
-                'status' => $subscription?->status ?? Subscription::STATUS_TRIAL,
+                'status' => $subscription->status ?? Subscription::STATUS_TRIAL,
                 'channel' => $subscription?->channel,
                 'renews_at' => $subscription?->renews_at?->toISOString(),
                 'trial_ends_at' => $subscription?->trial_ends_at?->toISOString() ?? $user->created_at->addDays(config('billing.trial_days'))->toISOString(),
@@ -78,7 +82,7 @@ class BillingController extends Controller
         $subscription = $user->subscription;
         $trialEnd = $user->created_at->addDays(config('billing.trial_days'));
         $periodStart = $subscription?->renews_at?->subMonth() ?? $user->created_at;
-        $periodEnd = $subscription?->renews_at ?? $trialEnd;
+        $periodEnd = $subscription->renews_at ?? $trialEnd;
 
         $cycle = $usage->forUser($user, $periodStart, $periodEnd);
         $daysRemaining = max(0, (int) ceil(now()->diffInDays($periodEnd)));
@@ -288,9 +292,9 @@ class BillingController extends Controller
     /**
      * The current plan slug for a user.
      */
-    private function currentPlan($user): string
+    private function currentPlan(User $user): string
     {
-        return $user->subscription?->plan ?? Subscription::PLAN_TRIAL;
+        return $user->subscription->plan ?? Subscription::PLAN_TRIAL;
     }
 
     /**

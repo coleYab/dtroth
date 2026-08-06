@@ -3,7 +3,13 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
 interface DocsSection {
@@ -29,7 +35,12 @@ function normalize(text: string): string {
     return text.toLowerCase().trim();
 }
 
-export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: DocsNavProps) {
+export function DocsNav({
+    sections,
+    searchIndex,
+    activeSlug,
+    onSelectSection,
+}: DocsNavProps) {
     const [query, setQuery] = useState('');
     const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -59,7 +70,10 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                     score += 1;
                 }
 
-                return { section: sections.find((s) => s.slug === entry.slug)!, score };
+                return {
+                    section: sections.find((s) => s.slug === entry.slug)!,
+                    score,
+                };
             })
             .filter((entry) => entry.score > 0)
             .sort((a, b) => b.score - a.score);
@@ -80,14 +94,18 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                     className={cn(
                         'rounded-md px-3 py-2 text-left text-sm transition-colors',
                         activeSlug === section.slug
-                            ? 'bg-accent font-medium text-accent-foreground'
+                            ? 'bg-accent text-accent-foreground font-medium'
                             : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
                     )}
                 >
                     {section.title}
                 </button>
             ))}
-            {matches.length === 0 && <p className="px-3 py-2 text-sm text-muted-foreground">No matching sections.</p>}
+            {matches.length === 0 && (
+                <p className="text-muted-foreground px-3 py-2 text-sm">
+                    No matching sections.
+                </p>
+            )}
         </>
     );
 
@@ -96,7 +114,7 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
             <aside className="hidden w-60 shrink-0 lg:block">
                 <div className="sticky top-20 flex flex-col gap-4">
                     <div className="relative">
-                        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
                         <Input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
@@ -116,7 +134,12 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                     <div className="flex items-center gap-2">
                         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                             <SheetTrigger asChild>
-                                <Button type="button" variant="outline" size="sm" className="h-8">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8"
+                                >
                                     <Menu className="size-4" />
                                     Menu
                                 </Button>
@@ -130,10 +153,12 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                                 </SheetHeader>
                                 <div className="mt-4 flex flex-col gap-4 px-3">
                                     <div className="relative">
-                                        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
                                         <Input
                                             value={query}
-                                            onChange={(e) => setQuery(e.target.value)}
+                                            onChange={(e) =>
+                                                setQuery(e.target.value)
+                                            }
                                             placeholder="Filter docs..."
                                             className="pl-9"
                                             aria-label="Search documentation"
@@ -145,8 +170,9 @@ export function DocsNav({ sections, searchIndex, activeSlug, onSelectSection }: 
                                 </div>
                             </SheetContent>
                         </Sheet>
-                        <p className="text-sm text-muted-foreground">
-                            {matches.length} {matches.length === 1 ? 'section' : 'sections'}
+                        <p className="text-muted-foreground text-sm">
+                            {matches.length}{' '}
+                            {matches.length === 1 ? 'section' : 'sections'}
                         </p>
                     </div>
                 </CardContent>

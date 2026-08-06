@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\WebhookFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,8 +23,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read App $app
- * @property-read WebhookEvent[] $events
- * @property-read WebhookDelivery[] $deliveries
+ * @property-read Collection<int, WebhookEvent> $events
+ * @property-read Collection<int, WebhookDelivery> $deliveries
  */
 #[Fillable(['app_id', 'url', 'secret', 'secret_preview', 'description', 'last_triggered_at'])]
 class Webhook extends Model
@@ -55,17 +56,20 @@ class Webhook extends Model
             ->exists();
     }
 
+    /** @phpstan-return BelongsTo<App, $this> */
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class);
     }
 
+    /** @phpstan-return BelongsToMany<WebhookEvent, $this> */
     public function events(): BelongsToMany
     {
         return $this->belongsToMany(WebhookEvent::class, 'webhook_event', 'webhook_id', 'event_id')
             ->withTimestamps();
     }
 
+    /** @phpstan-return HasMany<WebhookDelivery, $this> */
     public function deliveries(): HasMany
     {
         return $this->hasMany(WebhookDelivery::class);

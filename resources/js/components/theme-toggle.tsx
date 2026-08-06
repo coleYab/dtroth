@@ -10,7 +10,7 @@ export function ThemeToggle() {
         <div
             role="group"
             aria-label="Color scheme"
-            className="inline-flex items-center rounded-full border border-border bg-muted/60 p-0.5"
+            className="border-border bg-muted/60 inline-flex items-center rounded-full border p-0.5"
         >
             <button
                 type="button"

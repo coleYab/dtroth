@@ -37,7 +37,7 @@ class StoreAppRequest extends FormRequest
     /**
      * Rule ensuring the value is an origin (scheme + host) without a path.
      *
-     * @return \Closure(string, mixed): void
+     * @return \Closure(string, mixed, \Closure): void
      */
     private function noPathRule(): \Closure
     {

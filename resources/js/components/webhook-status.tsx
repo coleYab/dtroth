@@ -57,7 +57,10 @@ export function RecentFailureAlert({ count }: RecentFailureAlertProps) {
     return (
         <Alert variant="destructive">
             <TriangleAlert className="size-4" />
-            <AlertTitle>{count} failed delivery{count === 1 ? '' : 's'} in the last 24 hours</AlertTitle>
+            <AlertTitle>
+                {count} failed delivery{count === 1 ? '' : 's'} in the last 24
+                hours
+            </AlertTitle>
             <AlertDescription>
                 Check the delivery logs below and retry the failed deliveries.
             </AlertDescription>
@@ -85,20 +88,22 @@ export function EndpointCard({
                 <button
                     type="button"
                     onClick={onRegenerate}
-                    className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+                    className="text-primary text-xs font-medium underline-offset-4 hover:underline"
                 >
                     Regenerate secret
                 </button>
             </CardHeader>
             <CardContent className="grid gap-4">
                 <div className="grid gap-1.5">
-                    <span className="text-xs text-muted-foreground">URL</span>
-                    <code className="truncate rounded-md border bg-muted/50 p-2 font-mono text-xs">
+                    <span className="text-muted-foreground text-xs">URL</span>
+                    <code className="bg-muted/50 truncate rounded-md border p-2 font-mono text-xs">
                         {url}
                     </code>
                 </div>
                 <div className="grid gap-1.5">
-                    <span className="text-xs text-muted-foreground">Events</span>
+                    <span className="text-muted-foreground text-xs">
+                        Events
+                    </span>
                     <div className="flex flex-wrap gap-1">
                         {events.map((event) => (
                             <Badge key={event.name} variant="outline">
@@ -108,12 +113,14 @@ export function EndpointCard({
                     </div>
                 </div>
                 <div className="grid gap-1.5">
-                    <span className="text-xs text-muted-foreground">Signing secret</span>
-                    <code className="w-fit rounded-md border bg-muted/50 px-2 py-1 font-mono text-xs">
+                    <span className="text-muted-foreground text-xs">
+                        Signing secret
+                    </span>
+                    <code className="bg-muted/50 w-fit rounded-md border px-2 py-1 font-mono text-xs">
                         {secretPreview}
                     </code>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                     Last triggered:{' '}
                     {lastTriggeredAt
                         ? new Date(lastTriggeredAt).toLocaleString(undefined, {

@@ -55,6 +55,8 @@ final class TableLabelRenderer implements NodeRendererInterface
             }
         }
 
-        return $dom->saveHTML($table);
+        $output = $dom->saveHTML($table);
+
+        return $output === false ? $tableHtml : $output;
     }
 }

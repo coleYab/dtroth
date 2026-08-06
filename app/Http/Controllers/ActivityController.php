@@ -25,7 +25,7 @@ class ActivityController extends Controller
         $type = ActivityEventType::tryFrom($filters['type']);
 
         $events = ActivityEvent::query()
-            ->whereHas('app', fn ($query) => $query->forUser($request->user()))
+            ->whereHas('app', fn ($query) => $query->where('user_id', $request->user()->id))
             ->with('app')
             ->when($type !== null, fn ($query) => $query->where('type', $type))
             ->when($filters['from'] !== '', fn ($query) => $query->whereDate('created_at', '>=', $filters['from']))

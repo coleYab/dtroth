@@ -20,7 +20,8 @@ export type DeveloperApp = {
     created_at: string | null;
 };
 
-export type ActivityEventType = 'key_rotation' | 'failed_verification' | 'scope_change';
+export type ActivityEventType =
+    'key_rotation' | 'failed_verification' | 'scope_change';
 
 export type ActivityEvent = {
     id: number;

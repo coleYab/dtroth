@@ -30,7 +30,7 @@ class ApiCallResource extends JsonResource
             'response_time_ms' => $this->response_time_ms,
             'request_payload' => $this->request_payload,
             'response_payload' => $this->response_payload,
-            'created_at' => $this->created_at?->toISOString(),
+            'created_at' => $this->created_at->toISOString(),
         ];
     }
 }

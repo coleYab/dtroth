@@ -129,7 +129,7 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                         >
                                             {item.value}
                                         </p>
-                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                        <p className="text-muted-foreground mt-0.5 text-xs">
                                             {item.label}
                                         </p>
                                     </div>
@@ -297,7 +297,7 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                                                             },
                                                                         ).url
                                                                     }
-                                                                    className="font-mono text-xs text-primary hover:underline"
+                                                                    className="text-primary font-mono text-xs hover:underline"
                                                                 >
                                                                     {shortId(
                                                                         consent.subject_identifier,
@@ -377,7 +377,7 @@ export default function Consents({ app, consents, counts, filters }: Props) {
                                                                       : 'False'}
                                                             </span>
                                                         </p>
-                                                        <p className="text-xs text-muted-foreground">
+                                                        <p className="text-muted-foreground text-xs">
                                                             <RelativeTime
                                                                 date={
                                                                     consent.created_at

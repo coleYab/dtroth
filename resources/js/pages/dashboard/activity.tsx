@@ -73,7 +73,7 @@ export default function Activity({ events, filters }: Props) {
             <div className="flex flex-col gap-6">
                 <div>
                     <h2 className="text-2xl font-semibold">Activity Log</h2>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                         Key rotations, failed verifications, and scope changes
                         across your applications.
                     </p>
@@ -270,14 +270,14 @@ export default function Activity({ events, filters }: Props) {
                                             <EventTypeBadge type={event.type} />
                                             <RelativeTime
                                                 date={event.created_at}
-                                                className="ml-auto text-xs text-muted-foreground"
+                                                className="text-muted-foreground ml-auto text-xs"
                                             />
                                         </div>
                                         <p className="mt-2 text-sm">
                                             {event.description}
                                         </p>
                                         {event.app && (
-                                            <p className="mt-1 text-xs text-muted-foreground">
+                                            <p className="text-muted-foreground mt-1 text-xs">
                                                 <CalendarDays className="mr-1 inline size-3" />
                                                 <Link
                                                     href={showApp(event.app.id)}

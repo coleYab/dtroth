@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AuditLogResource;
+use App\Models\App;
 use App\Models\AuditLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -32,10 +33,8 @@ class AuditLogController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $apps = $request->user()
-            ->apps()
-            ->get(['id', 'name'])
-            ->prepend(['id' => null, 'name' => 'No app']);
+        $apps = collect([['id' => null, 'name' => 'No app']])
+            ->concat($request->user()->apps()->get(['id', 'name'])->map(fn (App $app) => ['id' => $app->id, 'name' => $app->name]));
 
         return Inertia::render('audit-logs', [
             'logs' => AuditLogResource::collection($logs),
@@ -73,6 +72,10 @@ class AuditLogController extends Controller
         return response()->streamDownload(function () use ($logs): void {
             $out = fopen('php://output', 'wb');
 
+            if ($out === false) {
+                return;
+            }
+
             fputcsv($out, ['Timestamp', 'Action', 'Description', 'App', 'Actor']);
 
             foreach ($logs as $log) {
@@ -80,7 +83,7 @@ class AuditLogController extends Controller
                     $log->created_at->toDateTimeString(),
                     $log->action,
                     $log->description,
-                    $log->app?->name ?? '',
+                    $log->app->name ?? '',
                     $log->user->name,
                 ]);
             }

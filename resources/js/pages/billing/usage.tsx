@@ -2,11 +2,18 @@ import { Head, setLayoutProps } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
 import { BarChart3, Wallet } from 'lucide-react';
 import { StatCard } from '@/components/stat-card';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { UsageByQueryChart } from '@/components/usage-charts';
 import { show as showApp } from '@/routes/apps';
-import billing from '@/routes/billing';import { index as billingIndex, usage as usageRoute } from '@/routes/billing';
+import billing from '@/routes/billing';
+import { index as billingIndex, usage as usageRoute } from '@/routes/billing';
 import type { BillingUsageApp, BillingUsageCycle } from '@/types';
 
 type Props = {
@@ -37,13 +44,14 @@ export default function BillingUsage({ cycle, apps }: Props) {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h2 className="text-2xl font-semibold">Usage</h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Billable usage for the current cycle ({periodLabel}).
+                        <p className="text-muted-foreground mt-1 text-sm">
+                            Billable usage for the current cycle ({periodLabel}
+                            ).
                         </p>
                     </div>
                     <Link
                         href={billing.index().url}
-                        className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                        className="text-primary flex items-center gap-1 text-sm font-medium hover:underline"
                     >
                         <Wallet className="size-4" />
                         Back to billing
@@ -51,7 +59,11 @@ export default function BillingUsage({ cycle, apps }: Props) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-                    <StatCard title="Total calls" value={cycle.total_calls.toLocaleString()} icon={BarChart3} />
+                    <StatCard
+                        title="Total calls"
+                        value={cycle.total_calls.toLocaleString()}
+                        icon={BarChart3}
+                    />
                     <StatCard
                         title="Verifications"
                         value={cycle.total_verifications.toLocaleString()}
@@ -64,7 +76,10 @@ export default function BillingUsage({ cycle, apps }: Props) {
                     />
                     <StatCard
                         title="Days remaining"
-                        value={Math.max(0, Math.ceil(cycle.days_remaining)).toLocaleString()}
+                        value={Math.max(
+                            0,
+                            Math.ceil(cycle.days_remaining),
+                        ).toLocaleString()}
                         icon={BarChart3}
                     />
                 </div>
@@ -73,44 +88,52 @@ export default function BillingUsage({ cycle, apps }: Props) {
                     <CardHeader>
                         <CardTitle className="text-base">Cycle usage</CardTitle>
                         <CardDescription>
-                            {cycle.usage_percent}% of your plan's included calls used.
+                            {cycle.usage_percent}% of your plan's included calls
+                            used.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Progress value={cycle.usage_percent} className="h-2.5" />
-                        <p className="mt-2 text-xs text-muted-foreground">
-                            {cycle.total_calls.toLocaleString()} of {cycle.plan_calls.toLocaleString()}{' '}
-                            calls used in this cycle.
+                        <Progress
+                            value={cycle.usage_percent}
+                            className="h-2.5"
+                        />
+                        <p className="text-muted-foreground mt-2 text-xs">
+                            {cycle.total_calls.toLocaleString()} of{' '}
+                            {cycle.plan_calls.toLocaleString()} calls used in
+                            this cycle.
                         </p>
                     </CardContent>
                 </Card>
 
-                {apps.length > 1 && (
-                    <UsageByQueryChart data={chartData} />
-                )}
+                {apps.length > 1 && <UsageByQueryChart data={chartData} />}
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Per application</CardTitle>
+                        <CardTitle className="text-base">
+                            Per application
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-3">
                         {apps.map((app) => (
                             <Link
                                 key={app.app_id}
                                 href={showApp(app.app_id).url}
-                                className="flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors hover:border-muted-foreground/40"
+                                className="hover:border-muted-foreground/40 flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
                             >
                                 <div className="min-w-0">
-                                    <p className="truncate text-sm font-medium">{app.app_name}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {app.verifications.toLocaleString()} verifications
+                                    <p className="truncate text-sm font-medium">
+                                        {app.app_name}
+                                    </p>
+                                    <p className="text-muted-foreground text-xs">
+                                        {app.verifications.toLocaleString()}{' '}
+                                        verifications
                                     </p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-sm font-semibold tabular-nums">
                                         {app.calls.toLocaleString()} calls
                                     </p>
-                                    <p className="text-xs text-muted-foreground tabular-nums">
+                                    <p className="text-muted-foreground text-xs tabular-nums">
                                         {app.estimated_cost_etb > 0
                                             ? `ETB ${(app.estimated_cost_etb / 100).toFixed(2)}`
                                             : 'No overage'}

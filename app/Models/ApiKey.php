@@ -55,11 +55,13 @@ class ApiKey extends Model
         return $this->revoked_at !== null;
     }
 
+    /** @phpstan-return BelongsTo<App, $this> */
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class);
     }
 
+    /** @phpstan-return BelongsTo<AppEnvironment, $this> */
     public function environment(): BelongsTo
     {
         return $this->belongsTo(AppEnvironment::class, 'app_environment_id');

@@ -6,6 +6,7 @@ use App\Http\Resources\AppResource;
 use App\Models\App;
 use App\Services\TeamService;
 use App\Services\UsageService;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,7 +36,7 @@ class UsageController extends Controller
     /**
      * Resolve the selected range into from/to dates.
      *
-     * @return array{Carbon\CarbonInterface, Carbon\CarbonInterface, string}
+     * @return array{CarbonInterface, CarbonInterface, string}
      */
     private function resolveRange(Request $request): array
     {

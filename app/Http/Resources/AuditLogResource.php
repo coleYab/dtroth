@@ -25,7 +25,7 @@ class AuditLogResource extends JsonResource
             'app_id' => $this->app_id,
             'app_name' => $this->whenLoaded('app', fn () => $this->app?->name),
             'actor' => $this->whenLoaded('user', fn () => $this->user->name),
-            'created_at' => $this->created_at?->toISOString(),
+            'created_at' => $this->created_at->toISOString(),
         ];
     }
 }

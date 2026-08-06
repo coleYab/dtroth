@@ -38,12 +38,16 @@ curl -X POST "https://api.troth.dev/v1/verify/age" \
 
 ```js
 const response = await fetch('https://api.troth.dev/v1/verify/age', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer sk_sandbox_...',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ age: 18, type: 'equal_above', subject: 'fayda-test-a' }),
+    method: 'POST',
+    headers: {
+        Authorization: 'Bearer sk_sandbox_...',
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        age: 18,
+        type: 'equal_above',
+        subject: 'fayda-test-a',
+    }),
 });
 
 const data = await response.json();
@@ -68,10 +72,10 @@ A successful response looks like this:
 
 ```json
 {
-  "result": true,
-  "query_id": "6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6",
-  "verified_at": "2026-08-02T12:00:00+00:00",
-  "expires_at": "2026-10-31T12:00:00+00:00"
+    "result": true,
+    "query_id": "6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6",
+    "verified_at": "2026-08-02T12:00:00+00:00",
+    "expires_at": "2026-10-31T12:00:00+00:00"
 }
 ```
 

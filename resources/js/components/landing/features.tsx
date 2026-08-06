@@ -80,7 +80,7 @@ export default function LandingFeatures() {
                 </h2>
                 <p className="text-muted-foreground max-w-xl text-pretty">
                     From first sandbox call to production scale, Troth Verify
-                        handles the hard parts of age verification.
+                    handles the hard parts of age verification.
                 </p>
             </div>
 

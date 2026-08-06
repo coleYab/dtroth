@@ -90,11 +90,13 @@ class Verification extends Model
         return $this->query_type->describe($this->query_value);
     }
 
+    /** @phpstan-return BelongsTo<App, $this> */
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class);
     }
 
+    /** @phpstan-return BelongsTo<AppEnvironment, $this> */
     public function environment(): BelongsTo
     {
         return $this->belongsTo(AppEnvironment::class, 'app_environment_id');

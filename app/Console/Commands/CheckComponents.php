@@ -10,6 +10,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\URL;
 
 #[Signature('status:check')]
 #[Description('Ping each configured component and record the result in status_checks')]
@@ -30,7 +31,7 @@ class CheckComponents extends Command
 
             try {
                 $response = Http::timeout(config('status.timeout_ms') / 1000)
-                    ->get(url($component['url']));
+                    ->get(URL::to($component['url']));
 
                 $responseTimeMs = (int) ((hrtime(true) - $started) / 1_000_000);
                 $degraded = $responseTimeMs > config('status.degraded_above_ms');

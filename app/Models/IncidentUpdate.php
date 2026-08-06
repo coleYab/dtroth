@@ -37,6 +37,7 @@ class IncidentUpdate extends Model
         ];
     }
 
+    /** @phpstan-return BelongsTo<StatusIncident, $this> */
     public function incident(): BelongsTo
     {
         return $this->belongsTo(StatusIncident::class, 'incident_id');

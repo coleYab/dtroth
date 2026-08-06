@@ -24,16 +24,16 @@ class DashboardController extends Controller
                 'calls as calls_30d' => fn ($query) => $query->where('created_at', '>=', now()->subDays(30)),
             ])->get()->sum('calls_30d'),
             'verifications30d' => Verification::query()
-                ->whereHas('app', fn ($query) => $query->forUser($user))
+                ->whereHas('app', fn ($query) => $query->where('user_id', $user->id))
                 ->where('created_at', '>=', now()->subDays(30))
                 ->count(),
             'activeAlerts' => ApiKey::query()
-                ->whereHas('app', fn ($query) => $query->forUser($user))
+                ->whereHas('app', fn ($query) => $query->where('user_id', $user->id))
                 ->whereNotNull('expires_at')
                 ->whereBetween('expires_at', [now(), now()->addDays(30)])
                 ->count()
                 + Verification::query()
-                    ->whereHas('app', fn ($query) => $query->forUser($user))
+                    ->whereHas('app', fn ($query) => $query->where('user_id', $user->id))
                     ->where('status', 'failed')
                     ->where('created_at', '>=', now()->subDays(7))
                     ->count(),

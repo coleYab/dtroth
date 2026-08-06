@@ -43,11 +43,16 @@ export function WebhookSecretRevealDialog({
     }
 
     return (
-        <Dialog open={open} onOpenChange={(next) => (next ? undefined : close())}>
+        <Dialog
+            open={open}
+            onOpenChange={(next) => (next ? undefined : close())}
+        >
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>
-                        {isRegenerated ? 'Signing secret regenerated' : 'Webhook created'}
+                        {isRegenerated
+                            ? 'Signing secret regenerated'
+                            : 'Webhook created'}
                     </DialogTitle>
                     <DialogDescription>
                         {isRegenerated
@@ -61,24 +66,29 @@ export function WebhookSecretRevealDialog({
                         <AlertTriangle className="size-4" />
                         <AlertTitle>Copy your signing secret now</AlertTitle>
                         <AlertDescription>
-                            The signing secret is shown only once and cannot be retrieved later. Use
-                            it to verify the <code className="font-mono">X-Troth-Signature</code>{' '}
+                            The signing secret is shown only once and cannot be
+                            retrieved later. Use it to verify the{' '}
+                            <code className="font-mono">X-Troth-Signature</code>{' '}
                             header on every delivery.
                         </AlertDescription>
                     </Alert>
 
                     <div className="grid gap-3">
                         <div>
-                            <Label className="text-xs text-muted-foreground">Endpoint URL</Label>
-                            <div className="mt-1 flex items-center gap-1 rounded-md border bg-muted/50 p-2">
+                            <Label className="text-muted-foreground text-xs">
+                                Endpoint URL
+                            </Label>
+                            <div className="bg-muted/50 mt-1 flex items-center gap-1 rounded-md border p-2">
                                 <code className="min-w-0 flex-1 truncate font-mono text-xs">
                                     {revealedSecret.url}
                                 </code>
                             </div>
                         </div>
                         <div>
-                            <Label className="text-xs text-muted-foreground">Signing secret</Label>
-                            <div className="mt-1 flex items-center gap-1 rounded-md border bg-muted/50 p-2 pr-1">
+                            <Label className="text-muted-foreground text-xs">
+                                Signing secret
+                            </Label>
+                            <div className="bg-muted/50 mt-1 flex items-center gap-1 rounded-md border p-2 pr-1">
                                 <code className="min-w-0 flex-1 select-all break-all font-mono text-xs">
                                     {revealedSecret.secret}
                                 </code>
@@ -90,7 +100,9 @@ export function WebhookSecretRevealDialog({
                     <label className="flex items-start gap-2 text-sm">
                         <Checkbox
                             checked={acknowledged}
-                            onCheckedChange={(checked) => setAcknowledged(checked === true)}
+                            onCheckedChange={(checked) =>
+                                setAcknowledged(checked === true)
+                            }
                             className="mt-0.5"
                         />
                         <span className="text-muted-foreground">
@@ -100,7 +112,12 @@ export function WebhookSecretRevealDialog({
                 </div>
 
                 <DialogFooter className="sm:justify-between">
-                    <Button type="button" variant="outline" onClick={close} disabled={!acknowledged}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={close}
+                        disabled={!acknowledged}
+                    >
                         Done
                     </Button>
                     <CopyButton value={revealedSecret.secret} size="default">

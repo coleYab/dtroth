@@ -108,7 +108,7 @@ export default function ConsentDetail({ app, consent }: Props) {
                                         key={row.label}
                                         className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 last:border-b-0 last:pb-0"
                                     >
-                                        <span className="text-sm text-muted-foreground">
+                                        <span className="text-muted-foreground text-sm">
                                             {row.label}
                                         </span>
                                         {row.result !== undefined ? (
@@ -138,7 +138,7 @@ export default function ConsentDetail({ app, consent }: Props) {
                             <CardContent>
                                 <ol className="relative grid gap-6 border-l pl-6">
                                     {consent.events.length === 0 ? (
-                                        <p className="text-sm text-muted-foreground">
+                                        <p className="text-muted-foreground text-sm">
                                             No events recorded.
                                         </p>
                                     ) : (
@@ -162,8 +162,8 @@ export default function ConsentDetail({ app, consent }: Props) {
                                                         key={index}
                                                         className="relative"
                                                     >
-                                                        <span className="absolute -left-[31px] flex size-5 items-center justify-center rounded-full border bg-background">
-                                                            <meta.icon className="size-3 text-muted-foreground" />
+                                                        <span className="bg-background absolute -left-[31px] flex size-5 items-center justify-center rounded-full border">
+                                                            <meta.icon className="text-muted-foreground size-3" />
                                                         </span>
                                                         <div className="flex flex-wrap items-center gap-2">
                                                             <span className="text-sm font-medium">
@@ -173,7 +173,7 @@ export default function ConsentDetail({ app, consent }: Props) {
                                                                 {event.type}
                                                             </Badge>
                                                         </div>
-                                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                                        <p className="text-muted-foreground mt-0.5 text-xs">
                                                             <RelativeTime
                                                                 date={
                                                                     event.created_at

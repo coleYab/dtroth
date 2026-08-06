@@ -7,11 +7,11 @@ Webhooks notify your servers about lifecycle events automatically — you never 
 
 ## When events fire
 
-| Event | Trigger |
-| --- | --- |
-| `verification.completed` | Every completed age check — the [Age Query API](age-query-endpoint) and the [hosted flow](hosted-flow), with both `true` and `false` results. |
-| `verification.expired` | A stored verification result passes its `expires_at`, discovered hourly. |
-| `consent.revoked` | A consent is revoked via the [Consents API](consents). Only fires on an actual state change — revoking an already-revoked consent does not fire again. |
+| Event                    | Trigger                                                                                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `verification.completed` | Every completed age check — the [Age Query API](age-query-endpoint) and the [hosted flow](hosted-flow), with both `true` and `false` results.          |
+| `verification.expired`   | A stored verification result passes its `expires_at`, discovered hourly.                                                                               |
+| `consent.revoked`        | A consent is revoked via the [Consents API](consents). Only fires on an actual state change — revoking an already-revoked consent does not fire again. |
 
 Deliveries are scoped per application: only webhooks of the app that owns the event receive it.
 
@@ -23,39 +23,39 @@ Every payload includes an `event` field naming the event and an `occurred_at` ti
 
 ```json
 {
-  "event": "verification.completed",
-  "query_id": "6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6",
-  "subject": "user-123",
-  "age": 18,
-  "type": "equal_above",
-  "result": true,
-  "verified_at": "2026-08-06T12:00:00+00:00",
-  "expires_at": "2026-11-04T12:00:00+00:00",
-  "environment": "sandbox",
-  "occurred_at": "2026-08-06T12:00:00+00:00"
+    "event": "verification.completed",
+    "query_id": "6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6",
+    "subject": "user-123",
+    "age": 18,
+    "type": "equal_above",
+    "result": true,
+    "verified_at": "2026-08-06T12:00:00+00:00",
+    "expires_at": "2026-11-04T12:00:00+00:00",
+    "environment": "sandbox",
+    "occurred_at": "2026-08-06T12:00:00+00:00"
 }
 ```
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `query_id` | string | The verification's unique ID — use it for deduplication. |
-| `subject` | string | Your opaque identifier for the subject. |
-| `age` | integer | The age that was queried. |
-| `type` | enum | The operator used: `equal_above` or `equal_below`. |
-| `result` | boolean | Whether the query matched. `null` when the provider declined the subject. |
-| `verified_at` | string | When the verification was performed. |
-| `expires_at` | string | When the result expires; `null` for declined subjects. |
-| `environment` | enum | `sandbox` or `production` — filter test traffic here. |
+| Field         | Type    | Description                                                               |
+| ------------- | ------- | ------------------------------------------------------------------------- |
+| `query_id`    | string  | The verification's unique ID — use it for deduplication.                  |
+| `subject`     | string  | Your opaque identifier for the subject.                                   |
+| `age`         | integer | The age that was queried.                                                 |
+| `type`        | enum    | The operator used: `equal_above` or `equal_below`.                        |
+| `result`      | boolean | Whether the query matched. `null` when the provider declined the subject. |
+| `verified_at` | string  | When the verification was performed.                                      |
+| `expires_at`  | string  | When the result expires; `null` for declined subjects.                    |
+| `environment` | enum    | `sandbox` or `production` — filter test traffic here.                     |
 
 ### verification.expired
 
 ```json
 {
-  "event": "verification.expired",
-  "query_id": "6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6",
-  "subject": "user-123",
-  "expired_at": "2026-11-04T12:00:00+00:00",
-  "occurred_at": "2026-11-04T12:00:00+00:00"
+    "event": "verification.expired",
+    "query_id": "6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6",
+    "subject": "user-123",
+    "expired_at": "2026-11-04T12:00:00+00:00",
+    "occurred_at": "2026-11-04T12:00:00+00:00"
 }
 ```
 
@@ -65,11 +65,11 @@ Fired when a consent passes its expiry, referencing the most recent completed ve
 
 ```json
 {
-  "event": "consent.revoked",
-  "consent_id": 42,
-  "subject": "user-123",
-  "revoked_at": "2026-08-06T09:30:00+00:00",
-  "occurred_at": "2026-08-06T09:30:00+00:00"
+    "event": "consent.revoked",
+    "consent_id": 42,
+    "subject": "user-123",
+    "revoked_at": "2026-08-06T09:30:00+00:00",
+    "occurred_at": "2026-08-06T09:30:00+00:00"
 }
 ```
 
@@ -91,12 +91,12 @@ Each request includes an `X-Troth-Signature` header containing the HMAC-SHA256 o
 const crypto = require('crypto');
 
 const signature = crypto
-  .createHmac('sha256', process.env.TROTH_WEBHOOK_SECRET)
-  .update(rawBody)
-  .digest('hex');
+    .createHmac('sha256', process.env.TROTH_WEBHOOK_SECRET)
+    .update(rawBody)
+    .digest('hex');
 
 if (signature !== req.headers['x-troth-signature']) {
-  throw new Error('Invalid signature');
+    throw new Error('Invalid signature');
 }
 ```
 

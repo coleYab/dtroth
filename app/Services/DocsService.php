@@ -139,7 +139,7 @@ class DocsService
             function (array $matches): string {
                 $href = $matches[1];
 
-                if ($href === '' || str_starts_with($href, '#') || str_starts_with($href, '/') || str_starts_with($href, 'http')) {
+                if (str_starts_with($href, '#') || str_starts_with($href, '/') || str_starts_with($href, 'http')) {
                     return $matches[0];
                 }
 
