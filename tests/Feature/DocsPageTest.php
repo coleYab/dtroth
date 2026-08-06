@@ -57,3 +57,27 @@ test('docs feedback rejects unknown slugs', function () {
         'helpful' => true,
     ])->assertSessionHasErrors('slug');
 });
+
+test('guests can view the docs page', function () {
+    auth()->logout();
+
+    $this->get(route('docs.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('docs')->has('sections', 9));
+});
+
+test('docs feedback can be recorded by guests', function () {
+    auth()->logout();
+
+    $this->post(route('docs.feedback'), [
+        'slug' => 'age-query-endpoint',
+        'helpful' => true,
+    ])->assertRedirect();
+
+    $feedback = DocsFeedback::query()->first();
+
+    expect($feedback)->not->toBeNull()
+        ->and($feedback->doc_slug)->toBe('age-query-endpoint')
+        ->and($feedback->helpful)->toBeTrue()
+        ->and($feedback->user_id)->toBeNull();
+});

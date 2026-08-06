@@ -52,7 +52,13 @@ test('the openapi spec is also available as JSON', function () {
         ->assertJsonPath('info.title', 'dtroth Verify API');
 });
 
-test('the openapi routes require authentication', function () {
-    $this->get(route('docs.openapi'))->assertRedirect(route('login'));
-    $this->get(route('docs.openapi.json'))->assertRedirect(route('login'));
+test('the openapi routes are publicly accessible', function () {
+    $this->get(route('docs.openapi'))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'text/yaml; charset=utf-8')
+        ->assertDownload('openapi.yaml');
+
+    $this->get(route('docs.openapi.json'))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/json');
 });

@@ -27,6 +27,11 @@ Route::inertia('/', 'welcome')->name('home');
 Route::inertia('legal/terms', 'legal/terms')->name('legal.terms');
 Route::inertia('legal/privacy-policy', 'legal/privacy-policy')->name('legal.privacy-policy');
 
+Route::get('docs', [DocsController::class, 'index'])->name('docs.index');
+Route::get('docs/openapi', [DocsController::class, 'openapi'])->name('docs.openapi');
+Route::get('docs/openapi.json', [DocsController::class, 'openapiJson'])->name('docs.openapi.json');
+Route::post('docs/feedback', [DocsFeedbackController::class, 'store'])->name('docs.feedback');
+
 Route::middleware('flow.headers')->group(function () {
     Route::get('verify/{token}', [PublicVerificationController::class, 'show'])->name('verify.flow');
     Route::post('verify/{token}', [PublicVerificationController::class, 'submit'])
@@ -96,11 +101,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('billing/upgrade', [BillingController::class, 'upgrade'])->name('billing.upgrade');
     Route::get('billing/invoices/{invoice}/download', [BillingController::class, 'downloadInvoice'])
         ->name('billing.invoices.download');
-
-    Route::get('docs', [DocsController::class, 'index'])->name('docs.index');
-    Route::get('docs/openapi', [DocsController::class, 'openapi'])->name('docs.openapi');
-    Route::get('docs/openapi.json', [DocsController::class, 'openapiJson'])->name('docs.openapi.json');
-    Route::post('docs/feedback', [DocsFeedbackController::class, 'store'])->name('docs.feedback');
 
     Route::get('sandbox', [SandboxController::class, 'index'])->name('sandbox.index');
     Route::post('sandbox/verify', [SandboxController::class, 'verify'])->name('sandbox.verify');
