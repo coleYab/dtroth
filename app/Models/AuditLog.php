@@ -41,6 +41,14 @@ class AuditLog extends Model
 
     public const ACTION_VERIFICATION_CHANGED = 'verification.changed';
 
+    public const ACTION_TEAM_INVITED = 'team.invited';
+
+    public const ACTION_TEAM_ROLE_CHANGED = 'team.role_changed';
+
+    public const ACTION_TEAM_MEMBER_REMOVED = 'team.member_removed';
+
+    public const ACTION_TEAM_INVITE_CANCELLED = 'team.invite_cancelled';
+
     /**
      * Indicates if the model should be timestamped.
      */

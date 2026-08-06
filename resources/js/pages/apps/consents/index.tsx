@@ -2,7 +2,6 @@ import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { FileCheck } from 'lucide-react';
 import { useState } from 'react';
 import { AppPagination } from '@/components/app-pagination';
-import { shortId } from '@/lib/utils';
 import {
     AppSectionHeader,
     AppSectionLayout,
@@ -32,6 +31,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { shortId } from '@/lib/utils';
 import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';

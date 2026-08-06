@@ -26,6 +26,7 @@ class DocsService
         'authentication',
         'age-query-endpoint',
         'hosted-flow',
+        'consents',
         'webhooks',
         'error-codes',
         'rate-limits',

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\AgeQueryType;
 use App\Models\App;
 use App\Models\Verification;
+use App\Services\VerificationService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -22,6 +23,7 @@ class VerificationFactory extends Factory
     {
         return [
             'app_id' => App::factory(),
+            'query_id' => Str::uuid()->toString(),
             'status' => fake()->randomElement(['approved', 'approved', 'declined', 'failed']),
             'query_type' => fake()->randomElement([AgeQueryType::EqualAbove, AgeQueryType::EqualAbove, AgeQueryType::EqualBelow]),
             'query_value' => fake()->randomElement([13, 16, 18, 21, 65]),
@@ -58,6 +60,7 @@ class VerificationFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => Verification::STATUS_PENDING,
             'token' => Str::uuid()->toString(),
+            'query_id' => $attributes['query_id'] ?? Str::uuid()->toString(),
             'expires_at' => now()->addMinutes(15),
         ]);
     }
@@ -70,7 +73,8 @@ class VerificationFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => Verification::STATUS_COMPLETED,
             'token' => Str::uuid()->toString(),
-            'expires_at' => now()->addMinutes(15),
+            'query_id' => $attributes['query_id'] ?? Str::uuid()->toString(),
+            'expires_at' => now()->addDays(VerificationService::RESULT_TTL_DAYS),
             'completed_at' => now(),
         ]);
     }

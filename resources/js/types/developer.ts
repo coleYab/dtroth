@@ -76,3 +76,31 @@ export type RevealedKey = {
     public_key: string;
     secret_key: string;
 };
+
+export type TeamRole = 'owner' | 'developer' | 'viewer';
+
+export type TeamInfo = {
+    id: number;
+    name: string;
+    slug: string;
+    owner_name: string;
+    member_count: number;
+};
+
+export type TeamMember = {
+    id: number;
+    user_id: number;
+    name: string;
+    email: string;
+    role: TeamRole;
+    is_owner: boolean;
+    joined_at: string | null;
+};
+
+export type TeamInvitation = {
+    id: number;
+    email: string;
+    role: TeamRole;
+    expires_at: string;
+    is_expired: boolean;
+};

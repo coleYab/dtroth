@@ -22,9 +22,10 @@ import type { DeveloperApp } from '@/types';
 
 type Props = {
     app: DeveloperApp;
+    permissions: string[];
 };
 
-export default function AppSettings({ app }: Props) {
+export default function AppSettings({ app, permissions }: Props) {
     setLayoutProps({
         breadcrumbs: [
             {
@@ -57,34 +58,39 @@ export default function AppSettings({ app }: Props) {
                     active="Settings"
                     label="Application"
                 >
-                    <AppForm app={app} />
+                    <AppForm
+                        app={app}
+                        readOnly={!permissions.includes('manage_app')}
+                    />
 
-                    <Card className="border-destructive/50 bg-destructive/5">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-destructive">
-                                <AlertTriangle />
-                                Danger Zone
-                            </CardTitle>
-                            <CardDescription>
-                                Permanently delete this application and all of
-                                its data. This action cannot be undone.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <DeleteAppDialog
-                                app={app}
-                                trigger={
-                                    <Button
-                                        variant="destructive"
-                                        className="w-full sm:w-auto"
-                                    >
-                                        <Trash2 />
-                                        Delete this application
-                                    </Button>
-                                }
-                            />
-                        </CardContent>
-                    </Card>
+                    {permissions.includes('delete_app') && (
+                        <Card className="border-destructive/50 bg-destructive/5">
+                            <CardHeader>
+                                <CardTitle className="text-destructive flex items-center gap-2">
+                                    <AlertTriangle />
+                                    Danger Zone
+                                </CardTitle>
+                                <CardDescription>
+                                    Permanently delete this application and all
+                                    of its data. This action cannot be undone.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <DeleteAppDialog
+                                    app={app}
+                                    trigger={
+                                        <Button
+                                            variant="destructive"
+                                            className="w-full sm:w-auto"
+                                        >
+                                            <Trash2 />
+                                            Delete this application
+                                        </Button>
+                                    }
+                                />
+                            </CardContent>
+                        </Card>
+                    )}
                 </AppSectionLayout>
             </div>
         </>

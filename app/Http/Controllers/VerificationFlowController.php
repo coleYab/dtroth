@@ -7,6 +7,7 @@ use App\Http\Resources\AppResource;
 use App\Models\App;
 use App\Models\AuditLog;
 use App\Services\AuditLogger;
+use App\Services\TeamService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -25,9 +26,9 @@ class VerificationFlowController extends Controller
      */
     public function show(Request $request, App $app): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'view');
 
-        return Inertia::render('apps/verification-flows', $this->payload($app));
+        return Inertia::render('apps/verification-flows', $this->payload($request, $app));
     }
 
     /**
@@ -35,7 +36,7 @@ class VerificationFlowController extends Controller
      */
     public function update(UpdateVerificationFlowRequest $request, App $app): RedirectResponse
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_app');
 
         $flow = $app->verificationFlow()->firstOrCreate(['app_id' => $app->id]);
 
@@ -76,7 +77,7 @@ class VerificationFlowController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function payload(App $app): array
+    private function payload(Request $request, App $app): array
     {
         $flow = $app->verificationFlow;
 
@@ -92,14 +93,19 @@ class VerificationFlowController extends Controller
                 'callback_url' => $flow?->callback_url,
                 'updated_at' => $flow?->updated_at?->toISOString(),
             ],
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
         ];
     }
 
     /**
-     * Resolve the app owned by the authenticated user.
+     * Resolve the app the authenticated user can access with the given
+     * permission.
      */
-    private function ownedApp(Request $request, App $app): App
+    private function ownedApp(Request $request, App $app, string $permission = 'view'): App
     {
-        return $request->user()->apps()->with('verificationFlow')->findOrFail($app->id);
+        $app = TeamService::appForMember($request->user(), $app->id);
+        TeamService::authorize($request->user(), $app, $permission);
+
+        return $app;
     }
 }

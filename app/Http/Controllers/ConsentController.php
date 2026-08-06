@@ -6,6 +6,7 @@ use App\Http\Resources\AppResource;
 use App\Http\Resources\ConsentResource;
 use App\Models\App;
 use App\Models\Consent;
+use App\Services\TeamService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -53,6 +54,7 @@ class ConsentController extends Controller
             'app' => (new AppResource($app->load('environments')))->resolve(),
             'consents' => ConsentResource::collection($consents),
             'counts' => $counts,
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
             'filters' => [
                 'status' => $status,
                 'query' => $query,
@@ -74,14 +76,19 @@ class ConsentController extends Controller
         return Inertia::render('apps/consents/show', [
             'app' => (new AppResource($app->load('environments')))->resolve(),
             'consent' => (new ConsentResource($consent))->resolve(),
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
         ]);
     }
 
     /**
-     * Resolve the app owned by the authenticated user.
+     * Resolve the app the authenticated user can access with the given
+     * permission.
      */
-    private function ownedApp(Request $request, App $app): App
+    private function ownedApp(Request $request, App $app, string $permission = 'view'): App
     {
-        return $request->user()->apps()->findOrFail($app->id);
+        $app = TeamService::appForMember($request->user(), $app->id);
+        TeamService::authorize($request->user(), $app, $permission);
+
+        return $app;
     }
 }

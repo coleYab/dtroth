@@ -62,6 +62,7 @@ type Props = {
         to: string | null;
     };
     revealedSecret: RevealedSecret | null;
+    permissions: string[];
 };
 
 export default function WebhookLogs({
@@ -70,6 +71,7 @@ export default function WebhookLogs({
     deliveries,
     filters,
     revealedSecret,
+    permissions,
 }: Props) {
     setLayoutProps({
         breadcrumbs: [
@@ -83,6 +85,8 @@ export default function WebhookLogs({
     const [from, setFrom] = useState(filters.from ?? '');
     const [to, setTo] = useState(filters.to ?? '');
     const [retrying, setRetrying] = useState<number | null>(null);
+
+    const canManageWebhooks = permissions.includes('manage_webhooks');
     const [payloadTarget, setPayloadTarget] = useState<WebhookDelivery | null>(
         null,
     );
@@ -318,7 +322,7 @@ export default function WebhookLogs({
                                 </div>
 
                                 {deliveries.data.length === 0 ? (
-                                    <p className="py-10 text-center text-sm text-muted-foreground">
+                                    <p className="text-muted-foreground py-10 text-center text-sm">
                                         No deliveries match these filters.
                                     </p>
                                 ) : (
@@ -388,29 +392,30 @@ export default function WebhookLogs({
                                                                         Payload
                                                                     </Button>
                                                                     {delivery.status ===
-                                                                        'failed' && (
-                                                                        <Button
-                                                                            variant="outline"
-                                                                            size="icon"
-                                                                            onClick={() =>
-                                                                                retry(
-                                                                                    delivery,
-                                                                                )
-                                                                            }
-                                                                            disabled={
-                                                                                retrying ===
-                                                                                delivery.id
-                                                                            }
-                                                                            aria-label={`Retry delivery ${delivery.id}`}
-                                                                        >
-                                                                            {retrying ===
-                                                                            delivery.id ? (
-                                                                                <Spinner className="size-4" />
-                                                                            ) : (
-                                                                                <RefreshCw />
-                                                                            )}
-                                                                        </Button>
-                                                                    )}
+                                                                        'failed' &&
+                                                                        canManageWebhooks && (
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                size="icon"
+                                                                                onClick={() =>
+                                                                                    retry(
+                                                                                        delivery,
+                                                                                    )
+                                                                                }
+                                                                                disabled={
+                                                                                    retrying ===
+                                                                                    delivery.id
+                                                                                }
+                                                                                aria-label={`Retry delivery ${delivery.id}`}
+                                                                            >
+                                                                                {retrying ===
+                                                                                delivery.id ? (
+                                                                                    <Spinner className="size-4" />
+                                                                                ) : (
+                                                                                    <RefreshCw />
+                                                                                )}
+                                                                            </Button>
+                                                                        )}
                                                                 </div>
                                                             </TableCell>
                                                         </TableRow>
@@ -433,7 +438,7 @@ export default function WebhookLogs({
                                                                 }
                                                             />
                                                         </div>
-                                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                                        <div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
                                                             <span>
                                                                 Attempts:{' '}
                                                                 <span className="tabular-nums">
@@ -471,30 +476,32 @@ export default function WebhookLogs({
                                                                 View payload
                                                             </Button>
                                                             {delivery.status ===
-                                                                'failed' && (
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        retry(
-                                                                            delivery,
-                                                                        )
-                                                                    }
-                                                                    disabled={
-                                                                        retrying ===
-                                                                        delivery.id
-                                                                    }
-                                                                    className="flex-1"
-                                                                >
-                                                                    {retrying ===
-                                                                    delivery.id ? (
-                                                                        <Spinner className="size-4" />
-                                                                    ) : (
-                                                                        <RefreshCw />
-                                                                    )}
-                                                                    Retry now
-                                                                </Button>
-                                                            )}
+                                                                'failed' &&
+                                                                canManageWebhooks && (
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() =>
+                                                                            retry(
+                                                                                delivery,
+                                                                            )
+                                                                        }
+                                                                        disabled={
+                                                                            retrying ===
+                                                                            delivery.id
+                                                                        }
+                                                                        className="flex-1"
+                                                                    >
+                                                                        {retrying ===
+                                                                        delivery.id ? (
+                                                                            <Spinner className="size-4" />
+                                                                        ) : (
+                                                                            <RefreshCw />
+                                                                        )}
+                                                                        Retry
+                                                                        now
+                                                                    </Button>
+                                                                )}
                                                         </div>
                                                     </CardContent>
                                                 </Card>

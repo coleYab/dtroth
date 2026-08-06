@@ -18,6 +18,16 @@ You never see the subject's actual age — only the answer to the query you aske
 - **Environment** — every key belongs to a sandbox or production environment. Sandbox keys verify against mock test identities; production keys verify against real identity provider data.
 - **Consent** — end users grant consent for age verification through your application, and you keep records of that consent alongside the verification results.
 
+## Teams & access
+
+Every account has a team. The account owner can invite other users to the team from **Settings → Team**; each member gets one of three roles:
+
+- **Owner** — full access: manages team members, invitations, and all application settings.
+- **Developer** — full application access (keys, webhooks, verification settings) but cannot manage the team.
+- **Viewer** — read-only access to applications. Viewers cannot create, rotate, or revoke anything.
+
+Team members share the applications of the team's owner. Email notifications (webhook failures, key expiry, usage thresholds) follow the team's preferences under **Settings → Notifications**. If your user was invited to a team, you are prompted to accept the invitation after signing up.
+
 ## Base URL
 
 All API requests are made to:
@@ -27,6 +37,10 @@ https://api.troth.dev/v1
 ```
 
 In this sandbox environment the API is available locally. See [Authentication](authentication) for how to send your secret key.
+
+## OpenAPI specification
+
+The full API is described in an OpenAPI 3.1 specification. Download it from the docs page (**Download OpenAPI spec**) at `/docs/openapi` (YAML) or `/docs/openapi.json` (JSON). The spec can be imported directly into Swagger UI, Redoc, Postman, or your code generator.
 
 ## First request
 

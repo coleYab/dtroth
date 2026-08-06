@@ -32,6 +32,18 @@ class ConsentFactory extends Factory
     }
 
     /**
+     * Indicate that the consent is active.
+     */
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => Consent::STATUS_ACTIVE,
+            'revoked_at' => null,
+            'expires_at' => now()->addMonths(6),
+        ]);
+    }
+
+    /**
      * Indicate that the consent has been revoked.
      */
     public function revoked(): static

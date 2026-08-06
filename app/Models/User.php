@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -22,11 +23,14 @@ use Illuminate\Support\Carbon;
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
+ * @property array<string, bool>|null $notification_preferences
+ * @property-read Team|null $team
+ * @property-read Team|null $subscriptionTeam
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'notification_preferences'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -43,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
         ];
     }
 
@@ -52,6 +57,50 @@ class User extends Authenticatable
     public function apps(): HasMany
     {
         return $this->hasMany(App::class);
+    }
+
+    /**
+     * Get the team owned by the user.
+     */
+    public function team(): HasOne
+    {
+        return $this->hasOne(Team::class, 'owner_user_id');
+    }
+
+    /**
+     * Get the teams the user is a member of.
+     */
+    public function teams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'team_members', 'user_id', 'team_id')
+            ->withPivot(['role', 'accepted_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the team the user belongs to for portal purposes: the team they own,
+     * falling back to their first accepted membership.
+     */
+    public function currentTeam(): ?Team
+    {
+        if ($this->team !== null) {
+            return $this->team;
+        }
+
+        /** @var Team|null $team */
+        $team = $this->teams()
+            ->wherePivotNotNull('accepted_at')
+            ->first();
+
+        return $team;
+    }
+
+    /**
+     * Whether the user has an email notification preference enabled.
+     */
+    public function notificationPreference(string $key): bool
+    {
+        return $this->notification_preferences[$key] ?? true;
     }
 
     /**

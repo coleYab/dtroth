@@ -13,6 +13,7 @@ use App\Models\App;
 use App\Models\Webhook;
 use App\Models\WebhookDelivery;
 use App\Models\WebhookEvent;
+use App\Services\TeamService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class WebhookController extends Controller
      */
     public function index(Request $request, App $app): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'view');
 
         return Inertia::render('apps/webhooks/index', $this->indexPayload($request, $app));
     }
@@ -36,11 +37,12 @@ class WebhookController extends Controller
      */
     public function create(Request $request, App $app): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_webhooks');
 
         return Inertia::render('apps/webhooks/create', [
             'app' => (new AppResource($app->load('environments')))->resolve(),
             'availableEvents' => $this->availableEvents(),
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
         ]);
     }
 
@@ -49,7 +51,7 @@ class WebhookController extends Controller
      */
     public function store(StoreWebhookRequest $request, App $app): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_webhooks');
 
         $secret = 'whsec_'.str()->random(48);
 
@@ -82,7 +84,7 @@ class WebhookController extends Controller
      */
     public function update(UpdateWebhookRequest $request, App $app, Webhook $webhook): RedirectResponse
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_webhooks');
 
         $webhook = $app->webhooks()->findOrFail($webhook->id);
 
@@ -106,7 +108,7 @@ class WebhookController extends Controller
      */
     public function destroy(Request $request, App $app, Webhook $webhook): RedirectResponse
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_webhooks');
 
         $app->webhooks()->findOrFail($webhook->id)->delete();
 
@@ -123,7 +125,7 @@ class WebhookController extends Controller
      */
     public function regenerateSecret(Request $request, App $app, Webhook $webhook): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_secrets');
 
         $webhook = $app->webhooks()->with('events')->findOrFail($webhook->id);
 
@@ -154,7 +156,7 @@ class WebhookController extends Controller
      */
     public function logs(Request $request, App $app, Webhook $webhook): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'view');
 
         $webhook = $app->webhooks()->with('events')->findOrFail($webhook->id);
 
@@ -166,7 +168,7 @@ class WebhookController extends Controller
      */
     public function retryDelivery(Request $request, App $app, Webhook $webhook, WebhookDelivery $delivery): RedirectResponse
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_webhooks');
 
         $webhook = $app->webhooks()->findOrFail($webhook->id);
 
@@ -210,10 +212,21 @@ class WebhookController extends Controller
             ->latest()
             ->get();
 
+        $recentEventCounts = WebhookDelivery::query()
+            ->whereIn('webhook_id', $webhooks->pluck('id'))
+            ->where('created_at', '>=', now()->subDays(7))
+            ->selectRaw('event, COUNT(*) as total')
+            ->groupBy('event')
+            ->orderByDesc('total')
+            ->pluck('total', 'event')
+            ->all();
+
         return [
             'app' => (new AppResource($app->load('environments')))->resolve(),
             'webhooks' => WebhookResource::collection($webhooks),
             'availableEvents' => $this->availableEvents(),
+            'recentEventCounts' => $recentEventCounts,
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
         ];
     }
 
@@ -242,6 +255,7 @@ class WebhookController extends Controller
             'app' => (new AppResource($app->load('environments')))->resolve(),
             'webhook' => (new WebhookResource($webhook->load('events')))->resolve(),
             'deliveries' => WebhookDeliveryResource::collection($deliveries),
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
             'filters' => [
                 'status' => $status,
                 'from' => $from?->toDateString(),
@@ -291,10 +305,14 @@ class WebhookController extends Controller
     }
 
     /**
-     * Resolve the app owned by the authenticated user.
+     * Resolve the app the authenticated user can access with the given
+     * permission.
      */
-    private function ownedApp(Request $request, App $app): App
+    private function ownedApp(Request $request, App $app, string $permission = 'view'): App
     {
-        return $request->user()->apps()->findOrFail($app->id);
+        $app = TeamService::appForMember($request->user(), $app->id);
+        TeamService::authorize($request->user(), $app, $permission);
+
+        return $app;
     }
 }

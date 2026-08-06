@@ -11,8 +11,10 @@ use App\Models\Consent;
 use App\Models\ConsentEvent;
 use App\Models\Verification;
 use App\Models\VerificationSetting;
+use App\Models\WebhookEvent;
 use App\Services\IdentityProviderRegistry;
 use App\Services\VerificationService;
+use App\Services\WebhookDispatcher;
 use App\Services\WebhookSignature;
 use App\ValueObjects\IdentityQuery;
 use Carbon\CarbonInterface;
@@ -35,6 +37,7 @@ class PublicVerificationController extends Controller
     public function __construct(
         private readonly IdentityProviderRegistry $registry,
         private readonly WebhookSignature $signature,
+        private readonly WebhookDispatcher $dispatcher,
     ) {}
 
     /**
@@ -122,9 +125,28 @@ class PublicVerificationController extends Controller
             'status' => Verification::STATUS_COMPLETED,
             'completed_at' => now(),
             'result' => $result,
+            'expires_at' => $this->consentExpiry($verification->app_id),
         ])->saveQuietly();
 
         $this->recordFlowCall($verification, $started, $payload);
+
+        $this->dispatcher->dispatch(
+            WebhookEvent::VERIFICATION_COMPLETED,
+            $verification->app,
+            [
+                'event' => WebhookEvent::VERIFICATION_COMPLETED,
+                'query_id' => (string) $verification->query_id,
+                'subject' => (string) $verification->subject_identifier,
+                'age' => (int) $verification->query_value,
+                'type' => $verification->query_type?->value,
+                'result' => $result,
+                'verified_at' => now()->toIso8601String(),
+                'expires_at' => $result === true ? $this->consentExpiry($verification->app_id)->toIso8601String() : null,
+                'environment' => $verification->environment?->name->value ?? 'production',
+                'occurred_at' => now()->toIso8601String(),
+            ],
+            (string) $verification->query_id,
+        );
     }
 
     /**
@@ -158,7 +180,7 @@ class PublicVerificationController extends Controller
     private function callbackPayload(Verification $verification, ?bool $result, ?string $reference = null, ?string $errorCode = null): array
     {
         return [
-            'query_id' => (string) $verification->id,
+            'query_id' => (string) $verification->query_id,
             'subject' => (string) $verification->subject_identifier,
             'age' => (int) $verification->query_value,
             'type' => $verification->query_type->value,
@@ -213,7 +235,7 @@ class PublicVerificationController extends Controller
 
         $params = [
             'verification' => $result ? 'success' : 'failed',
-            'query_id' => (string) $verification->id,
+            'query_id' => (string) $verification->query_id,
             'subject' => (string) $verification->subject_identifier,
             'result' => $result ? 'true' : 'false',
             'verified_at' => $payload['verified_at'],

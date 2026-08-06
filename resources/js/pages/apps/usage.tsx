@@ -172,10 +172,10 @@ export default function Usage({ app, range, metrics, rangeLabel }: Props) {
 
                         <UsageByQueryChart data={metrics.by_query} />
 
-                        <p className="text-center text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-center text-sm">
                             <a
                                 href={logsRoute(app.id).url}
-                                className="font-medium text-primary hover:underline"
+                                className="text-primary font-medium hover:underline"
                             >
                                 View raw API call logs →
                             </a>

@@ -17,6 +17,8 @@ use App\Models\SandboxIdentity;
 use App\Models\StatusCheck;
 use App\Models\StatusIncident;
 use App\Models\Subscription;
+use App\Models\Team;
+use App\Models\TeamMember;
 use App\Models\User;
 use App\Models\Verification;
 use App\Models\VerificationFlow;
@@ -43,6 +45,22 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Demo Developer',
                 'email_verified_at' => now(),
                 'password' => Hash::make('password'),
+            ],
+        );
+
+        $team = Team::firstOrCreate(
+            ['owner_user_id' => $user->id],
+            [
+                'name' => 'Demo Developer\'s Team',
+                'slug' => 'demo-developer-team',
+            ],
+        );
+
+        TeamMember::firstOrCreate(
+            ['team_id' => $team->id, 'user_id' => $user->id],
+            [
+                'role' => 'owner',
+                'accepted_at' => now(),
             ],
         );
 

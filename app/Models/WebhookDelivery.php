@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $webhook_id
  * @property string $event
+ * @property string|null $idempotency_key
  * @property array<string, mixed> $payload
  * @property int|null $response_status
  * @property string|null $response_body
@@ -24,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Webhook $webhook
  */
-#[Fillable(['webhook_id', 'event', 'payload', 'response_status', 'response_body', 'attempts', 'status', 'delivered_at'])]
+#[Fillable(['webhook_id', 'event', 'idempotency_key', 'payload', 'response_status', 'response_body', 'attempts', 'status', 'delivered_at'])]
 class WebhookDelivery extends Model
 {
     /** @use HasFactory<WebhookDeliveryFactory> */

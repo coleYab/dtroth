@@ -1,11 +1,12 @@
 import { Head, setLayoutProps } from '@inertiajs/react';
-import { CheckCircle2, Clock3, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock3, RefreshCw, XCircle } from 'lucide-react';
 import {
     AppSectionHeader,
     AppSectionLayout,
     appSectionNavItems,
 } from '@/components/app-section-layout';
 import { ConsentStatusBadge } from '@/components/consent-status-badge';
+import { RelativeTime } from '@/components/relative-time';
 import { ResultBadge } from '@/components/result-badge';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -30,6 +31,7 @@ const eventLabels: Record<
     { label: string; icon: typeof CheckCircle2 }
 > = {
     granted: { label: 'Consent granted', icon: CheckCircle2 },
+    renewed: { label: 'Consent renewed', icon: RefreshCw },
     revoked: { label: 'Consent revoked', icon: XCircle },
     expired: { label: 'Consent expired', icon: Clock3 },
 };
@@ -140,45 +142,47 @@ export default function ConsentDetail({ app, consent }: Props) {
                                             No events recorded.
                                         </p>
                                     ) : (
-                                        consent.events.map((event, index) => {
-                                            const meta =
-                                                eventLabels[event.type] ??
-                                                eventLabels.granted;
+                                        [...consent.events]
+                                            .toSorted(
+                                                (a, b) =>
+                                                    new Date(
+                                                        b.created_at ?? 0,
+                                                    ).getTime() -
+                                                    new Date(
+                                                        a.created_at ?? 0,
+                                                    ).getTime(),
+                                            )
+                                            .map((event, index) => {
+                                                const meta =
+                                                    eventLabels[event.type] ??
+                                                    eventLabels.granted;
 
-                                            return (
-                                                <li
-                                                    key={index}
-                                                    className="relative"
-                                                >
-                                                    <span className="absolute -left-[31px] flex size-5 items-center justify-center rounded-full border bg-background">
-                                                        <meta.icon className="size-3 text-muted-foreground" />
-                                                    </span>
-                                                    <div className="flex flex-wrap items-center gap-2">
-                                                        <span className="text-sm font-medium">
-                                                            {meta.label}
+                                                return (
+                                                    <li
+                                                        key={index}
+                                                        className="relative"
+                                                    >
+                                                        <span className="absolute -left-[31px] flex size-5 items-center justify-center rounded-full border bg-background">
+                                                            <meta.icon className="size-3 text-muted-foreground" />
                                                         </span>
-                                                        <Badge variant="outline">
-                                                            {event.type}
-                                                        </Badge>
-                                                    </div>
-                                                    <p className="mt-0.5 text-xs text-muted-foreground">
-                                                        {event.created_at
-                                                            ? new Date(
-                                                                  event.created_at,
-                                                              ).toLocaleString(
-                                                                  undefined,
-                                                                  {
-                                                                      dateStyle:
-                                                                          'medium',
-                                                                      timeStyle:
-                                                                          'short',
-                                                                  },
-                                                              )
-                                                            : '—'}
-                                                    </p>
-                                                </li>
-                                            );
-                                        })
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span className="text-sm font-medium">
+                                                                {meta.label}
+                                                            </span>
+                                                            <Badge variant="outline">
+                                                                {event.type}
+                                                            </Badge>
+                                                        </div>
+                                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                                            <RelativeTime
+                                                                date={
+                                                                    event.created_at
+                                                                }
+                                                            />
+                                                        </p>
+                                                    </li>
+                                                );
+                                            })
                                     )}
                                 </ol>
                             </CardContent>

@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property int $user_id
+ * @property int|null $team_id
  * @property string $name
  * @property string|null $image
  * @property AppStatus $status
@@ -25,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read User $user
+ * @property-read Team|null $team
  * @property-read AppEnvironment[] $environments
  * @property-read ApiKey[] $keys
  * @property-read ApiCall[] $calls
@@ -37,7 +39,7 @@ use Illuminate\Support\Carbon;
  * @property-read Webhook[] $webhooks
  * @property-read Consent[] $consents
  */
-#[Fillable(['user_id', 'name', 'image', 'status', 'redirect_uris', 'allowed_origins'])]
+#[Fillable(['user_id', 'team_id', 'name', 'image', 'status', 'redirect_uris', 'allowed_origins'])]
 class App extends Model
 {
     /** @use HasFactory<AppFactory> */
@@ -58,6 +60,21 @@ class App extends Model
     }
 
     /**
+     * Scope the query to apps accessible by the given user through a team
+     * membership (the owner is a member of their own team).
+     */
+    public function scopeForMember(Builder $query, User $user): Builder
+    {
+        return $query->whereExists(function ($subquery) use ($user) {
+            $subquery->selectRaw('1')
+                ->from('team_members')
+                ->whereColumn('team_members.team_id', 'apps.team_id')
+                ->where('team_members.user_id', $user->id)
+                ->whereNotNull('team_members.accepted_at');
+        });
+    }
+
+    /**
      * Scope the query to apps owned by the given user.
      */
     public function scopeForUser(Builder $query, User $user): Builder
@@ -68,6 +85,11 @@ class App extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
     }
 
     public function environments(): HasMany

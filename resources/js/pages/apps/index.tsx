@@ -20,6 +20,7 @@ import type { DeveloperApp, Paginated } from '@/types';
 
 type Props = {
     apps: Paginated<DeveloperApp>;
+    canCreate: boolean;
     filters: { q: string };
 };
 
@@ -58,7 +59,7 @@ function EnvironmentBadges({ app }: { app: DeveloperApp }) {
 
 function AppCard({ app }: { app: DeveloperApp }) {
     return (
-        <Card className="group relative transition-colors hover:border-primary/50 hover:shadow-sm">
+        <Card className="hover:border-primary/50 group relative transition-colors hover:shadow-sm">
             <CardHeader className="flex-row items-start gap-4 space-y-0">
                 <AppLogoImage app={app} />
                 <div className="min-w-0 flex-1">
@@ -83,13 +84,13 @@ function AppCard({ app }: { app: DeveloperApp }) {
             <Link
                 href={showApp(app.id)}
                 aria-label={`View ${app.name}`}
-                className="absolute inset-0 rounded-lg outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+                className="outline-hidden focus-visible:ring-ring absolute inset-0 rounded-lg focus-visible:ring-2"
             />
         </Card>
     );
 }
 
-export default function Apps({ apps, filters }: Props) {
+export default function Apps({ apps, canCreate, filters }: Props) {
     function search(event: React.ChangeEvent<HTMLInputElement>) {
         router.get(
             appsIndex(),
@@ -110,23 +111,25 @@ export default function Apps({ apps, filters }: Props) {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-2xl font-semibold">Applications</h2>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                             Manage the applications registered with the
                             platform.
                         </p>
                     </div>
-                    <CreateAppDialog
-                        trigger={
-                            <Button className="w-full sm:w-auto">
-                                <Plus />
-                                Create New App
-                            </Button>
-                        }
-                    />
+                    {canCreate && (
+                        <CreateAppDialog
+                            trigger={
+                                <Button className="w-full sm:w-auto">
+                                    <Plus />
+                                    Create New App
+                                </Button>
+                            }
+                        />
+                    )}
                 </div>
 
                 <div className="relative w-full md:max-w-sm">
-                    <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
                     <Input
                         type="search"
                         placeholder="Search by name"
@@ -151,7 +154,7 @@ export default function Apps({ apps, filters }: Props) {
                                 : 'Create your first application to start verifying users with Fayda.'
                         }
                         action={
-                            !filters.q ? (
+                            !filters.q && canCreate ? (
                                 <CreateAppDialog
                                     trigger={
                                         <Button>

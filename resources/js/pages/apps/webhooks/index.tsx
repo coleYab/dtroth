@@ -74,14 +74,18 @@ type Props = {
     app: DeveloperApp;
     webhooks: { data: Webhook[] };
     availableEvents: WebhookEvent[];
+    recentEventCounts: Record<string, number>;
     revealedSecret: RevealedSecret | null;
+    permissions: string[];
 };
 
 export default function Webhooks({
     app,
     webhooks,
     availableEvents,
+    recentEventCounts,
     revealedSecret,
+    permissions,
 }: Props) {
     setLayoutProps({
         breadcrumbs: [
@@ -93,6 +97,8 @@ export default function Webhooks({
 
     const [deleteTarget, setDeleteTarget] = useState<Webhook | null>(null);
     const [deleting, setDeleting] = useState(false);
+
+    const canManageWebhooks = permissions.includes('manage_webhooks');
 
     function deleteWebhook(): void {
         if (!deleteTarget) {
@@ -115,12 +121,14 @@ export default function Webhooks({
                     app={app}
                     description="Deliver verification events to your servers over signed POST requests."
                     actions={
-                        <Button asChild className="w-full sm:w-auto">
-                            <a href={createWebhook(app.id).url}>
-                                <Plus />
-                                Add Webhook
-                            </a>
-                        </Button>
+                        canManageWebhooks ? (
+                            <Button asChild className="w-full sm:w-auto">
+                                <a href={createWebhook(app.id).url}>
+                                    <Plus />
+                                    Add Webhook
+                                </a>
+                            </Button>
+                        ) : null
                     }
                 />
 
@@ -135,12 +143,14 @@ export default function Webhooks({
                             title="No webhooks yet"
                             description="Subscribe to verification events and receive signed POST deliveries to your endpoint."
                             action={
-                                <Button asChild>
-                                    <a href={createWebhook(app.id).url}>
-                                        <Plus />
-                                        Add Webhook
-                                    </a>
-                                </Button>
+                                canManageWebhooks ? (
+                                    <Button asChild>
+                                        <a href={createWebhook(app.id).url}>
+                                            <Plus />
+                                            Add Webhook
+                                        </a>
+                                    </Button>
+                                ) : null
                             }
                         />
                     ) : (
@@ -150,7 +160,9 @@ export default function Webhooks({
                                     <CardTitle>Endpoints</CardTitle>
                                     <CardDescription>
                                         {webhooks.data.length} endpoint
-                                        {webhooks.data.length === 1 ? '' : 's'}{' '}
+                                        {webhooks.data.length === 1
+                                            ? ''
+                                            : 's'}{' '}
                                         for {availableEvents.length} event
                                         types.
                                     </CardDescription>
@@ -188,7 +200,7 @@ export default function Webhooks({
                                                                             )
                                                                                 .url
                                                                         }
-                                                                        className="block max-w-64 truncate font-mono text-xs text-primary hover:underline"
+                                                                        className="text-primary block max-w-64 truncate font-mono text-xs hover:underline"
                                                                     >
                                                                         {
                                                                             webhook.url
@@ -203,7 +215,7 @@ export default function Webhooks({
                                                             </Tooltip>
                                                         </TooltipProvider>
                                                         {webhook.description && (
-                                                            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                                                            <p className="text-muted-foreground mt-0.5 truncate text-xs">
                                                                 {
                                                                     webhook.description
                                                                 }
@@ -283,6 +295,9 @@ export default function Webhooks({
                                                                             webhook,
                                                                         )
                                                                     }
+                                                                    hidden={
+                                                                        !canManageWebhooks
+                                                                    }
                                                                 >
                                                                     <Trash2 />
                                                                     Delete
@@ -296,6 +311,40 @@ export default function Webhooks({
                                     </Table>
                                 </CardContent>
                             </Card>
+
+                            {Object.keys(recentEventCounts).length > 0 && (
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>
+                                            Deliveries · last 7 days
+                                        </CardTitle>
+                                        <CardDescription>
+                                            Automatic deliveries per event
+                                            across all endpoints.
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="flex flex-wrap gap-2">
+                                            {Object.entries(
+                                                recentEventCounts,
+                                            ).map(([event, count]) => (
+                                                <Badge
+                                                    key={event}
+                                                    variant="outline"
+                                                    className="gap-1.5 py-1 pl-2.5 pr-3"
+                                                >
+                                                    <span className="font-semibold">
+                                                        {count}
+                                                    </span>
+                                                    <span className="font-mono text-xs">
+                                                        {event}
+                                                    </span>
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
 
                             <div className="grid gap-4 md:hidden">
                                 {webhooks.data.map((webhook) => (
@@ -312,7 +361,7 @@ export default function Webhooks({
                                                 />
                                             </div>
                                             {webhook.description && (
-                                                <p className="text-xs text-muted-foreground">
+                                                <p className="text-muted-foreground text-xs">
                                                     {webhook.description}
                                                 </p>
                                             )}
@@ -326,7 +375,7 @@ export default function Webhooks({
                                                     </Badge>
                                                 ))}
                                             </div>
-                                            <p className="text-xs text-muted-foreground">
+                                            <p className="text-muted-foreground text-xs">
                                                 Last triggered:{' '}
                                                 <RelativeTime
                                                     date={
@@ -360,6 +409,7 @@ export default function Webhooks({
                                                         setDeleteTarget(webhook)
                                                     }
                                                     aria-label={`Delete webhook ${webhook.id}`}
+                                                    hidden={!canManageWebhooks}
                                                 >
                                                     <Trash2 />
                                                 </Button>

@@ -29,6 +29,7 @@ import {
 import type { AppEnvironment, DeveloperApp, EnvironmentName } from '@/types';
 type Props = {
     app: DeveloperApp;
+    permissions: string[];
 };
 
 type EnvironmentFormData = {
@@ -49,9 +50,11 @@ function getArrayError(
 function EnvironmentCard({
     environment,
     app,
+    canManage,
 }: {
     environment: AppEnvironment;
     app: DeveloperApp;
+    canManage: boolean;
 }) {
     const { data, setData, errors, processing, put } =
         useForm<EnvironmentFormData>({
@@ -123,6 +126,7 @@ function EnvironmentCard({
                         onCheckedChange={(checked) =>
                             setData('is_enabled', checked)
                         }
+                        disabled={!canManage}
                         aria-label={`Enable ${label} environment`}
                     />
                 </div>
@@ -146,6 +150,7 @@ function EnvironmentCard({
                                         }
                                         placeholder="https://example.com/callback"
                                         aria-label={`${label} redirect URI ${index + 1}`}
+                                        disabled={!canManage}
                                     />
                                     <Button
                                         type="button"
@@ -158,6 +163,7 @@ function EnvironmentCard({
                                             )
                                         }
                                         disabled={
+                                            !canManage ||
                                             data.redirect_uris.length === 1
                                         }
                                         aria-label={`Remove ${label} redirect URI ${index + 1}`}
@@ -181,6 +187,7 @@ function EnvironmentCard({
                         size="sm"
                         className="w-fit"
                         onClick={() => addListItem('redirect_uris')}
+                        disabled={!canManage}
                     >
                         <Plus />
                         Add another URI
@@ -206,6 +213,7 @@ function EnvironmentCard({
                                         }
                                         placeholder="https://example.com"
                                         aria-label={`${label} allowed origin ${index + 1}`}
+                                        disabled={!canManage}
                                     />
                                     <Button
                                         type="button"
@@ -218,6 +226,7 @@ function EnvironmentCard({
                                             )
                                         }
                                         disabled={
+                                            !canManage ||
                                             data.allowed_origins.length === 1
                                         }
                                         aria-label={`Remove ${label} allowed origin ${index + 1}`}
@@ -241,6 +250,7 @@ function EnvironmentCard({
                         size="sm"
                         className="w-fit"
                         onClick={() => addListItem('allowed_origins')}
+                        disabled={!canManage}
                     >
                         <Plus />
                         Add another origin
@@ -248,24 +258,26 @@ function EnvironmentCard({
                     <InputError message={errors.allowed_origins} />
                 </div>
 
-                <div className="flex justify-end">
-                    <Button
-                        type="button"
-                        disabled={processing}
-                        onClick={() =>
-                            put(
-                                updateEnvironment({
-                                    app: app.id,
-                                    environment: environment.id,
-                                }).url,
-                            )
-                        }
-                        className="w-full sm:w-auto"
-                    >
-                        {processing && <Spinner />}
-                        Save {label.toLowerCase()} environment
-                    </Button>
-                </div>
+                {canManage && (
+                    <div className="flex justify-end">
+                        <Button
+                            type="button"
+                            disabled={processing}
+                            onClick={() =>
+                                put(
+                                    updateEnvironment({
+                                        app: app.id,
+                                        environment: environment.id,
+                                    }).url,
+                                )
+                            }
+                            className="w-full sm:w-auto"
+                        >
+                            {processing && <Spinner />}
+                            Save {label.toLowerCase()} environment
+                        </Button>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
@@ -284,7 +296,7 @@ function environmentOrder(
     });
 }
 
-export default function Environments({ app }: Props) {
+export default function Environments({ app, permissions }: Props) {
     setLayoutProps({
         breadcrumbs: [
             {
@@ -296,7 +308,7 @@ export default function Environments({ app }: Props) {
                 href: appsIndex(),
             },
             {
-                title: `${shortAppName(app.name)} Environments`,
+                title: `${shortAppName(app.name)}`,
                 href: environmentsIndex(app.id),
             },
         ],
@@ -304,9 +316,11 @@ export default function Environments({ app }: Props) {
 
     const [sandbox, production] = environmentOrder(app.environments);
 
+    const canManage = permissions.includes('manage_app');
+
     return (
         <>
-            <Head title={`${app.name} Environments`} />
+            <Head title={`${app.name} `} />
 
             <div className="flex flex-col gap-6">
                 <AppSectionHeader
@@ -319,19 +333,24 @@ export default function Environments({ app }: Props) {
                     active="Environments"
                     label="Application"
                 >
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                         Fields are pre-filled from the application defaults;
                         saving applies environment-specific overrides.
                     </p>
 
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
                         {sandbox && (
-                            <EnvironmentCard environment={sandbox} app={app} />
+                            <EnvironmentCard
+                                environment={sandbox}
+                                app={app}
+                                canManage={canManage}
+                            />
                         )}
                         {production && (
                             <EnvironmentCard
                                 environment={production}
                                 app={app}
+                                canManage={canManage}
                             />
                         )}
                     </div>

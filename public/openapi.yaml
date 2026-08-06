@@ -1,0 +1,339 @@
+openapi: 3.1.0
+info:
+  title: dtroth Verify API
+  description: |
+    Age verification over a national identity database. The Verify API lets
+    you prove a subject is at least a given age without exposing their
+    national ID or other identity details.
+
+    Every request must carry an API key in the `Authorization` header as a
+    bearer token. Keys are created per environment in the dashboard. Requests
+    are rate limited per IP; limits are surfaced through the `X-RateLimit-*`
+    response headers.
+  version: 1.0.0
+  contact:
+    name: dtroth Support
+servers:
+  - url: /api
+tags:
+  - name: Verification
+    description: Age queries and hosted verification sessions.
+  - name: Consents
+    description: Consent lifecycle operations.
+security:
+  - bearerAuth: []
+paths:
+  /v1/verify/age:
+    post:
+      tags: [Verification]
+      summary: Verify an age query
+      description: >
+        Verifies whether the subject identified by `subject` meets the age
+        query in real time against the identity provider. Each successful
+        response carries a `query_id` that can be used to re-fetch the result
+        without a provider round trip.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [age, type, subject]
+              properties:
+                age:
+                  type: integer
+                  minimum: 1
+                  maximum: 130
+                  description: Age to query against.
+                  example: 18
+                type:
+                  type: string
+                  enum: [equal_above, equal_below]
+                  description: How `age` is interpreted.
+                  example: at_least
+                subject:
+                  type: string
+                  maxLength: 100
+                  description: Subject identifier (national ID).
+                  example: "123456789"
+      responses:
+        "200":
+          description: The query was resolved and the result is valid for 90 days.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/UnknownSubject"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "502":
+          $ref: "#/components/responses/ProviderUnreachable"
+        "504":
+          $ref: "#/components/responses/ProviderTimeout"
+  /v1/verify/session:
+    post:
+      tags: [Verification]
+      summary: Create a hosted verification session
+      description: >
+        Creates a short-lived hosted flow for the given age query. Redirect
+        the user to `verification_url`; the flow page collects consent and
+        the national ID, then reports the outcome to your callback URL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [age, type, subject]
+              properties:
+                age:
+                  type: integer
+                  minimum: 1
+                  maximum: 130
+                  example: 18
+                type:
+                  type: string
+                  enum: [equal_above, equal_below]
+                  example: at_least
+                subject:
+                  type: string
+                  maxLength: 100
+                  description: Subject identifier (national ID).
+                  example: "123456789"
+      responses:
+        "200":
+          description: Session created. Redirect the user to `verification_url`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionCreated"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /v1/verify/{query_id}:
+    get:
+      tags: [Verification]
+      summary: Look up a verification result
+      description: >
+        Returns a previously issued result for `query_id`. Scoped to the
+        authenticated app and never triggers a provider round trip.
+      parameters:
+        - name: query_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+      responses:
+        "200":
+          description: The result is valid and has not expired.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationLookup"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: No result matches the provided query ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: The result has expired.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /v1/consents/{consent_id}/revoke:
+    post:
+      tags: [Consents]
+      summary: Revoke a consent
+      description: >
+        Revokes an active consent. Idempotent: revoking an already-revoked
+        or expired consent succeeds without creating a new event.
+      parameters:
+        - name: consent_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 42
+      responses:
+        "200":
+          description: The consent is now revoked.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentState"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: No consent matches the provided ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: API key issued in the dashboard, e.g. `sk_live_...`.
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable error code.
+              example: validation_error
+            message:
+              type: string
+              description: Human-readable description.
+              example: "The age field is required."
+    VerificationResult:
+      type: object
+      required: [result, query_id, verified_at, expires_at]
+      properties:
+        result:
+          type: boolean
+          description: Whether the subject meets the age query.
+        query_id:
+          type: string
+          format: uuid
+          description: Stable ID for re-fetching the result.
+        verified_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          description: Results expire 90 days after verification.
+        provider_reference:
+          type: string
+          nullable: true
+          description: Provider-side reference when available.
+    SessionCreated:
+      type: object
+      required: [session_id, verification_url, expires_at]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        verification_url:
+          type: string
+          format: uri
+          description: Redirect the user here. Expires in 15 minutes.
+        expires_at:
+          type: string
+          format: date-time
+    VerificationLookup:
+      type: object
+      required: [query_id, result, age, type, verified_at, expired]
+      properties:
+        query_id:
+          type: string
+          format: uuid
+        result:
+          type: boolean
+        age:
+          type: integer
+          description: The age the query was resolved against.
+        type:
+          type: string
+          enum: [equal_above, equal_below]
+        verified_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        expired:
+          type: boolean
+          description: Always false on a 200 response.
+    ConsentState:
+      type: object
+      required: [consent_id, status]
+      properties:
+        consent_id:
+          type: integer
+        status:
+          type: string
+          enum: [revoked]
+        revoked_at:
+          type: string
+          format: date-time
+          nullable: true
+  responses:
+    Unauthorized:
+      description: Missing, invalid, revoked, or expired API key.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: The query is not enabled for this app, or the identity was declined.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    UnknownSubject:
+      description: The subject identifier is unknown.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationError:
+      description: The request body is malformed.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    TooManyRequests:
+      description: >
+        Rate limit exceeded. Retry after the seconds in the `Retry-After`
+        header (also echoed as `X-RateLimit-Reset`, an epoch timestamp).
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ProviderUnreachable:
+      description: The identity provider could not be reached.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ProviderTimeout:
+      description: The identity provider took too long to respond.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

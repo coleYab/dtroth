@@ -63,10 +63,13 @@ function flowConfigureBranding(App $app, array $overrides = []): VerificationFlo
 
 function flowCreateSession(App $app, ApiKey $key, int $age = 18, string $subject = 'user-123'): Verification
 {
+    $token = (string) Str::uuid();
+
     return Verification::create([
         'app_id' => $app->id,
         'app_environment_id' => $key->app_environment_id,
-        'token' => (string) Str::uuid(),
+        'token' => $token,
+        'query_id' => $token,
         'expires_at' => now()->addMinutes(15),
         'status' => Verification::STATUS_PENDING,
         'query_type' => AgeQueryType::EqualAbove,
@@ -212,7 +215,7 @@ test('the flow completes a sandbox verification, records consent, and signs the 
     $location = $response->headers->get('Location');
 
     expect($location)->toContain('http://localhost:4100/continue?verification=success')
-        ->toContain('query_id='.$session->id)
+        ->toContain('query_id='.$session->token)
         ->toContain('subject=user-123')
         ->toContain('result=true');
 

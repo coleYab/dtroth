@@ -8,6 +8,8 @@ use App\Exceptions\VerificationException;
 use App\Models\AgeQueryPreset;
 use App\Models\ApiCall;
 use App\Models\ApiKey;
+use App\Models\Verification;
+use App\Models\WebhookEvent;
 use App\ValueObjects\IdentityQuery;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -24,7 +26,10 @@ class VerificationService
      */
     public const RESULT_TTL_DAYS = 90;
 
-    public function __construct(private readonly IdentityProviderRegistry $registry) {}
+    public function __construct(
+        private readonly IdentityProviderRegistry $registry,
+        private readonly WebhookDispatcher $webhooks,
+    ) {}
 
     /**
      * Authenticate the caller with the bearer secret and return their key.
@@ -68,6 +73,10 @@ class VerificationService
 
         $provider = $this->registry->resolve($key->environment->name);
 
+        $queryId = (string) Str::uuid();
+        $verifiedAt = now();
+        $expiresAt = $verifiedAt->copy()->addDays(self::RESULT_TTL_DAYS);
+
         try {
             $providerResult = $provider->verify(new IdentityQuery($subject, $age, $type));
         } catch (IdentityProviderException $e) {
@@ -76,12 +85,38 @@ class VerificationService
             throw new VerificationException($e->statusCode(), $e->errorCode, $e->getMessage());
         }
 
-        $verifiedAt = now();
-        $expiresAt = $verifiedAt->copy()->addDays(self::RESULT_TTL_DAYS);
+        Verification::create([
+            'app_id' => $key->app_id,
+            'status' => Verification::STATUS_COMPLETED,
+            'query_id' => $queryId,
+            'query_type' => $type,
+            'query_value' => $age,
+            'result' => $providerResult->result,
+            'expires_at' => $expiresAt,
+            'created_at' => $verifiedAt,
+        ]);
+
+        $this->webhooks->dispatch(
+            WebhookEvent::VERIFICATION_COMPLETED,
+            $key->app,
+            [
+                'event' => WebhookEvent::VERIFICATION_COMPLETED,
+                'query_id' => $queryId,
+                'subject' => $subject,
+                'age' => $age,
+                'type' => $type->value,
+                'result' => $providerResult->result,
+                'verified_at' => $verifiedAt->toIso8601String(),
+                'expires_at' => $expiresAt->toIso8601String(),
+                'environment' => $key->environment->name->value,
+                'occurred_at' => $verifiedAt->toIso8601String(),
+            ],
+            $queryId,
+        );
 
         return [
             'result' => $providerResult->result,
-            'query_id' => (string) Str::uuid(),
+            'query_id' => $queryId,
             'verified_at' => $verifiedAt->toIso8601String(),
             'expires_at' => $expiresAt->toIso8601String(),
             'provider_reference' => $providerResult->reference,
@@ -90,6 +125,8 @@ class VerificationService
 
     /**
      * Record the outcome of a call for usage and logging purposes.
+     *
+     * @param  array<string, mixed>  $payload
      */
     public function recordCall(
         ApiKey $key,

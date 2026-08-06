@@ -1,5 +1,12 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Check, LifeBuoy, PenLine, ThumbsDown, ThumbsUp } from 'lucide-react';
+import {
+    Check,
+    Download,
+    LifeBuoy,
+    PenLine,
+    ThumbsDown,
+    ThumbsUp,
+} from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CodeTabs } from '@/components/code-tabs';
 import { DocsNav } from '@/components/docs-nav';
@@ -7,7 +14,7 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { segmentDocHtml } from '@/lib/markdown-segments';
-import { feedback, quickstart } from '@/routes/docs';
+import { feedback, openapi, quickstart } from '@/routes/docs';
 import { index as supportIndex } from '@/routes/support';
 
 interface DocHeading {
@@ -57,7 +64,7 @@ function FeedbackWidget({ slug }: { slug: string }) {
 
     if (sent) {
         return (
-            <div className="mt-8 flex items-center gap-2 rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+            <div className="bg-muted/40 text-muted-foreground mt-8 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm">
                 <Check className="size-4 text-emerald-500" />
                 Thanks for the feedback!
             </div>
@@ -99,7 +106,13 @@ function FeedbackWidget({ slug }: { slug: string }) {
                         placeholder="What's missing? (optional)"
                         className="sm:flex-1"
                     />
-                    <Button type="button" size="sm" variant="secondary" onClick={() => submit(false)} disabled={sending}>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => submit(false)}
+                        disabled={sending}
+                    >
                         Send
                     </Button>
                 </div>
@@ -109,23 +122,44 @@ function FeedbackWidget({ slug }: { slug: string }) {
 }
 
 function SectionContent({ section }: { section: DocSection }) {
-    const segments = useMemo(() => segmentDocHtml(section.html), [section.html]);
+    const segments = useMemo(
+        () => segmentDocHtml(section.html),
+        [section.html],
+    );
 
     return (
-        <section id={section.slug} data-doc-section={section.slug} className="scroll-mt-24">
-            <h1 className="text-2xl font-semibold tracking-tight">{section.title}</h1>
+        <section
+            id={section.slug}
+            data-doc-section={section.slug}
+            className="scroll-mt-24"
+        >
+            <h1 className="text-2xl font-semibold tracking-tight">
+                {section.title}
+            </h1>
             {segments.map((segment, index) =>
                 segment.type === 'code-group' ? (
-                    <CodeTabs key={index} items={segment.items} className="mt-4" />
+                    <CodeTabs
+                        key={index}
+                        items={segment.items}
+                        className="mt-4"
+                    />
                 ) : (
-                    <div key={index} className="doc-content mt-4" dangerouslySetInnerHTML={{ __html: segment.html }} />
+                    <div
+                        key={index}
+                        className="doc-content mt-4"
+                        dangerouslySetInnerHTML={{ __html: segment.html }}
+                    />
                 ),
             )}
             <div className="mt-8 flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <Link
-                    href={supportIndex({ query: { subject: `Docs: ${section.title}` } }).url}
+                    href={
+                        supportIndex({
+                            query: { subject: `Docs: ${section.title}` },
+                        }).url
+                    }
                     prefetch
-                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm"
                 >
                     <PenLine className="size-3.5" />
                     Edit this page
@@ -151,22 +185,32 @@ export default function Docs({ sections, searchIndex }: DocsProps) {
             (entries) => {
                 const visible = entries
                     .filter((entry) => entry.isIntersecting)
-                    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+                    .sort(
+                        (a, b) =>
+                            a.boundingClientRect.top - b.boundingClientRect.top,
+                    );
 
                 if (visible.length > 0) {
-                    setActiveSection(visible[0].target.getAttribute('data-doc-section') ?? '');
+                    setActiveSection(
+                        visible[0].target.getAttribute('data-doc-section') ??
+                            '',
+                    );
                 }
             },
             { rootMargin: '-25% 0px -65% 0px' },
         );
 
-        root.querySelectorAll('[data-doc-section]').forEach((el) => observer.observe(el));
+        root.querySelectorAll('[data-doc-section]').forEach((el) =>
+            observer.observe(el),
+        );
 
         return () => observer.disconnect();
     }, []);
 
     const navigateTo = (slug: string) => {
-        document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document
+            .getElementById(slug)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         history.replaceState(null, '', `#${slug}`);
     };
 
@@ -190,28 +234,52 @@ export default function Docs({ sections, searchIndex }: DocsProps) {
                     onSelectSection={navigateTo}
                 />
                 <div ref={contentRef} className="min-w-0 flex-1">
-                    <PageHeader
-                        title="API Reference"
-                        description="Everything you need to integrate the Troth Age Verification API."
-                    />
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                        <PageHeader
+                            title="API Reference"
+                            description="Everything you need to integrate the Troth Age Verification API."
+                        />
+                        <Button asChild variant="outline" size="sm">
+                            <a
+                                href={openapi().url}
+                                title="OpenAPI 3.1 specification"
+                            >
+                                <Download />
+                                Download OpenAPI spec
+                            </a>
+                        </Button>
+                    </div>{' '}
                     <div className="mt-6 flex flex-col gap-10">
                         {sections.map((section) => (
-                            <SectionContent key={section.slug} section={section} />
+                            <SectionContent
+                                key={section.slug}
+                                section={section}
+                            />
                         ))}
                     </div>
-
                     <div className="mt-10 rounded-lg border p-4">
                         <div className="flex items-start gap-3">
-                            <LifeBuoy className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+                            <LifeBuoy className="text-muted-foreground mt-0.5 size-5 shrink-0" />
                             <div>
-                                <p className="text-sm font-medium">Still stuck?</p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Can't find what you're looking for? Check the{' '}
-                                    <Link href={quickstart().url} prefetch className="underline underline-offset-3">
+                                <p className="text-sm font-medium">
+                                    Still stuck?
+                                </p>
+                                <p className="text-muted-foreground mt-1 text-sm">
+                                    Can't find what you're looking for? Check
+                                    the{' '}
+                                    <Link
+                                        href={quickstart().url}
+                                        prefetch
+                                        className="underline-offset-3 underline"
+                                    >
                                         Quickstart
                                     </Link>{' '}
                                     or open a{' '}
-                                    <Link href={supportIndex().url} prefetch className="underline underline-offset-3">
+                                    <Link
+                                        href={supportIndex().url}
+                                        prefetch
+                                        className="underline-offset-3 underline"
+                                    >
                                         support ticket
                                     </Link>
                                     .

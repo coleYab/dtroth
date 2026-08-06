@@ -85,6 +85,44 @@ On success the API returns `200` with the following JSON body:
 }
 ```
 
+## Looking up a previous result
+
+Every verification returns a `query_id`. You can re-fetch that result at any time before it expires without contacting the identity provider again:
+
+```
+GET /v1/verify/{query_id}
+```
+
+The result is scoped to your application — another app's query ID returns `404 not_found`.
+
+```curl
+curl "https://api.troth.dev/v1/verify/6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6" \
+  -H "Authorization: Bearer sk_sandbox_..."
+```
+
+```json
+{
+  "query_id": "6f0e2a3b-9c1d-4e5f-a678-b90123c4d5e6",
+  "result": true,
+  "age": 18,
+  "type": "equal_above",
+  "verified_at": "2026-08-02T12:00:00+00:00",
+  "expires_at": "2026-10-31T12:00:00+00:00",
+  "expired": false
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `result` | boolean | The stored verification result. |
+| `age` | integer | The age that was queried. |
+| `type` | enum | The operator used for the query. |
+| `verified_at` | string | ISO 8601 timestamp of when the verification was performed. |
+| `expires_at` | string | ISO 8601 timestamp after which the result expires. |
+| `expired` | boolean | Always `false` on success — use it instead of parsing the date. |
+
+The lookup never triggers a new verification: if the result is unknown, expired, or belongs to another application you get a non-2xx error instead.
+
 ## Errors
 
 Errors are returned with a non-2xx status and a JSON body in the shape `{"error": {"code": "...", "message": "..."}}`.
@@ -96,6 +134,8 @@ Errors are returned with a non-2xx status and a JSON body in the shape `{"error"
 | `identity_provider_declined` | 403 | The national ID presented is not valid for verification at this time. |
 | `unknown_subject` | 404 | The subject does not match a known test identity (sandbox). |
 | `subject_not_found` | 404 | The national ID does not match a known identity (production). |
+| `not_found` | 404 | No verification result matches the given query ID. |
+| `expired` | 410 | The verification result has passed its expiry. |
 | `validation_error` | 422 | Malformed request body. |
 | `too_many_requests` | 429 | Rate limit exceeded. |
 | `identity_provider_unreachable` | 502 | The identity provider could not be reached. |

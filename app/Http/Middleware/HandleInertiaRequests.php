@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
+use App\Services\TeamService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -40,11 +42,37 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
+                'team' => fn () => $this->teamPayload($request->user()),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'flash' => [
                 'ticket' => fn () => $request->session()->get('ticket'),
             ],
+        ];
+    }
+
+    /**
+     * The shared team summary for the sidebar, or null for guests.
+     *
+     * @return array{name: string, slug: string, role: string|null, member_count: int}|null
+     */
+    private function teamPayload(?User $user): ?array
+    {
+        if ($user === null) {
+            return null;
+        }
+
+        $team = TeamService::teamForUser($user);
+
+        if ($team === null) {
+            return null;
+        }
+
+        return [
+            'name' => $team->name,
+            'slug' => $team->slug,
+            'role' => $team->roleFor($user)?->value,
+            'member_count' => $team->memberCount(),
         ];
     }
 }

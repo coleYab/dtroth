@@ -72,7 +72,7 @@ export type WebhookDelivery = {
 export type ConsentStatus = 'active' | 'revoked' | 'expired';
 
 export type ConsentEvent = {
-    type: 'granted' | 'revoked' | 'expired';
+    type: 'granted' | 'renewed' | 'revoked' | 'expired';
     created_at: string | null;
 };
 

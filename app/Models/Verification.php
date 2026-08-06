@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int $app_id
  * @property int|null $app_environment_id
  * @property string|null $token
+ * @property string|null $query_id
  * @property Carbon|null $expires_at
  * @property Carbon|null $completed_at
  * @property string|null $subject_identifier
@@ -31,6 +32,7 @@ use Illuminate\Support\Carbon;
     'app_id',
     'app_environment_id',
     'token',
+    'query_id',
     'expires_at',
     'completed_at',
     'subject_identifier',

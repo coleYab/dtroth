@@ -1,5 +1,5 @@
 import { Head, router, setLayoutProps } from '@inertiajs/react';
-import { Terminal } from 'lucide-react';
+import { Download, Terminal } from 'lucide-react';
 import { useState } from 'react';
 import { AppPagination } from '@/components/app-pagination';
 import {
@@ -41,6 +41,7 @@ import {
 import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex, logs as logsRoute } from '@/routes/apps';
+import { exportMethod as exportLogs } from '@/routes/apps/logs';
 import type { ApiCallLog, DeveloperApp, Paginated } from '@/types';
 
 type Props = {
@@ -176,12 +177,21 @@ export default function Logs({ app, calls, filters }: Props) {
                     label="Application"
                 >
                     <Card>
-                        <CardHeader>
-                            <CardTitle>API calls</CardTitle>
-                            <CardDescription>
-                                {calls.meta.total.toLocaleString()} call
-                                {calls.meta.total === 1 ? '' : 's'} recorded.
-                            </CardDescription>
+                        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+                            <div className="grid gap-1.5">
+                                <CardTitle>API calls</CardTitle>
+                                <CardDescription>
+                                    {calls.meta.total.toLocaleString()} call
+                                    {calls.meta.total === 1 ? '' : 's'}{' '}
+                                    recorded.
+                                </CardDescription>
+                            </div>
+                            <Button asChild variant="outline">
+                                <a href={exportLogs(app.id).url}>
+                                    <Download />
+                                    Export CSV
+                                </a>
+                            </Button>
                         </CardHeader>
                         <CardContent className="grid gap-4">
                             <div className="hidden items-end gap-3 md:flex">
@@ -231,7 +241,7 @@ export default function Logs({ app, calls, filters }: Props) {
                                                                 {call.age_query ??
                                                                     '—'}
                                                             </code>
-                                                            <span className="text-xs text-muted-foreground">
+                                                            <span className="text-muted-foreground text-xs">
                                                                 {call.method}{' '}
                                                                 {call.path}
                                                             </span>
@@ -302,11 +312,11 @@ export default function Logs({ app, calls, filters }: Props) {
                                                             {call.status_code}
                                                         </Badge>
                                                     </div>
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-muted-foreground text-xs">
                                                         {call.method}{' '}
                                                         {call.path}
                                                     </p>
-                                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                                    <div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
                                                         <span className="flex items-center gap-1">
                                                             Result:
                                                             <ResultBadge

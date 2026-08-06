@@ -24,6 +24,13 @@ return [
             'description' => 'POST /v1/verify/age and related endpoints',
         ],
         [
+            'key' => 'identity-provider',
+            'label' => 'Identity Provider',
+            'url' => env('STATUS_CHECK_IDENTITY_PROVIDER_URL', '/up'),
+            'expected_status' => 200,
+            'description' => 'National ID verification backend',
+        ],
+        [
             'key' => 'webhook-delivery',
             'label' => 'Webhook Delivery',
             'url' => env('STATUS_CHECK_WEBHOOK_URL', '/up'),

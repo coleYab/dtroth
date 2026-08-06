@@ -9,10 +9,10 @@ import { StatCard } from '@/components/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
 import { index as keysIndex } from '@/routes/apps/keys';
-import { shortAppName } from '@/lib/utils';
 import type { ApiKey, DeveloperApp } from '@/types';
 
 type Props = {
@@ -156,7 +156,7 @@ export default function ShowApp({ app, stats, keys }: Props) {
                         </CardHeader>
                         <CardContent>
                             {keys.data.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-muted-foreground text-sm">
                                     No API keys have been issued for this
                                     application yet.
                                 </p>
@@ -168,12 +168,12 @@ export default function ShowApp({ app, stats, keys }: Props) {
                                             className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                                         >
                                             <div className="flex min-w-0 items-center gap-3">
-                                                <KeyRound className="size-4 shrink-0 text-muted-foreground" />
+                                                <KeyRound className="text-muted-foreground size-4 shrink-0" />
                                                 <div className="min-w-0">
                                                     <p className="truncate font-medium">
                                                         {key.name}
                                                     </p>
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-muted-foreground text-xs">
                                                         {key.environment ===
                                                         'production'
                                                             ? 'Production'

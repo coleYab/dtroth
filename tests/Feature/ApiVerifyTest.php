@@ -9,7 +9,6 @@ use App\Models\App;
 use App\Models\AppEnvironment;
 use App\Models\ProviderIdentity;
 use App\Models\SandboxIdentity;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 function makeSandboxKey(App $app, ?AppEnvironment $environment = null): ApiKey
@@ -316,8 +315,8 @@ test('a production provider failure is recorded as a failed call', function () {
         ->and($call->response_payload['error']['code'])->toBeIn(['identity_provider_unreachable', 'identity_provider_timeout']);
 });
 
-test('the endpoint is rate limited per key', function () {
-    Cache::flush();
+test('the endpoint is rate limited per IP', function () {
+    config(['verify.api_requests_per_minute' => 30]);
 
     $app = App::factory()->create();
     $key = sandboxKeyFor($app);

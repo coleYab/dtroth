@@ -41,6 +41,7 @@ type Props = {
     app: DeveloperApp;
     settings: VerificationSettings;
     presets: AgeQueryPreset[];
+    permissions: string[];
 };
 
 type SettingsFormData = {
@@ -53,6 +54,7 @@ export default function VerificationSettings({
     app,
     settings,
     presets,
+    permissions,
 }: Props) {
     setLayoutProps({
         breadcrumbs: [
@@ -61,6 +63,8 @@ export default function VerificationSettings({
             { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
+
+    const canManage = permissions.includes('manage_app');
 
     const { data, setData, errors, processing, patch, isDirty, wasSuccessful } =
         useForm<SettingsFormData>({
@@ -118,7 +122,7 @@ export default function VerificationSettings({
                                         <Label htmlFor="consent_text">
                                             Consent text
                                         </Label>
-                                        <span className="text-xs text-muted-foreground tabular-nums">
+                                        <span className="text-muted-foreground text-xs tabular-nums">
                                             {characterCount}/500
                                         </span>
                                     </div>
@@ -136,8 +140,9 @@ export default function VerificationSettings({
                                         }
                                         rows={5}
                                         placeholder="Your consent text…"
+                                        disabled={!canManage}
                                     />
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-muted-foreground text-xs">
                                         Shown on the consent screen before the
                                         verification starts.
                                     </p>
@@ -157,6 +162,7 @@ export default function VerificationSettings({
                                         <SelectTrigger
                                             id="re_verify_months"
                                             className="w-full sm:w-64"
+                                            disabled={!canManage}
                                         >
                                             <SelectValue placeholder="Select an interval" />
                                         </SelectTrigger>
@@ -172,7 +178,7 @@ export default function VerificationSettings({
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-muted-foreground text-xs">
                                         How often an existing consent must be
                                         re-confirmed before it can be reused.
                                     </p>
@@ -209,7 +215,7 @@ export default function VerificationSettings({
                                                     {preset.label}
                                                 </p>
                                                 {preset.description && (
-                                                    <p className="mt-0.5 text-xs text-muted-foreground">
+                                                    <p className="text-muted-foreground mt-0.5 text-xs">
                                                         {preset.description}
                                                     </p>
                                                 )}
@@ -222,6 +228,7 @@ export default function VerificationSettings({
                                                         checked,
                                                     )
                                                 }
+                                                disabled={!canManage}
                                                 aria-label={`Enable ${preset.label}`}
                                             />
                                         </div>
@@ -231,21 +238,23 @@ export default function VerificationSettings({
                             </CardContent>
                         </Card>
 
-                        <div className="sticky bottom-0 -mx-4 border-t bg-background p-4 lg:hidden">
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={processing || !isDirty}
-                            >
-                                {processing && <Spinner />}
-                                Save changes
-                            </Button>
-                            {wasSuccessful && (
-                                <p className="mt-2 text-center text-xs text-muted-foreground">
-                                    Changes saved.
-                                </p>
-                            )}
-                        </div>
+                        {canManage && (
+                            <div className="bg-background sticky bottom-0 -mx-4 border-t p-4 lg:hidden">
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={processing || !isDirty}
+                                >
+                                    {processing && <Spinner />}
+                                    Save changes
+                                </Button>
+                                {wasSuccessful && (
+                                    <p className="text-muted-foreground mt-2 text-center text-xs">
+                                        Changes saved.
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </form>
 
                     <div className="grid gap-6">
@@ -254,19 +263,21 @@ export default function VerificationSettings({
                             appName={app.name}
                         />
 
-                        <div className="hidden justify-end lg:flex">
-                            <Button
-                                type="button"
-                                onClick={() =>
-                                    patch(updateSettings(app.id).url)
-                                }
-                                disabled={processing || !isDirty}
-                                className="gap-2"
-                            >
-                                {processing ? <Spinner /> : <Save />}
-                                Save changes
-                            </Button>
-                        </div>
+                        {canManage && (
+                            <div className="hidden justify-end lg:flex">
+                                <Button
+                                    type="button"
+                                    onClick={() =>
+                                        patch(updateSettings(app.id).url)
+                                    }
+                                    disabled={processing || !isDirty}
+                                    className="gap-2"
+                                >
+                                    {processing ? <Spinner /> : <Save />}
+                                    Save changes
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </AppSectionLayout>
             </div>

@@ -40,7 +40,7 @@ class SandboxController extends Controller
             'subject' => ['required', 'string', 'max:100'],
         ]);
 
-        $app = App::query()->forUser($user)->find($request->input('app_id'));
+        $app = App::query()->forMember($user)->find($request->input('app_id'));
 
         if ($app === null) {
             return back()->withErrors(['app_id' => 'The selected application is invalid.'])->withInput();
@@ -155,7 +155,7 @@ class SandboxController extends Controller
 
         return Inertia::render('sandbox', [
             'apps' => App::query()
-                ->forUser($user)
+                ->forMember($user)
                 ->with(['environments' => fn ($query) => $query->where('name', EnvironmentName::Sandbox)])
                 ->orderBy('name')
                 ->get()

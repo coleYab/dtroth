@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\Subscription;
+use App\Notifications\InvoiceFailed;
 use App\Services\ChapaService;
+use App\Services\NotificationGate;
 use App\Services\UsageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -234,7 +236,7 @@ class BillingController extends Controller
         $data = $response->json('data', []);
 
         if (($data['status'] ?? '') !== 'success') {
-            Invoice::query()->where('tx_ref', $txRef)->update(['status' => Invoice::STATUS_FAILED]);
+            $this->markInvoiceFailed($txRef);
 
             return;
         }
@@ -263,6 +265,24 @@ class BillingController extends Controller
                 'tx_ref' => null,
             ]);
         }
+    }
+
+    /**
+     * Mark a pending invoice as failed and notify its owner.
+     */
+    private function markInvoiceFailed(string $txRef, ?NotificationGate $gate = null): void
+    {
+        $invoice = Invoice::query()->where('tx_ref', $txRef)->where('status', Invoice::STATUS_PENDING)->first();
+
+        if ($invoice === null) {
+            return;
+        }
+
+        $invoice->update(['status' => Invoice::STATUS_FAILED]);
+
+        $gate ??= app(NotificationGate::class);
+
+        $gate->send($invoice->user, new InvoiceFailed($invoice), ['invoice_id' => $invoice->id]);
     }
 
     /**

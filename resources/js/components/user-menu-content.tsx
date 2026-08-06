@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
 import {
     DropdownMenuGroup,
@@ -10,13 +10,14 @@ import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
-import type { User } from '@/types';
+import type { Auth, User } from '@/types';
 
 type Props = {
     user: User;
 };
 
 export function UserMenuContent({ user }: Props) {
+    const { auth } = usePage<{ auth: Auth }>().props;
     const cleanup = useMobileNavigation();
 
     const handleLogout = () => {
@@ -27,8 +28,16 @@ export function UserMenuContent({ user }: Props) {
     return (
         <>
             <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <div className="flex flex-col gap-1 px-1 py-1.5 text-left text-sm">
                     <UserInfo user={user} showEmail={true} />
+                    {auth.team && (
+                        <p className="text-muted-foreground px-1 text-xs">
+                            {auth.team.name} · {auth.team.member_count}{' '}
+                            {auth.team.member_count === 1
+                                ? 'member'
+                                : 'members'}
+                        </p>
+                    )}
                 </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

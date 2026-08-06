@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import {
     BarChart3,
+    Bell,
     FileCheck,
     KeyRound,
     LayoutDashboard,
@@ -32,6 +33,7 @@ import { index as consentsIndex } from '@/routes/apps/consents';
 import { index as environmentsIndex } from '@/routes/apps/environments';
 import { index as keysIndex } from '@/routes/apps/keys';
 import { index as webhooksIndex } from '@/routes/apps/webhooks';
+import { edit as editNotifications } from '@/routes/notifications';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import type { DeveloperApp } from '@/types';
@@ -104,6 +106,11 @@ export const settingsSectionNavItems: SectionNavItem[] = [
         icon: ShieldCheck,
     },
     {
+        title: 'Notifications',
+        href: editNotifications().url,
+        icon: Bell,
+    },
+    {
         title: 'Appearance',
         href: editAppearance().url,
         icon: Palette,
@@ -125,7 +132,7 @@ export function AppNav({
         <>
             <div className="w-full lg:hidden">
                 {label && (
-                    <p className="mb-1 px-1 text-xs font-medium text-muted-foreground">
+                    <p className="text-muted-foreground mb-1 px-1 text-xs font-medium">
                         {label}
                     </p>
                 )}
@@ -165,7 +172,7 @@ export function AppNav({
                 )}
             >
                 {label && (
-                    <p className="mb-2 hidden px-2 text-xs font-medium text-muted-foreground lg:block">
+                    <p className="text-muted-foreground mb-2 hidden px-2 text-xs font-medium lg:block">
                         {label}
                     </p>
                 )}
@@ -179,10 +186,10 @@ export function AppNav({
                                     href={item.href}
                                     aria-current={isActive ? 'page' : undefined}
                                     className={cn(
-                                        'flex items-center gap-2 rounded-md p-2 text-sm outline-hidden transition-colors',
+                                        'outline-hidden flex items-center gap-2 rounded-md p-2 text-sm transition-colors',
                                         'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                                         isActive
-                                            ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
+                                            ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                                             : 'text-sidebar-foreground',
                                     )}
                                 >
@@ -244,7 +251,7 @@ export function AppSectionHeader({
                         {app.name}
                     </h2>
                     {description && (
-                        <p className="mt-1 text-sm text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 text-sm">
                             {description}
                         </p>
                     )}

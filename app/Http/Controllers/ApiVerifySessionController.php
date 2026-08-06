@@ -57,10 +57,13 @@ class ApiVerifySessionController extends Controller
             return $this->error($service, $e, $started, $key, $age, $type, $subject);
         }
 
+        $token = (string) Str::uuid();
+
         $verification = Verification::create([
             'app_id' => $key->app_id,
             'app_environment_id' => $key->app_environment_id,
-            'token' => (string) Str::uuid(),
+            'token' => $token,
+            'query_id' => $token,
             'expires_at' => now()->addMinutes(15),
             'status' => Verification::STATUS_PENDING,
             'query_type' => $type,

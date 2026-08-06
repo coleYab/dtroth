@@ -117,15 +117,15 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
                                             className="pl-8"
                                             aria-invalid={!urlValid}
                                         />
-                                        <Link2 className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Link2 className="text-muted-foreground absolute left-2.5 top-1/2 size-4 -translate-y-1/2" />
                                     </div>
                                     {!urlValid && (
-                                        <p className="text-sm text-destructive">
+                                        <p className="text-destructive text-sm">
                                             The endpoint must use HTTPS.
                                         </p>
                                     )}
                                     <InputError message={errors.url} />
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-muted-foreground text-xs">
                                         Must be a valid HTTPS URL. Localhost
                                         URLs are accepted in sandbox
                                         environments.
@@ -182,7 +182,7 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
                                             <span className="text-sm font-medium">
                                                 {event.label}
                                             </span>
-                                            <code className="text-xs text-muted-foreground">
+                                            <code className="text-muted-foreground text-xs">
                                                 {event.name}
                                             </code>
                                         </span>
@@ -202,7 +202,7 @@ export default function CreateWebhook({ app, availableEvents }: Props) {
                             </AlertDescription>
                         </Alert>
 
-                        <div className="sticky bottom-0 -mx-4 border-t bg-background p-4 lg:hidden">
+                        <div className="bg-background sticky bottom-0 -mx-4 border-t p-4 lg:hidden">
                             <Button
                                 type="submit"
                                 className="w-full"

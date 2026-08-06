@@ -30,6 +30,7 @@ import type { DeveloperApp, VerificationFlow } from '@/types';
 type Props = {
     app: DeveloperApp;
     flow: VerificationFlow;
+    permissions: string[];
 };
 
 type FlowFormData = {
@@ -40,7 +41,7 @@ type FlowFormData = {
     callback_url: string;
 };
 
-export default function VerificationFlows({ app, flow }: Props) {
+export default function VerificationFlows({ app, flow, permissions }: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
@@ -48,6 +49,8 @@ export default function VerificationFlows({ app, flow }: Props) {
             { title: shortAppName(app.name), href: `/apps/${app.id}` },
         ],
     });
+
+    const canManage = permissions.includes('manage_app');
 
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
@@ -94,7 +97,7 @@ export default function VerificationFlows({ app, flow }: Props) {
                             </CardHeader>
                             <CardContent className="grid gap-6">
                                 <div className="grid gap-3 sm:grid-cols-[auto_1fr] sm:items-start">
-                                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
+                                    <div className="bg-muted flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
                                         {effectiveLogo ? (
                                             <img
                                                 src={effectiveLogo}
@@ -102,7 +105,7 @@ export default function VerificationFlows({ app, flow }: Props) {
                                                 className="h-full w-full object-contain"
                                             />
                                         ) : (
-                                            <span className="text-xs text-muted-foreground">
+                                            <span className="text-muted-foreground text-xs">
                                                 No logo
                                             </span>
                                         )}
@@ -114,6 +117,7 @@ export default function VerificationFlows({ app, flow }: Props) {
                                             name="logo"
                                             type="file"
                                             accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                                            disabled={!canManage}
                                             onChange={(event) => {
                                                 const file =
                                                     event.target.files?.[0] ??
@@ -129,7 +133,7 @@ export default function VerificationFlows({ app, flow }: Props) {
                                                 setData('logo', file);
                                             }}
                                         />
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-muted-foreground text-xs">
                                             Shown in the header of the
                                             verification screen. PNG, JPEG, WebP
                                             or SVG up to 2MB.
@@ -155,6 +159,7 @@ export default function VerificationFlows({ app, flow }: Props) {
                                                 )
                                             }
                                             className="h-9 w-14 shrink-0 p-1"
+                                            disabled={!canManage}
                                         />
                                         <Input
                                             type="text"
@@ -167,9 +172,10 @@ export default function VerificationFlows({ app, flow }: Props) {
                                             }
                                             placeholder="#0f172a"
                                             aria-label="Brand color hex value"
+                                            disabled={!canManage}
                                         />
                                     </div>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-muted-foreground text-xs">
                                         Hex value, e.g. #0f172a. Used for
                                         buttons and the header.
                                     </p>
@@ -202,6 +208,7 @@ export default function VerificationFlows({ app, flow }: Props) {
                                             )
                                         }
                                         placeholder="https://example.com/verified"
+                                        disabled={!canManage}
                                     />
                                     <InputError
                                         message={errors.success_redirect_url}
@@ -223,6 +230,7 @@ export default function VerificationFlows({ app, flow }: Props) {
                                             )
                                         }
                                         placeholder="https://example.com/not-verified"
+                                        disabled={!canManage}
                                     />
                                     <InputError
                                         message={errors.failure_redirect_url}
@@ -244,8 +252,9 @@ export default function VerificationFlows({ app, flow }: Props) {
                                             )
                                         }
                                         placeholder="https://example.com/webhook/verification"
+                                        disabled={!canManage}
                                     />
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-muted-foreground text-xs">
                                         Server-to-server result delivery. Falls
                                         back to the app’s redirect URIs when
                                         left empty.
@@ -267,21 +276,23 @@ export default function VerificationFlows({ app, flow }: Props) {
                             </CardContent>
                         </Card>
 
-                        <div className="sticky bottom-0 -mx-4 border-t bg-background p-4 lg:hidden">
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={processing || !isDirty}
-                            >
-                                {processing && <Spinner />}
-                                Save changes
-                            </Button>
-                            {wasSuccessful && (
-                                <p className="mt-2 text-center text-xs text-muted-foreground">
-                                    Changes saved.
-                                </p>
-                            )}
-                        </div>
+                        {canManage && (
+                            <div className="bg-background sticky bottom-0 -mx-4 border-t p-4 lg:hidden">
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={processing || !isDirty}
+                                >
+                                    {processing && <Spinner />}
+                                    Save changes
+                                </Button>
+                                {wasSuccessful && (
+                                    <p className="text-muted-foreground mt-2 text-center text-xs">
+                                        Changes saved.
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </form>
 
                     <div className="grid gap-6">
@@ -291,17 +302,21 @@ export default function VerificationFlows({ app, flow }: Props) {
                             brandColor={data.brand_color}
                         />
 
-                        <div className="hidden justify-end lg:flex">
-                            <Button
-                                type="button"
-                                onClick={() => patch(updateFlow(app.id).url)}
-                                disabled={processing || !isDirty}
-                                className="gap-2"
-                            >
-                                {processing ? <Spinner /> : <Save />}
-                                Save changes
-                            </Button>
-                        </div>
+                        {canManage && (
+                            <div className="hidden justify-end lg:flex">
+                                <Button
+                                    type="button"
+                                    onClick={() =>
+                                        patch(updateFlow(app.id).url)
+                                    }
+                                    disabled={processing || !isDirty}
+                                    className="gap-2"
+                                >
+                                    {processing ? <Spinner /> : <Save />}
+                                    Save changes
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </AppSectionLayout>
             </div>

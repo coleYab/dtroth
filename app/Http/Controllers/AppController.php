@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateAppRequest;
 use App\Http\Resources\ApiKeyResource;
 use App\Http\Resources\AppResource;
 use App\Models\App;
+use App\Services\TeamService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +24,7 @@ class AppController extends Controller
     public function index(Request $request): Response
     {
         $apps = App::query()
-            ->forUser($request->user())
+            ->forMember($request->user())
             ->with('environments')
             ->when($request->string('q')->toString() !== '', function ($query) use ($request) {
                 $query->where('name', 'like', '%'.$request->string('q')->toString().'%');
@@ -34,6 +35,7 @@ class AppController extends Controller
 
         return Inertia::render('apps/index', [
             'apps' => AppResource::collection($apps),
+            'canCreate' => TeamService::canCreateApps($request->user()),
             'filters' => ['q' => $request->string('q')->toString()],
         ]);
     }
@@ -83,10 +85,11 @@ class AppController extends Controller
      */
     public function show(Request $request, App $app): Response
     {
-        $app = $request->user()->apps()->with('environments')->findOrFail($app->id);
+        $app = $this->ownedApp($request, $app, 'view');
 
         return Inertia::render('apps/show', [
             'app' => (new AppResource($app))->resolve(),
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
             'stats' => [
                 'apiCalls' => $app->calls()->count(),
                 'lastVerification' => $app->verifications()->latest('created_at')->value('created_at'),
@@ -103,10 +106,11 @@ class AppController extends Controller
      */
     public function edit(Request $request, App $app): Response
     {
-        $app = $request->user()->apps()->with('environments')->findOrFail($app->id);
+        $app = $this->ownedApp($request, $app, 'manage_app');
 
         return Inertia::render('apps/settings', [
             'app' => (new AppResource($app))->resolve(),
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
         ]);
     }
 
@@ -115,7 +119,7 @@ class AppController extends Controller
      */
     public function update(UpdateAppRequest $request, App $app): RedirectResponse
     {
-        $app = $request->user()->apps()->findOrFail($app->id);
+        $app = $this->ownedApp($request, $app, 'manage_app');
 
         $validated = $request->validated();
 
@@ -141,7 +145,7 @@ class AppController extends Controller
      */
     public function destroy(Request $request, App $app): RedirectResponse
     {
-        $app = $request->user()->apps()->findOrFail($app->id);
+        $app = $this->ownedApp($request, $app, 'delete_app');
 
         $this->deleteImage($app);
 
@@ -175,5 +179,17 @@ class AppController extends Controller
         if ($app->image !== null) {
             Storage::disk('public')->delete($app->image);
         }
+    }
+
+    /**
+     * Resolve the app the authenticated user can access with the given
+     * permission.
+     */
+    private function ownedApp(Request $request, App $app, string $permission = 'view'): App
+    {
+        $app = TeamService::appForMember($request->user(), $app->id);
+        TeamService::authorize($request->user(), $app, $permission);
+
+        return $app;
     }
 }

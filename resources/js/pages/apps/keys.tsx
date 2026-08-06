@@ -40,9 +40,9 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { shortAppName } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appsIndex } from '@/routes/apps';
-import { shortAppName } from '@/lib/utils';
 import { index as keysIndex } from '@/routes/apps/keys';
 import type { ApiKey, DeveloperApp, RevealedKey } from '@/types';
 
@@ -51,6 +51,7 @@ type Props = {
     keys: { data: ApiKey[] };
     generateOpen: boolean;
     revealedKey: RevealedKey | null;
+    permissions: string[];
 };
 
 type TabValue = 'all' | 'sandbox' | 'production';
@@ -99,13 +100,19 @@ function typeBadges() {
 
 function KeyActions({
     apiKey,
+    canManage,
     onRotate,
     onRevoke,
 }: {
     apiKey: ApiKey;
+    canManage: boolean;
     onRotate: (key: ApiKey) => void;
     onRevoke: (key: ApiKey) => void;
 }) {
+    if (!canManage) {
+        return null;
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -144,7 +151,13 @@ function StatusBadge({ revoked }: { revoked: boolean }) {
     );
 }
 
-export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
+export default function Keys({
+    app,
+    keys,
+    generateOpen,
+    revealedKey,
+    permissions,
+}: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Dashboard', href: dashboard() },
@@ -163,6 +176,8 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
 
     const generateDialogOpen =
         (userOpenedGenerate || generateOpen) && revealedKey === null;
+
+    const canManageKeys = permissions.includes('manage_keys');
 
     const freshRevokeTarget = revokeTarget
         ? (keys.data.find((key) => key.id === revokeTarget.id) ?? null)
@@ -197,15 +212,17 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                     app={app}
                     description="API keys are used to authenticate verification requests."
                     actions={
-                        <Button
-                            onClick={() => {
-                                setRevealAction('generated');
-                                setUserOpenedGenerate(true);
-                            }}
-                        >
-                            <Plus />
-                            Generate key
-                        </Button>
+                        canManageKeys ? (
+                            <Button
+                                onClick={() => {
+                                    setRevealAction('generated');
+                                    setUserOpenedGenerate(true);
+                                }}
+                            >
+                                <Plus />
+                                Generate key
+                            </Button>
+                        ) : null
                     }
                 />
 
@@ -255,7 +272,11 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                                             ? 'No API keys yet'
                                             : `No ${tab === 'sandbox' ? 'sandbox' : 'production'} keys`
                                     }
-                                    description="Generate a key pair to authenticate verification requests in this environment."
+                                    description={
+                                        canManageKeys
+                                            ? 'Generate a key pair to authenticate verification requests in this environment.'
+                                            : 'No API keys have been generated for this environment yet.'
+                                    }
                                 />
                             ) : (
                                 <>
@@ -341,6 +362,9 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                                                         <TableCell>
                                                             <KeyActions
                                                                 apiKey={key}
+                                                                canManage={
+                                                                    canManageKeys
+                                                                }
                                                                 onRotate={(
                                                                     target,
                                                                 ) => {
@@ -391,6 +415,9 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                                                     </div>
                                                     <KeyActions
                                                         apiKey={key}
+                                                        canManage={
+                                                            canManageKeys
+                                                        }
                                                         onRotate={(target) => {
                                                             setRevealAction(
                                                                 'rotated',
@@ -404,8 +431,8 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                                                         }
                                                     />
                                                 </div>
-                                                <div className="mt-3 flex items-center gap-1 rounded-md border bg-muted/50 p-2 pr-1">
-                                                    <code className="min-w-0 flex-1 font-mono text-xs break-all">
+                                                <div className="bg-muted/50 mt-3 flex items-center gap-1 rounded-md border p-2 pr-1">
+                                                    <code className="min-w-0 flex-1 break-all font-mono text-xs">
                                                         {maskKey(
                                                             key.public_key,
                                                         )}
@@ -414,7 +441,7 @@ export default function Keys({ app, keys, generateOpen, revealedKey }: Props) {
                                                         value={key.public_key}
                                                     />
                                                 </div>
-                                                <div className="mt-3 grid gap-1 text-xs text-muted-foreground">
+                                                <div className="text-muted-foreground mt-3 grid gap-1 text-xs">
                                                     <p>
                                                         Created{' '}
                                                         {formatDate(

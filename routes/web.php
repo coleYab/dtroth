@@ -13,8 +13,9 @@ use App\Http\Controllers\DocsController;
 use App\Http\Controllers\DocsFeedbackController;
 use App\Http\Controllers\PublicVerificationController;
 use App\Http\Controllers\SandboxController;
-use App\Http\Controllers\StatusController;
 use App\Http\Controllers\SupportTicketController;
+use App\Http\Controllers\TeamController;
+use App\Http\Controllers\TeamInvitationController;
 use App\Http\Controllers\UsageController;
 use App\Http\Controllers\VerificationFlowController;
 use App\Http\Controllers\VerificationSettingsController;
@@ -85,6 +86,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('apps/{app}/usage', [UsageController::class, 'index'])->name('apps.usage');
     Route::get('apps/{app}/logs', [ApiCallController::class, 'index'])->name('apps.logs');
+    Route::get('apps/{app}/logs/export', [ApiCallController::class, 'export'])->name('apps.logs.export');
 
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
     Route::get('audit-logs/export', [AuditLogController::class, 'export'])->name('audit-logs.export');
@@ -97,16 +99,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('docs', [DocsController::class, 'index'])->name('docs.index');
     Route::get('docs/quickstart', [DocsController::class, 'quickstart'])->name('docs.quickstart');
+    Route::get('docs/openapi', [DocsController::class, 'openapi'])->name('docs.openapi');
+    Route::get('docs/openapi.json', [DocsController::class, 'openapiJson'])->name('docs.openapi.json');
     Route::post('docs/feedback', [DocsFeedbackController::class, 'store'])->name('docs.feedback');
 
     Route::get('sandbox', [SandboxController::class, 'index'])->name('sandbox.index');
     Route::post('sandbox/verify', [SandboxController::class, 'verify'])->name('sandbox.verify');
 
-    Route::get('status', [StatusController::class, 'index'])->name('status.index');
-
     Route::get('support', [SupportTicketController::class, 'index'])->name('support.index');
     Route::post('support', [SupportTicketController::class, 'store'])->name('support.store');
+
+    Route::get('teams', [TeamController::class, 'index'])->name('teams.index');
+    Route::patch('teams/members/{member}', [TeamController::class, 'updateRole'])->name('teams.members.update');
+    Route::delete('teams/members/{member}', [TeamController::class, 'remove'])->name('teams.members.destroy');
+    Route::post('teams/invitations', [TeamInvitationController::class, 'store'])->name('teams.invitations.store');
+    Route::post('teams/invitations/{invitation}/resend', [TeamInvitationController::class, 'resend'])
+        ->name('teams.invitations.resend');
+    Route::delete('teams/invitations/{invitation}', [TeamInvitationController::class, 'cancel'])
+        ->name('teams.invitations.destroy');
 });
+
+Route::get('invitations/{token}', [TeamInvitationController::class, 'accept'])
+    ->name('teams.invitations.accept');
 
 Route::middleware('auth')->group(function () {
     Route::get('chapa/callback', [BillingController::class, 'chapaCallback'])->name('billing.chapa.callback');

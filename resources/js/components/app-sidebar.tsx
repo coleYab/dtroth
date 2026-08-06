@@ -5,10 +5,10 @@ import {
     BookOpen,
     FlaskConical,
     FolderGit2,
-    HeartPulse,
     History,
     LayoutGrid,
     LifeBuoy,
+    Users,
     Wallet,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -30,8 +30,8 @@ import billing from '@/routes/billing';
 import { activity } from '@/routes/dashboard';
 import { index as docsIndex } from '@/routes/docs';
 import { index as sandboxIndex } from '@/routes/sandbox';
-import { index as statusIndex } from '@/routes/status';
 import { index as supportIndex } from '@/routes/support';
+import { index as teamsIndex } from '@/routes/teams';
 import type { NavItem } from '@/types';
 
 const navGroups: { label: string; items: NavItem[] }[] = [
@@ -54,19 +54,24 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         label: 'Account',
         items: [
             {
+                title: 'Team',
+                href: teamsIndex(),
+                icon: Users,
+            },
+            {
                 title: 'Activity Log',
                 href: activity(),
                 icon: History,
             },
             {
-                title: 'Usage',
-                href: billing.usage(),
-                icon: BarChart3,
-            },
-            {
                 title: 'Billing',
                 href: billing.index(),
                 icon: Wallet,
+            },
+            {
+                title: 'Usage',
+                href: billing.usage(),
+                icon: BarChart3,
             },
         ],
     },
@@ -82,11 +87,6 @@ const navGroups: { label: string; items: NavItem[] }[] = [
                 title: 'Sandbox',
                 href: sandboxIndex(),
                 icon: FlaskConical,
-            },
-            {
-                title: 'System Status',
-                href: statusIndex(),
-                icon: HeartPulse,
             },
             {
                 title: 'Support',
@@ -127,7 +127,11 @@ export function AppSidebar() {
 
             <SidebarContent>
                 {navGroups.map((group) => (
-                    <NavMain key={group.label} items={group.items} label={group.label} />
+                    <NavMain
+                        key={group.label}
+                        items={group.items}
+                        label={group.label}
+                    />
                 ))}
             </SidebarContent>
 

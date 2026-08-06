@@ -24,6 +24,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | API rate limit
+    |--------------------------------------------------------------------------
+    |
+    | The named 'api' limiter (throttle:api) caps requests per IP per minute
+    | across all public endpoints. Limits are surfaced to callers through the
+    | X-RateLimit-* response headers.
+    |
+    */
+
+    'api_requests_per_minute' => (int) env('VERIFY_API_REQUESTS_PER_MINUTE', 60),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Usage notification thresholds
+    |--------------------------------------------------------------------------
+    |
+    | Percentages of the plan's monthly call quota at which the
+    | notify:usage-thresholds command emails the team. Percentages are
+    | evaluated against the trailing 30 days of usage rollups.
+    |
+    */
+
+    'usage_thresholds' => [80, 100],
+
+    /*
+    |--------------------------------------------------------------------------
     | Provider registry
     |--------------------------------------------------------------------------
     |

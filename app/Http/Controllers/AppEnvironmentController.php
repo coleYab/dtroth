@@ -6,6 +6,7 @@ use App\Http\Requests\UpdateAppEnvironmentRequest;
 use App\Http\Resources\AppResource;
 use App\Models\App;
 use App\Models\AppEnvironment;
+use App\Services\TeamService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,10 +19,11 @@ class AppEnvironmentController extends Controller
      */
     public function index(Request $request, App $app): Response
     {
-        $app = $request->user()->apps()->with('environments')->findOrFail($app->id);
+        $app = $this->ownedApp($request, $app, 'view');
 
         return Inertia::render('apps/environments', [
             'app' => (new AppResource($app))->resolve(),
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
         ]);
     }
 
@@ -33,7 +35,7 @@ class AppEnvironmentController extends Controller
         App $app,
         AppEnvironment $environment,
     ): RedirectResponse {
-        $app = $request->user()->apps()->findOrFail($app->id);
+        $app = $this->ownedApp($request, $app, 'manage_app');
 
         $environment = $app->environments()->findOrFail($environment->id);
 
@@ -45,5 +47,17 @@ class AppEnvironmentController extends Controller
         ]);
 
         return to_route('apps.environments.index', $app);
+    }
+
+    /**
+     * Resolve the app the authenticated user can access with the given
+     * permission.
+     */
+    private function ownedApp(Request $request, App $app, string $permission = 'view'): App
+    {
+        $app = TeamService::appForMember($request->user(), $app->id);
+        TeamService::authorize($request->user(), $app, $permission);
+
+        return $app;
     }
 }

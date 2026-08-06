@@ -8,6 +8,7 @@ use App\Http\Resources\ApiKeyResource;
 use App\Http\Resources\AppResource;
 use App\Models\ApiKey;
 use App\Models\App;
+use App\Services\TeamService;
 use Database\Factories\ApiKeyFactory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,6 +29,8 @@ class ApiKeyController extends Controller
      */
     public function create(Request $request, App $app): Response
     {
+        $this->ownedApp($request, $app, 'view');
+
         return $this->renderKeysPage($request, $app, generateOpen: true);
     }
 
@@ -36,7 +39,7 @@ class ApiKeyController extends Controller
      */
     public function store(StoreApiKeyRequest $request, App $app): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_keys');
 
         $environment = $app->environments()->where('name', $request->environmentName())->firstOrFail();
 
@@ -69,7 +72,7 @@ class ApiKeyController extends Controller
      */
     public function rotate(Request $request, App $app, ApiKey $key): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_keys');
 
         $key = $app->keys()->with('environment')->findOrFail($key->id);
 
@@ -105,7 +108,7 @@ class ApiKeyController extends Controller
      */
     public function revoke(Request $request, App $app, ApiKey $key): Response
     {
-        $app = $this->ownedApp($request, $app);
+        $app = $this->ownedApp($request, $app, 'manage_keys');
 
         $key = $app->keys()->findOrFail($key->id);
 
@@ -144,17 +147,22 @@ class ApiKeyController extends Controller
         return Inertia::render('apps/keys', [
             'app' => (new AppResource($app))->resolve(),
             'keys' => ApiKeyResource::collection($keys),
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
             'generateOpen' => $generateOpen,
             'revealedKey' => $revealedKey,
         ]);
     }
 
     /**
-     * Resolve the app owned by the authenticated user.
+     * Resolve the app the authenticated user can access with the given
+     * permission.
      */
-    private function ownedApp(Request $request, App $app): App
+    private function ownedApp(Request $request, App $app, string $permission = 'view'): App
     {
-        return $request->user()->apps()->with('environments')->findOrFail($app->id);
+        $app = TeamService::appForMember($request->user(), $app->id);
+        TeamService::authorize($request->user(), $app, $permission);
+
+        return $app;
     }
 
     /**

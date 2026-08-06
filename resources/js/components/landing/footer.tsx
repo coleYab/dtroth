@@ -2,7 +2,6 @@ import { Link } from '@inertiajs/react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { index as docsIndex } from '@/routes/docs';
 import { terms, privacyPolicy } from '@/routes/legal';
-import { index as statusIndex } from '@/routes/status';
 import { index as supportIndex } from '@/routes/support';
 
 const columns = [
@@ -10,7 +9,6 @@ const columns = [
         title: 'Product',
         links: [
             { label: 'Documentation', href: docsIndex().url },
-            { label: 'API status', href: statusIndex().url },
             { label: 'Support', href: supportIndex().url },
         ],
     },

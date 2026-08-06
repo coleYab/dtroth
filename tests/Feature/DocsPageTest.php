@@ -14,7 +14,7 @@ test('the docs page renders every reference section', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('docs')
-            ->has('sections', 7)
+            ->has('sections', 8)
             ->where('sections.0.slug', 'introduction')
             ->where('sections.2.slug', 'age-query-endpoint')
             ->where('sections.2.title', 'Age Query Endpoint')
@@ -22,7 +22,7 @@ test('the docs page renders every reference section', function () {
             ->where('sections.2.html', fn ($html) => str_contains($html, 'data-label="Status"'))
             ->where('sections.2.html', fn ($html) => str_contains($html, '<h2 id='))
             ->where('sections.2.html', fn ($html) => str_contains($html, '/docs/authentication'))
-            ->has('searchIndex', 7));
+            ->has('searchIndex', 8));
 });
 
 test('the quickstart page renders the guide content', function () {
@@ -32,9 +32,9 @@ test('the quickstart page renders the guide content', function () {
             ->component('docs/quickstart')
             ->where('content.slug', 'quickstart')
             ->where('content.html', fn ($html) => str_contains($html, 'Step 1'))
-            ->has('sections', 7)
+            ->has('sections', 8)
             ->where('sections.0.slug', 'introduction')
-            ->has('searchIndex', 7));
+            ->has('searchIndex', 8));
 });
 
 test('docs feedback can be recorded as helpful', function () {

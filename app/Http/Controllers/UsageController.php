@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AppResource;
 use App\Models\App;
+use App\Services\TeamService;
 use App\Services\UsageService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,6 +27,7 @@ class UsageController extends Controller
             'app' => (new AppResource($app->load('environments')))->resolve(),
             'range' => $range,
             'metrics' => $metrics,
+            'permissions' => TeamService::permissionsFor($request->user(), $app),
             'rangeLabel' => $from->format('M j, Y').' — '.$to->format('M j, Y'),
         ]);
     }
@@ -53,10 +55,14 @@ class UsageController extends Controller
     }
 
     /**
-     * Resolve the app owned by the authenticated user.
+     * Resolve the app the authenticated user can access with the given
+     * permission.
      */
-    private function ownedApp(Request $request, App $app): App
+    private function ownedApp(Request $request, App $app, string $permission = 'view'): App
     {
-        return $request->user()->apps()->findOrFail($app->id);
+        $app = TeamService::appForMember($request->user(), $app->id);
+        TeamService::authorize($request->user(), $app, $permission);
+
+        return $app;
     }
 }

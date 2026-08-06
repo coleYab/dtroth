@@ -50,7 +50,7 @@ export default function BillingUsage({ cycle, apps }: Props) {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
                     <StatCard title="Total calls" value={cycle.total_calls.toLocaleString()} icon={BarChart3} />
                     <StatCard
                         title="Verifications"
@@ -61,7 +61,6 @@ export default function BillingUsage({ cycle, apps }: Props) {
                         title="Estimated cost"
                         value={cycle.cost_formatted}
                         icon={Wallet}
-                        hint={cycle.plan_calls > 0 ? `${cycle.plan_calls.toLocaleString()} calls included` : undefined}
                     />
                     <StatCard
                         title="Days remaining"

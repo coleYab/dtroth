@@ -11,6 +11,12 @@ export type User = {
 
 export type Auth = {
     user: User;
+    team: {
+        name: string;
+        slug: string;
+        role: string | null;
+        member_count: number;
+    } | null;
 };
 
 /* @chisel-passkeys */
