@@ -43,7 +43,7 @@ const features = [
         Icon: TestTube2,
         name: 'Sandbox environments',
         description:
-            'Develop against a fully simulated Fayda identity pool before touching production credentials.',
+            'Develop against a fully simulated Fayda test pool before touching production credentials.',
         href: docsIndex().url,
         cta: 'Try the sandbox',
         className: '',
@@ -80,7 +80,7 @@ export default function LandingFeatures() {
                 </h2>
                 <p className="text-muted-foreground max-w-xl text-pretty">
                     From first sandbox call to production scale, Troth Verify
-                    handles the hard parts of identity.
+                        handles the hard parts of age verification.
                 </p>
             </div>
 

@@ -8,7 +8,7 @@ const steps = [
         step: '01',
         title: 'Create an app',
         description:
-            'Register in seconds and generate a sandbox key with simulated identities to test against.',
+            'Register in seconds and generate a sandbox key with simulated subjects to test against.',
     },
     {
         Icon: Code2,

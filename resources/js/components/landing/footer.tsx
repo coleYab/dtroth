@@ -35,7 +35,7 @@ export default function LandingFooter() {
                         </span>
                     </div>
                     <p className="text-muted-foreground max-w-xs text-sm">
-                        Consent-first identity verification, powered by the
+                        Consent-first age verification, powered by the
                         Ethiopian Fayda digital ID.
                     </p>
                 </div>
